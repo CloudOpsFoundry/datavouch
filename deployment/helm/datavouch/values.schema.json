@@ -1,0 +1,357 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "image": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "repository": {
+          "type": "string",
+          "minLength": 1
+        },
+        "tag": {
+          "type": "string"
+        },
+        "digest": {
+          "type": "string",
+          "pattern": "^(sha256:[a-f0-9]{64})?$"
+        },
+        "pullPolicy": {
+          "type": "string",
+          "enum": [
+            "Always",
+            "IfNotPresent",
+            "Never"
+          ]
+        }
+      },
+      "required": [
+        "repository",
+        "tag",
+        "digest",
+        "pullPolicy"
+      ]
+    },
+    "imagePullSecrets": {
+      "type": "array"
+    },
+    "replicaCount": {
+      "type": "integer",
+      "const": 1
+    },
+    "auth": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "mode": {
+          "type": "string",
+          "enum": [
+            "basic",
+            "gateway"
+          ]
+        },
+        "existingSecret": {
+          "type": "string",
+          "minLength": 1
+        },
+        "passwordKey": {
+          "type": "string"
+        },
+        "gatewaySecretKey": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "mode",
+        "existingSecret",
+        "passwordKey",
+        "gatewaySecretKey"
+      ]
+    },
+    "config": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "connections": {
+          "type": "array",
+          "maxItems": 100,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "label",
+              "project",
+              "location",
+              "maximum_bytes_billed",
+              "timeout_seconds"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "label": {
+                "type": "string",
+                "minLength": 1
+              },
+              "project": {
+                "type": "string",
+                "minLength": 1
+              },
+              "location": {
+                "type": "string",
+                "minLength": 1
+              },
+              "maximum_bytes_billed": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1000000000
+              },
+              "timeout_seconds": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 300
+              }
+            }
+          }
+        },
+        "gatewayPolicy": {
+          "type": "object"
+        },
+        "showExamples": {
+          "type": "boolean"
+        },
+        "catalogPath": {
+          "type": "string",
+          "pattern": "^(/[^\\n\\r]*)?$"
+        },
+        "discovery": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": false,
+          "required": [
+            "quota_project",
+            "allowed_projects",
+            "allowed_locations",
+            "maximum_bytes_billed",
+            "timeout_seconds"
+          ],
+          "properties": {
+            "quota_project": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9-]{4,28}[a-z0-9]$"
+            },
+            "allowed_projects": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 100,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "pattern": "^(\\*|[a-z][a-z0-9-]{4,28}[a-z0-9])$"
+              }
+            },
+            "allowed_locations": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 100,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "pattern": "^(\\*|us|eu|[a-z]+(-[a-z]+)+[0-9]+)$"
+              }
+            },
+            "maximum_bytes_billed": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "timeout_seconds": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 300
+            }
+          }
+        }
+      },
+      "required": [
+        "connections",
+        "gatewayPolicy",
+        "showExamples",
+        "catalogPath"
+      ]
+    },
+    "execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "allowRawReports": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "enabled",
+        "allowRawReports"
+      ]
+    },
+    "persistence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "existingClaim": {
+          "type": "string"
+        },
+        "size": {
+          "type": "string"
+        },
+        "storageClass": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "accessMode": {
+          "type": "string",
+          "enum": [
+            "ReadWriteOnce",
+            "ReadWriteOncePod"
+          ]
+        }
+      },
+      "required": [
+        "enabled",
+        "existingClaim",
+        "size",
+        "accessMode"
+      ]
+    },
+    "service": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        }
+      },
+      "required": [
+        "port"
+      ]
+    },
+    "serviceAccount": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "create": {
+          "type": "boolean"
+        },
+        "name": {
+          "type": "string"
+        },
+        "annotations": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "create",
+        "name",
+        "annotations"
+      ]
+    },
+    "automountServiceAccountToken": {
+      "type": "boolean"
+    },
+    "podAnnotations": {
+      "type": "object"
+    },
+    "resources": {
+      "type": "object",
+      "required": [
+        "requests",
+        "limits"
+      ]
+    },
+    "networkPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "ingress": {
+          "type": "array"
+        },
+        "egress": {
+          "type": "array"
+        }
+      },
+      "required": [
+        "enabled",
+        "ingress",
+        "egress"
+      ]
+    },
+    "credentials": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "existingSecret": {
+          "type": "string"
+        },
+        "key": {
+          "type": "string"
+        },
+        "quotaProject": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "existingSecret",
+        "key",
+        "quotaProject"
+      ]
+    },
+    "nodeSelector": {
+      "type": "object"
+    },
+    "tolerations": {
+      "type": "array"
+    },
+    "affinity": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "image",
+    "imagePullSecrets",
+    "replicaCount",
+    "auth",
+    "config",
+    "execution",
+    "persistence",
+    "service",
+    "serviceAccount",
+    "automountServiceAccountToken",
+    "podAnnotations",
+    "resources",
+    "networkPolicy",
+    "credentials",
+    "nodeSelector",
+    "tolerations",
+    "affinity"
+  ],
+  "$schema": "http://json-schema.org/draft-07/schema#"
+}

@@ -163,12 +163,17 @@ def test_gateway_roles_isolation_and_revocation(setup, monkeypatch):
         )
         url = "/runs/" + key
         client.headers.update(headers("reader"))
+        guide = client.get("/guide")
+        assert guide.status_code == 200
+        assert 'href="/experiments/new"' not in guide.text
+        assert 'href="/runs"' in guide.text
         assert client.get(url).status_code == 200
         assert client.get(url + "/report.json").status_code == 403
         assert client.get("/experiments/new").status_code == 403
         assert client.post(url + "/financial", data={}).status_code == 403
         assert client.get("/audit.json").status_code == 403
         client.headers.update(headers("writer"))
+        assert 'href="/experiments/new"' in client.get("/guide").text
         writer_token = csrf(client, url)
         assert client.get("/experiments/new").status_code == 200
         assert client.get(url + "/report.json").status_code == 200

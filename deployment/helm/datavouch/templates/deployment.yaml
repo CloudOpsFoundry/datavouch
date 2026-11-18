@@ -1,0 +1,183 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "datavouch.name" . }}
+  labels:
+    {{- include "datavouch.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  revisionHistoryLimit: 2
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "datavouch.labels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "datavouch.labels" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      serviceAccountName: {{ include "datavouch.serviceAccount" . }}
+      automountServiceAccountToken: {{ .Values.automountServiceAccountToken }}
+      terminationGracePeriodSeconds: 660
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        fsGroupChangePolicy: OnRootMismatch
+        seccompProfile:
+          type: RuntimeDefault
+      initContainers:
+        - name: prepare-private-storage
+          image: {{ include "datavouch.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: [python, '-c']
+          args:
+            - "from pathlib import Path; p=Path('/data/runs'); p.mkdir(mode=0o700, exist_ok=True); p.chmod(0o700)"
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      containers:
+        - name: datavouch
+          image: {{ include "datavouch.image" . | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - serve
+            {{- if .Values.config.catalogPath }}
+            - {{ .Values.config.catalogPath | quote }}
+            {{- else if .Values.config.showExamples }}
+            - /opt/datavouch/examples/viewer.json
+            {{- else }}
+            - /opt/datavouch/examples/web/empty-catalog.json
+            {{- end }}
+            - --bind-address
+            - 0.0.0.0
+            - --port
+            - '8765'
+            - --connections
+            - /config/connections.json
+            {{- if eq .Values.auth.mode "gateway" }}
+            - --gateway-config
+            - /config/gateway-policy.json
+            - --gateway-secret-file
+            - /secrets/auth
+            {{- else }}
+            - --password-file
+            - /secrets/auth
+            {{- end }}
+            {{- if .Values.execution.enabled }}
+            - --run-directory
+            - /data/runs
+            - --enable-live-execution
+            {{- end }}
+            {{- if .Values.execution.allowRawReports }}
+            - --allow-raw-reports
+            {{- end }}
+          {{- if or .Values.credentials.existingSecret .Values.credentials.quotaProject }}
+          env:
+            {{- if .Values.credentials.existingSecret }}
+            - name: GOOGLE_APPLICATION_CREDENTIALS
+              value: /credentials/adc.json
+            {{- end }}
+            {{- if .Values.credentials.quotaProject }}
+            - name: GOOGLE_CLOUD_QUOTA_PROJECT
+              value: {{ .Values.credentials.quotaProject | quote }}
+            {{- end }}
+          {{- end }}
+          ports:
+            - name: http
+              containerPort: 8765
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: [ALL]
+          startupProbe:
+            tcpSocket: {port: http}
+            periodSeconds: 2
+            failureThreshold: 30
+          readinessProbe:
+            tcpSocket: {port: http}
+            periodSeconds: 5
+          livenessProbe:
+            tcpSocket: {port: http}
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: config
+              mountPath: /config
+              readOnly: true
+            - name: auth
+              mountPath: /secrets
+              readOnly: true
+            - name: data
+              mountPath: /data
+            - name: temporary
+              mountPath: /tmp
+            {{- if .Values.credentials.existingSecret }}
+            - name: credentials
+              mountPath: /credentials
+              readOnly: true
+            {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "datavouch.name" . }}
+        - name: auth
+          secret:
+            secretName: {{ .Values.auth.existingSecret | quote }}
+            defaultMode: 0440
+            items:
+              - key: {{ if eq .Values.auth.mode "gateway" }}{{ .Values.auth.gatewaySecretKey }}{{ else }}{{ .Values.auth.passwordKey }}{{ end }}
+                path: auth
+        - name: temporary
+          emptyDir:
+            medium: Memory
+            sizeLimit: 64Mi
+        - name: data
+          {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ default (include "datavouch.name" .) .Values.persistence.existingClaim }}
+          {{- else }}
+          emptyDir:
+            sizeLimit: 128Mi
+          {{- end }}
+        {{- if .Values.credentials.existingSecret }}
+        - name: credentials
+          secret:
+            secretName: {{ .Values.credentials.existingSecret | quote }}
+            defaultMode: 0440
+            items:
+              - key: {{ .Values.credentials.key | quote }}
+                path: adc.json
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

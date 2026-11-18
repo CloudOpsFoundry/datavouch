@@ -20,6 +20,25 @@ def timestamp(value: object) -> datetime:
     return value.astimezone(UTC)
 
 
+def validate_project(project: str) -> None:
+    if not isinstance(project, str) or not re.fullmatch(r"[a-z][a-z0-9-]{4,28}[a-z0-9]", project):
+        raise CollectionError("Expected a standard Google Cloud project ID")
+
+
+def validate_location(location: str) -> None:
+    if not isinstance(location, str) or not re.fullmatch(
+        r"(?:us|eu|[a-z]+(?:-[a-z]+)+[0-9]+)", location
+    ):
+        raise CollectionError("Use a lowercase BigQuery region or us/eu")
+
+
+def validate_budget(maximum_bytes_billed: int, timeout_seconds: int) -> None:
+    if type(maximum_bytes_billed) is not int or not 1 <= maximum_bytes_billed <= 10**9:
+        raise CollectionError("Byte budget must be between 1 and 1000000000")
+    if type(timeout_seconds) is not int or not 1 <= timeout_seconds <= 300:
+        raise CollectionError("Timeout must be between 1 and 300 seconds")
+
+
 @dataclass(frozen=True, slots=True)
 class CollectionConfig:
     project: str
@@ -32,14 +51,8 @@ class CollectionConfig:
     timeout_seconds: int = 60
 
     def __post_init__(self) -> None:
-        if not isinstance(self.project, str) or not re.fullmatch(
-            r"[a-z][a-z0-9-]{4,28}[a-z0-9]", self.project
-        ):
-            raise CollectionError("Expected a standard Google Cloud project ID")
-        if not isinstance(self.location, str) or not re.fullmatch(
-            r"(?:us|eu|[a-z]+(?:-[a-z]+)+[0-9]+)", self.location
-        ):
-            raise CollectionError("Use a lowercase BigQuery region or us/eu")
+        validate_project(self.project)
+        validate_location(self.location)
         start, end = timestamp(self.start), timestamp(self.end)
         if end <= start or end - start > timedelta(days=31):
             raise CollectionError("Collection window must be positive and at most 31 days")
@@ -56,13 +69,7 @@ class CollectionConfig:
             raise CollectionError("Invalid job ID")
         if len(set(self.job_ids)) != len(self.job_ids):
             raise CollectionError("Duplicate selected job IDs")
-        if (
-            type(self.maximum_bytes_billed) is not int
-            or not 1 <= self.maximum_bytes_billed <= 10**9
-        ):
-            raise CollectionError("Byte budget must be between 1 and 1000000000")
-        if type(self.timeout_seconds) is not int or not 1 <= self.timeout_seconds <= 300:
-            raise CollectionError("Timeout must be between 1 and 300 seconds")
+        validate_budget(self.maximum_bytes_billed, self.timeout_seconds)
 
     def validate_live_window(self, now: datetime) -> None:
         current = timestamp(now)

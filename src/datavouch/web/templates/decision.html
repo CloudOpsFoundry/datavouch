@@ -1,0 +1,10 @@
+{% if experiment.kind == 'verify' and experiment.available %}
+<section class="panel evidence" aria-label="Review recommendation">
+<p class="eyebrow">REVIEW RECOMMENDATION</p>
+{% if experiment.status == 'PASS' %}<h2>Ready for reviewer approval</h2><p>The supplied evidence meets every configured acceptance check. Review the comparison conditions and evidence before approving this change.</p>
+{% elif experiment.status == 'FAIL' %}<h2>Do not approve this change</h2><p>At least one acceptance check failed. Investigate and correct the failure before evaluating a new candidate. Successful query execution alone is not enough.</p>
+{% else %}<h2>Hold approval: evidence is incomplete</h2><p>The available evidence cannot establish that all acceptance checks pass. Supply the missing evidence or resolve the comparison issue before deciding.</p>{% endif %}
+{% if experiment.status != 'PASS' %}<ul>{% for section in experiment.sections if section.title == 'Checks' %}{% for name, outcome in section.rows if outcome != 'PASS' %}<li><strong>{{ name|replace('_', ' ')|capitalize }}:</strong> {{ outcome }}</li>{% endfor %}{% endfor %}</ul>{% endif %}
+<p>This is advice for the configured checks. DataVouch has not deployed, blocked or approved a release. Correctness evidence is supplied independently; PASS is not a guarantee of whole-system correctness.</p>
+</section>
+{% endif %}

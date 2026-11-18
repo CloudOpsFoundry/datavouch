@@ -1,0 +1,5 @@
+# Explicit opt-in: backend credentials and approved connections are required.
+services:
+  datavouch:
+    command: [serve, /opt/datavouch/examples/web/empty-catalog.json, --bind-address, 0.0.0.0, --port, '8765', --password-file, /config/password, --connections, /config/connections.json, --run-directory, /data/runs, --enable-live-execution]
+    stop_grace_period: 660s

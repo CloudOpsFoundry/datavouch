@@ -57,7 +57,7 @@ At the prompt, choose a password of 16 to 256 printable ASCII characters. Typing
 4. Open Financial evidence pending and confirm UNKNOWN. Missing evidence is not a successful result.
 5. Download a summary from a detail page and open the JSON file in a text editor.
 
-All bundled examples are synthetic. These checks demonstrate the interface, not production performance or realized savings. See [BigQuery experiments](bigquery-experiments.md) when you are ready to collect authorized evidence. For this development environment, live validation uses only `sandbox-platform-services`, location `eu`.
+All bundled examples are synthetic. These checks demonstrate the interface, not production performance or realized savings. See [BigQuery experiments](bigquery-experiments.md) when you are ready to collect authorized evidence. Live validation requires explicit authorization for the selected project and location.
 
 To create your own plan, first configure [deployment connections](connections.md), then select **New experiment** and follow the [guided planning steps](web.md#plan-a-bigquery-experiment). Validating or downloading a plan does not query Google Cloud.
 
@@ -65,9 +65,11 @@ To create your own plan, first configure [deployment connections](connections.md
 
 Press Ctrl+C in the server terminal to stop it. After changing code, rerun the install command in step 2, then the start command in step 3. The developer setup uses an editable install, so source changes only need a server restart; dependency changes also need `uv sync --locked --all-extras`. Catalog inputs are loaded at startup, so restart after changing evidence files as well. The viewer does not automatically reload or collect new cloud data.
 
-If the address does not open, confirm the terminal still shows a running server and use the exact port printed there. If the port is occupied, choose another port such as `--port 8767` and use that port in the browser. If a browser reuses an old password, open a private browser window and sign in again. Keep the viewer on your own machine; shared team deployment is a future milestone.
+If the address does not open, confirm the terminal still shows a running server and use the exact port printed there. If the port is occupied, choose another port such as `--port 8767` and use that port in the browser. If a browser reuses an old password, open a private browser window and sign in again. Keep this Basic-authentication viewer on your own machine. Shared team deployments use the implemented [client OIDC gateway integration](gateway-access.md) and require [real client validation](client-validation.md).
 
 ## Where to go next
+
+- [Workloads, experiments, runs and results](user-guide.md)
 
 - [Viewer configuration and access controls](web.md)
 - [Real BigQuery experiments](bigquery-experiments.md)

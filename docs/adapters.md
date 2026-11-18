@@ -14,7 +14,7 @@ Both commands run offline. `adapters` lists versions, supported modes and metric
 
 The existing `collect-bigquery` command and its `bigquery-collection-0.1` report remain supported unchanged. The generic bridge produces `adapter-collection-1` and preserves the existing collector's observations and eligibility rules. Provider-specific fingerprint groups and timestamps remain available through the original command; the generic report carries observations, missing IDs, exclusions, notes and adapter identity.
 
-The bundled BigQuery fixture is synthetic and contains its original example scope. Do not use it with `--live`. For this project's real validation, create a private connector with project `sandbox-platform-services`, location `eu`, matching quota project, selected authorized job IDs and bounded windows/budgets. No new cloud setup is required when existing credentials and API access remain valid.
+The bundled BigQuery fixture is synthetic and contains its original example scope. Do not use it with `--live`. For real validation, create a private connector with an explicitly approved project and location, matching quota project, selected authorized job IDs and bounded windows/budgets. No new cloud setup is required when existing credentials and API access remain valid.
 
 ## Connector envelope
 
@@ -71,4 +71,4 @@ The repository's tests additionally check the BigQuery bridge against the existi
 
 1. Run the offline commands above and the full `python scripts/validate.py` checks.
 2. Have an independent contributor implement and run the contract template in a separate package against the built wheel.
-3. If fresh cloud validation is needed, prepare a private BigQuery connector for `sandbox-platform-services/eu` and use `collect private-connector.json --live` only for the explicitly authorized bounded metadata query. Compare its observations and eligibility with `collect-bigquery` using the equivalent provider config. Never infer savings or correctness from collection eligibility.
+3. If fresh cloud validation is needed, prepare a private BigQuery connector for your approved project and location and use `collect private-connector.json --live` only for the explicitly authorized bounded metadata query. Compare its observations and eligibility with `collect-bigquery` using the equivalent provider config. Never infer savings or correctness from collection eligibility.

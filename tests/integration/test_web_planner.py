@@ -59,7 +59,7 @@ def form(client):
         "action": "validate",
         "id": "rewrite-1",
         "workload": "sales",
-        "environment": "sandbox-platform-services/eu/test",
+        "environment": "client-test-project/asia-northeast1/test",
         "snapshot": "snapshot-1",
         "description": "Rewrite sales aggregation",
         "reference": "review-123",

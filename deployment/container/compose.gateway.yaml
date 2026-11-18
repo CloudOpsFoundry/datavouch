@@ -1,0 +1,6 @@
+# Same-host trusted OIDC gateway connects to the localhost-published port.
+# Configure actual Docker peer addresses in gateway-policy.json, not forwarded IPs.
+services:
+  datavouch:
+    command: [serve, /opt/datavouch/examples/web/empty-catalog.json, --bind-address, 0.0.0.0, --port, '8765', --gateway-config, /config/gateway-policy.json, --gateway-secret-file, /config/gateway-secret, --connections, /config/connections.json, --run-directory, /data/runs, --enable-live-execution]
+    stop_grace_period: 660s

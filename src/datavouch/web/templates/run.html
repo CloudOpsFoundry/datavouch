@@ -5,6 +5,7 @@
 <p>Submitted {{ run.submitted_at }}{% if run.finished_at %} · Finished {{ run.finished_at }}{% endif %}</p>
 {% if experiment %}
 {% if experiment.synthetic %}<p class="notice">Synthetic test evidence; not production performance or actual spending.</p>{% endif %}
+{% include 'decision.html' %}
 <div class="report-grid">{% for section in experiment.sections %}<section class="panel detail-panel"><h2>{{ section.title }}</h2><dl>{% for key, value in section.rows %}<div><dt>{{ key }}</dt><dd>{{ value }}</dd></div>{% endfor %}</dl></section>{% endfor %}</div>
 <section class="panel evidence"><h2>Evidence and limitations</h2><ul>{% for note in experiment.notes %}<li>{{ note }}</li>{% endfor %}</ul></section>
 <section class="panel evidence"><h2>Collected measurements</h2><p>Rows identify observations by cohort and position. Job identifiers remain in the protected raw evidence. Unavailable values are not zero.</p><div class="table-scroll"><table><thead><tr><th>Cohort</th><th>Run</th><th>Successful</th><th>Runtime (ms)</th><th>Slot time (slot_ms)</th><th>Processed bytes</th><th>Billed bytes</th></tr></thead><tbody>{% for row in measurements %}<tr><td>{{ row.cohort }}</td><td>{{ row.index }}</td><td>{{ row.successful }}</td>{% for metric in ['runtime','slot_time','processed_bytes','billed_bytes'] %}<td>{{ row.metrics.get(metric, 'Unavailable') }}</td>{% endfor %}</tr>{% endfor %}</tbody></table></div></section>

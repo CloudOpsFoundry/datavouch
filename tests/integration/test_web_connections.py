@@ -27,7 +27,6 @@ def test_valid_connections(tmp_path):
     "document",
     [
         {},
-        {"connections": []},
         {"connections": [ROW, ROW]},
         {"connections": [{**ROW, "project": "INVALID PROJECT"}]},
         {"connections": [{**ROW, "location": "EU"}]},
@@ -52,3 +51,23 @@ def test_bounded_and_unique_json(tmp_path):
         path.write_text(content)
         with pytest.raises(ValueError):
             load_connections(path)
+
+
+def test_empty_connections_disable_planning(tmp_path):
+    from pathlib import Path
+
+    from fastapi.testclient import TestClient
+
+    from datavouch.web.app import create_app
+
+    path = tmp_path / "connections.json"
+    path.write_text('{"connections": []}')
+    assert load_connections(path) == ()
+    catalog = Path(__file__).resolve().parents[2] / "examples/viewer.json"
+    with TestClient(
+        create_app(catalog, "fixture-only-password", connections=path), base_url="http://127.0.0.1"
+    ) as client:
+        client.auth = ("datavouch", "fixture-only-password")
+        page = client.get("/experiments/new")
+        assert page.status_code == 200
+        assert "No connections configured" in page.text

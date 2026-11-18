@@ -39,3 +39,34 @@ python scripts/check_container.py datavouch-app:local
 ```
 
 It creates a temporary restricted container on an automatically assigned localhost port, checks authentication and sample pages, verifies Python/non-root execution and absence of development tools, then removes its own container. It does not mount cloud credentials or submit cloud queries. Run it from a non-root host account.
+
+## Execution and gateway configurations
+
+The base file is an offline viewer. Use exactly one application-mode override:
+
+| Override | Purpose |
+| --- | --- |
+| `compose.demo.yaml` | View the generated local SQL demo from `/data/demo` |
+| `compose.live.yaml` | Enable bounded collection with local Basic authentication |
+| `compose.gateway.yaml` | Enable bounded collection behind your existing OIDC gateway |
+| `compose.adc.yaml` | Optional read-only ADC mount, combined with live or gateway mode |
+
+For example, after preparing your own connections file and credentials:
+
+```sh
+docker compose -f deployment/container/compose.yaml -f deployment/container/compose.live.yaml up -d
+```
+
+Gateway mode additionally requires `/config/gateway-policy.json` and `/config/gateway-secret`, configured according to [gateway access](gateway-access.md). Determine the actual peer address seen through Docker networking; forwarding headers do not make an address trusted. The published port remains localhost-only for a gateway on the same host.
+
+For an explicit local ADC mount, set `DATAVOUCH_ADC_FILE` to the absolute private ADC filename and `DATAVOUCH_QUOTA_PROJECT` to your approved quota project, then add `-f deployment/container/compose.adc.yaml`. No project or location is supplied by the product. Prefer platform workload identity for managed deployments.
+
+Set `DATAVOUCH_IMAGE` to use your own reviewed registry image and run `up --no-build`. The default `datavouch-app:local` is built from this checkout; it is not an assumed public image. All overrides keep the base runtime restrictions and private writable data mount. Live modes use a 660-second shutdown grace period for the bounded worker.
+
+To verify the actual Compose configuration, including empty connection setup, authentication, real SQL execution and restart persistence:
+
+```sh
+python scripts/check_compose.py
+```
+
+The check creates and removes its own temporary containers, network and generated data. For Kubernetes, use [the Helm deployment guide](kubernetes.md).

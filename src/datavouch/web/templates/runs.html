@@ -1,7 +1,21 @@
 {% extends "base.html" %}{% block content %}
-<a class="back" href="/experiments/new">New experiment</a><h1>Experiment runs</h1>
+{% if request.state.principal.role != 'viewer' %}<a class="back" href="/experiments/new">New experiment</a>{% endif %}<h1>Experiment runs</h1>
+<p>A run is a saved evaluation of an experiment plan, including its selected baseline and candidate jobs, measurements and report. <a href="/guide#runs">Understand runs and results</a>.</p>
 <p class="notice">One run at a time. Completed runs remain available after restart. FAIL and UNKNOWN are evidence outcomes; ERROR means collection did not complete. No automatic retries.</p>
 <form action="/runs" method="get" class="filters"><label>Search experiment or workload<input name="q" value="{{ q }}" maxlength="300"></label><label>Outcome<select name="status"><option value="">All outcomes</option>{% for item in ['RUNNING','PASS','FAIL','UNKNOWN','ERROR'] %}<option {% if status == item %}selected{% endif %}>{{ item }}</option>{% endfor %}</select></label><button class="button">Filter runs</button><a href="/runs">Reset</a></form>
-{% if request.state.principal.role == 'admin' %}<p><a href="/audit.json">Download scoped audit events</a></p>{% endif %}
-<section class="panel">{% for run in runs %}<div class="history-row"><div><a class="primary-link" href="/runs/{{ run.id }}">{{ run.title }}</a><p>{{ run.get('workload', '') }} · {{ run.submitted_at }} · {{ run.connection }}</p></div><span class="pill {{ run.status or 'neutral' }}">{{ run.status or run.state }}</span></div>{% else %}<div class="empty">No experiments submitted yet.</div>{% endfor %}</section>
+{% if request.state.principal.role == 'admin' %}
+<p><a href="/audit.json">Download scoped audit events</a></p>
+<form action="/runs/deletion-preview" method="post">
+<input type="hidden" name="csrf" value="{{ csrf }}">
+{% endif %}
+<section class="panel">{% for run in runs %}<div class="history-row"><div>
+{% if request.state.principal.role == 'admin' %}<label><input type="checkbox" name="run_{{ run.id }}" value="yes" aria-label="Select {{ run.title }}" {% if run.state == 'RUNNING' %}disabled{% endif %}> Select</label>{% endif %}
+<a class="primary-link" href="/runs/{{ run.id }}">{{ run.title }}</a><p>{{ run.get('workload', '') }} · {{ run.submitted_at }} · {{ run.connection }}</p></div><span class="pill {{ run.status or 'neutral' }}">{{ run.status or run.state }}</span></div>{% else %}<div class="empty">No saved runs match this view.</div>{% endfor %}</section>
+{% if request.state.principal.role == 'admin' %}
+<section class="panel evidence"><h2>Manage saved history</h2>
+<p>Deletion removes saved plans, measurements, reports and financial assessments from this deployment. Minimal audit events remain. Read-only catalog examples and imported reports are managed separately.</p>
+<p>Delete all includes {{ scoped_count }} saved run{% if scoped_count != 1 %}s{% endif %} in your permitted connections, regardless of filters. Running experiments cannot be deleted. You will review the exact selection before confirming. Runs created after that preview are not included.</p>
+<div class="actions"><button class="button secondary" name="mode" value="selected" {% if not runs %}disabled{% endif %}>Delete selected history</button><button class="button secondary" name="mode" value="all" {% if not scoped_count %}disabled{% endif %}>Delete all history</button></div>
+</section></form>
+{% endif %}
 {% endblock %}

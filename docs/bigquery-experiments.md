@@ -50,10 +50,10 @@ Start with [the example plan](../examples/bigquery/experiment/plan.json):
 
 A complete plan is validated before any cloud request. Live mode runs two metadata SELECTs, one per cohort. Each has its own byte and time budget. The combined maximum is the sum of those budgets. Live access always requires `--live` and the BigQuery extra.
 
-For the authorized sandbox, use `sandbox-platform-services` and `eu` in both scopes, with matching Application Default Credentials quota project. Replace example IDs and dates with actual job IDs and provider-derived windows. Keep the plan outside the repository:
+Use the same explicitly approved project and location in both scopes, with a matching Application Default Credentials quota project. Replace example IDs and dates with actual job IDs and provider-derived windows. Keep the plan outside the repository:
 
 ```sh
-GOOGLE_CLOUD_QUOTA_PROJECT=sandbox-platform-services \
+GOOGLE_CLOUD_QUOTA_PROJECT="${DATAVOUCH_QUOTA_PROJECT:?Set the approved quota project}" \
   datavouch run-bigquery /private/path/experiment.json --live \
   --output-dir /private/path/new-experiment-run
 ```
@@ -78,7 +78,7 @@ The bundled collections use `bigquery-collection-0.2` to include start and compl
 
 ## Real failed-job validation
 
-On 2026-11-18, a bounded synthetic experiment in `sandbox-platform-services`, EU, ran three successful baseline jobs and a candidate cohort with two successes and one deliberate runtime failure. All six jobs were table-free SELECT queries over a generated integer sequence. Six successful metadata queries collected only the selected job IDs. Two earlier metadata attempts were stopped by the 100 MB billing cap; these validation reads then used a 200 MB cap per query. The collector's default budget is unchanged.
+On 2026-11-18, a bounded synthetic experiment in an authorized test project ran three successful baseline jobs and a candidate cohort with two successes and one deliberate runtime failure. All six jobs were table-free SELECT queries over a generated integer sequence. Six successful metadata queries collected only the selected job IDs. Two earlier metadata attempts were stopped by the 100 MB billing cap; these validation reads then used a 200 MB cap per query. The collector's default budget is unchanged.
 
 Reliability reported zero baseline failures and one candidate failure out of three, approximately 33.33 percent, producing FAIL under a zero-failure policy. Performance and the independently missing correctness assertion remained UNKNOWN. The saved report matched offline CLI and viewer replay exactly. A permissive reliability policy returned reliability PASS but overall UNKNOWN. A deliberately missing selected job returned reliability UNKNOWN.
 

@@ -12,7 +12,7 @@ def test_version(capsys):
     with pytest.raises(SystemExit) as result:
         main(["--version"])
     assert result.value.code == 0
-    assert "0.1.0a1" in capsys.readouterr().out
+    assert "0.1.0a2" in capsys.readouterr().out
 
 
 def test_cli_invalid_input(tmp_path, capsys):
