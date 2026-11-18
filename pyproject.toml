@@ -26,7 +26,7 @@ dev = ["httpx>=0.28,<1", "pytest>=8", "ruff>=0.12", "mypy>=1.16", "coverage>=7",
 packages = ["src/datavouch"]
 
 [tool.hatch.build.targets.sdist]
-include = ["/.github", "/src", "/tests", "/scripts", "/docs", "/examples", "/pyproject.toml", "/uv.lock", "/README.md", "/LICENSE", "/SECURITY.md", "/CONTRIBUTING.md", "/CHANGELOG.md"]
+include = ["/.github", "/src", "/tests", "/scripts", "/docs", "/examples", "/pyproject.toml", "/uv.lock", "/README.md", "/LICENSE", "/SECURITY.md", "/CONTRIBUTING.md", "/CHANGELOG.md", "/deployment"]
 
 [tool.ruff]
 target-version = "py315"

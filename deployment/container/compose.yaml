@@ -1,0 +1,21 @@
+services:
+  datavouch:
+    build:
+      context: ../..
+      dockerfile: deployment/container/Dockerfile
+    image: datavouch-app:local
+    user: "${DATAVOUCH_UID:?Set DATAVOUCH_UID}:${DATAVOUCH_GID:?Set DATAVOUCH_GID}"
+    read_only: true
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    pids_limit: 128
+    mem_limit: 1g
+    cpus: 1.0
+    ports:
+      - "127.0.0.1:${DATAVOUCH_PORT:-8766}:8765"
+    tmpfs:
+      - /tmp:size=67108864,mode=1777
+    volumes:
+      - "${DATAVOUCH_CONFIG_DIR:?Set DATAVOUCH_CONFIG_DIR}:/config:ro"
+      - "${DATAVOUCH_DATA_DIR:?Set DATAVOUCH_DATA_DIR}:/data"
+    command: [serve, /opt/datavouch/examples/viewer.json, --bind-address, 0.0.0.0, --port, '8765', --password-file, /config/password, --connections, /config/connections.json]

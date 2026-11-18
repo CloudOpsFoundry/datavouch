@@ -5,3 +5,7 @@
 .plan-section{grid-column:1/-1;border-bottom:1px solid var(--border);padding-bottom:12px}
 
 .plan-field select{width:100%;max-width:100%;padding:10px;font:inherit;border:1px solid var(--border);border-radius:5px}.button:disabled{opacity:.5;cursor:not-allowed}
+
+@media(max-width:700px){.sidebar nav{flex-wrap:wrap}}
+
+.evidence-entry{display:grid;gap:8px;padding:18px 0;border-bottom:1px solid var(--border)}.evidence-entry input,.evidence-entry select,.plan-section textarea{width:100%;padding:10px;font:inherit;border:1px solid var(--border);border-radius:5px}.plan-section details{margin:16px 0}.plan-section p{font-size:13px;color:var(--muted)}

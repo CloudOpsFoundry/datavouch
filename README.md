@@ -8,7 +8,7 @@ A project of **CloudOpsFoundry**. *Tomorrow takes shape in today’s open source
 
 DataVouch helps data engineers validate workload changes with reproducible correctness, performance and reliability evidence. [Purpose, use cases and benefits](docs/product.md).
 
-Start with the [step-by-step local guide](docs/getting-started.md). DataVouch is developed as a monorepo; see the [product and UI roadmap](docs/product-roadmap.md) for available features and planned milestones.
+Start with the [step-by-step local guide](docs/getting-started.md). DataVouch is developed as a monorepo; see the [product and UI roadmap](docs/product-roadmap.md) for delivery scope. The [acceptance checklist](docs/product-acceptance.md) maps product requirements to implementation and final release gates.
 
 ## Available capabilities
 
@@ -18,9 +18,9 @@ The `run-bigquery` command collects baseline and candidate jobs, verifies the ex
 
 The `verify` command combines performance, execution windows, independently supplied correctness evidence and reliability thresholds. Required failures produce FAIL and missing evidence produces UNKNOWN. See [verification](docs/verification.md).
 
-The offline `finance` command distinguishes usage-based estimates, supplied net spending and reviewed counterfactual differences. It rejects overlapping claims and requires matching verification evidence for attribution. See [financial verification](docs/financial.md).
+The `finance` command and saved-run financial form distinguishes usage-based estimates, supplied net spending and reviewed counterfactual differences. It rejects overlapping claims and requires matching verification evidence for attribution. See [financial verification](docs/financial.md).
 
-The optional authenticated local UI shows workload history, evidence and report downloads, and guides you through creating a validated BigQuery experiment plan. See [local viewer setup](docs/web.md).
+The optional authenticated local UI shows workload history, evidence and report downloads, guides you through creating a validated BigQuery experiment plan, and optionally runs bounded collection with persistent local history. It accepts independently supplied correctness evidence and shows collected resource measurements and financial assessments. See [UI execution](docs/ui-execution.md), [application container](docs/container.md), and [client OIDC gateway access](docs/gateway-access.md).
 
 The `gate` command applies an external verification policy for local and CI workflows, with explicit UNKNOWN handling and optional JSON/Markdown/HTML artifacts. See [workflow integration](docs/workflow.md).
 

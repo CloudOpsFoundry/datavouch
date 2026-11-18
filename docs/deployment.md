@@ -1,16 +1,16 @@
 # Supported operation and rollback
 
-DataVouch currently supports an offline CLI and a single-user, loopback-only viewer. Public hosting, reverse proxies, shared servers, containers and multi-user identity have not been validated. Do not treat a successful local test as production deployment approval.
+DataVouch provides an offline CLI, a local authenticated workspace, opt-in bounded collection, and shared access through a client OIDC gateway. See [container setup](container.md) and [gateway access](gateway-access.md). Automated application checks do not replace real identity-provider, network and operational acceptance.
 
 ## Install and run
 
 Use a dedicated virtual environment and an explicitly reviewed wheel. Install the base wheel for offline CLI work; include `[web]` for the viewer or `[bigquery]` for explicitly authorized cloud collection. Use the lockfile-backed source environment when reproducing the project's development validation. See [installation](installation.md).
 
-Keep input catalogs and evidence in a private directory separate from public source. Back up inputs and reports using the host's approved access-controlled storage; do not commit credentials or evidence extracts. The application does not provide encrypted storage, backup scheduling or retention enforcement.
+Keep input catalogs and evidence in a private directory separate from public source. Back up inputs and reports using the host's approved access-controlled storage; do not commit credentials or evidence extracts. The application provides confirmed admin deletion but does not provide encrypted storage, backup scheduling or automatic retention. Audit and backup retention remain deployment responsibilities.
 
 Start the local viewer with `datavouch serve /path/to/private/catalog.json`. Set the password interactively, then use `http://127.0.0.1:8765` with username `datavouch`. A URL is reachable only while that process is running. Keep the terminal/process alive during use; stop with Ctrl+C. Catalog contents are snapshotted at startup, so restart to see changed evidence. Passwords are not persisted by DataVouch; browser HTTP Basic credential caching is outside application control.
 
-The CLI does not collect cloud data unless `--live` is selected. For authorized real tests in this project, always use `sandbox-platform-services`, `eu`, matching quota project and bounded selected-job queries. No additional BigQuery API setup is needed if the previously configured environment remains valid. Financial verification still uses supplied offline evidence; billing export access is separate authorization.
+The CLI does not collect cloud data unless `--live` is selected. Browser collection additionally requires explicit [UI execution setup](ui-execution.md) and user confirmation for each submitted plan. For authorized real tests in this project, always use `sandbox-platform-services`, `eu`, matching quota project and bounded selected-job queries. No additional BigQuery API setup is needed if the previously configured environment remains valid. Financial verification still uses supplied offline evidence; billing export access is separate authorization.
 
 ## Update or roll back
 

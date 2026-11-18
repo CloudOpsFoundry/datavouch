@@ -17,17 +17,19 @@ The project dropdown lists connections approved by the deployment administrator.
 
 The bundled example is a configuration template; its project is not a live integration. No cloud calls occur at startup, when opening the dropdown, or when validating/downloading a plan. Selecting a connection neither grants IAM permissions nor changes credentials. Existing CLI commands continue to accept their own configurations and do not inherit this UI allowlist.
 
+For optional local execution, follow [Run an experiment from the UI](ui-execution.md). The worker reloads this allowlist at submission and immediately before launching collection.
+
 ## Client-hosted architecture
 
 The intended deployment keeps the application, evidence, credentials and execution workers within the client's controlled environment. These controls are requirements for future shared deployment, not capabilities already delivered by the local viewer:
 
 - Use organization identity, roles and per-user/project authorization. Currently every authenticated local user shares the same allowlist; there is no tenant isolation.
 - Use workload identity or an approved credential provider on the backend. Never ask the browser to submit service-account keys. Give execution workers only the permissions needed for the approved projects and job metadata.
-- Revalidate scope and collection limits at execution time. A downloaded plan can be edited, so plan-time validation is not an execution authorization boundary.
+- Continue enforcing scope and collection limits at execution time. The local worker now performs these checks; shared deployments also need per-user authorization. A downloaded plan can be edited, so plan-time validation is not an execution authorization boundary.
 - Record who requested a run, selected scope, policy, execution status and evidence references. Exclude secrets and raw sensitive content from operational logs.
 - Define data classification, access, retention, deletion, backups and regional storage for evidence. A BigQuery location selection alone does not establish residency or GDPR compliance. Labels and job identifiers can themselves be sensitive.
 - Add TLS, secure sessions, access revocation, bounded background workers, concurrency limits and recovery before shared hosting.
 
 Automatic project discovery can be added later as an explicit administrator action using the deployment identity. Its results must be intersected with the configured allowlist and user authorization, then refreshed on a bounded schedule. A project visible to an identity is not necessarily approved for DataVouch or usable for BigQuery execution. The current static configuration avoids adding discovery permissions or API calls to each page request.
 
-Current security boundary: authenticated, loopback-only local use. Do not expose the viewer as an enterprise service until the shared deployment controls and their tests are implemented.
+Local authentication is the default. Shared deployments require the explicit controls in [OIDC gateway setup](gateway-access.md), including private backend networking, TLS, verified-subject mapping, role policies and real IdP acceptance.
