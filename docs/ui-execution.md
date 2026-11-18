@@ -15,7 +15,7 @@ These steps target macOS or Linux with Python 3.15.2. Shared hosting and Windows
 
 Developers using the locked environment can use `uv sync --locked --all-extras` instead.
 
-3. Configure backend Application Default Credentials with the permissions described in [BigQuery setup](bigquery.md). Do not put credentials in the form or connections file. For this project's real validation, use only `sandbox-platform-services`, location `eu`, and the matching quota project. Other deployments must configure their own approved identity and scope.
+3. Configure backend Application Default Credentials with the permissions described in [BigQuery setup](bigquery.md). Do not put credentials in the form or connections file. Use the deployment’s approved identity, execution projects and quota project. Optional [live discovery](connections.md) reads projects and locations with that backend identity.
 4. Create a private run directory outside the checkout:
 
 ```sh
@@ -58,7 +58,7 @@ A completed run can be PASS, FAIL or UNKNOWN. ERROR means execution failed or wa
 - History is capped at 50 runs. Stop the server before an administrator archives or deletes complete run directories. There is no automatic deletion or archival UI yet. Do not remove the ownership database while a server is running.
 - The private directory contains plan JSON, state JSON and the CLI's replayable inputs, collections and reports. It may contain sensitive job IDs, labels and evidence. Apply your organization's backup, retention and deletion policy to it. Do not commit it to Git.
 
-Local Basic authentication remains the default. Shared deployments use an [existing OIDC gateway](gateway-access.md), explicit roles and connection scopes. Admins can export audit events and delete completed experiments. This is not enterprise certification. See [manual sandbox acceptance](sandbox-acceptance.md) for the final real UI walkthrough.
+Local Basic authentication remains the default. Shared deployments use an [existing OIDC gateway](gateway-access.md), explicit roles and connection scopes. Admins can export audit events and delete completed experiments. This is not enterprise certification. See [manual BigQuery acceptance](bigquery-acceptance.md) for the final real UI walkthrough.
 
 ## Correctness, resources and costs
 
@@ -67,3 +67,15 @@ Choose runtime, slot consumption, processed bytes or billed bytes as the compari
 Completed runs show cohort measurements and a financial form. Guided prices produce estimates from saved usage. Advanced supplied billing/review evidence is bound to the same execution windows and IDs. Capacity consumption does not establish billed slot-hours. Assessments are immutable and limited to ten per run.
 
 Search history by workload or experiment, filter outcomes, and revisit the workload catalog. Admin deletion requires confirmation and removes the local plan, evidence, reports and assessments. The audit event remains. Keep raw report downloads disabled unless needed for private replay.
+
+## Delete selected or all saved run history
+
+An administrator can open **Runs**, select individual rows and choose **Delete selected history**, or choose **Delete all history**. The all-history action includes every run in the administrator's permitted connections, even when search/outcome filters hide some rows. Viewers and operators cannot delete history.
+
+Both actions show a confirmation page listing exactly what will be removed. Nothing is deleted during preview. Confirming removes the saved plans, state, collected inputs, reports and financial assessments from disk and clears the server's history/report cache. Running experiments cannot be deleted. Newly created runs, including a recreated instance of the same plan, cannot be removed using an old confirmation. Deleting a run removes its duplicate-submission protection.
+
+History is currently file-backed. `.owner.sqlite` contains only the server ownership-lock table and no experiment rows; it remains to preserve the single-server lock. There is no separate SQL history copy to clear. Deletion remains effective after restart. Minimal requested/completed deletion audit events remain, as do any independently managed backups. Filesystem deletion is not a guarantee of physical erasure from underlying storage or snapshots.
+
+These controls manage server-owned run history. Read-only example/imported catalogs on the overview, cloud jobs and source data are outside their scope. Update a catalog through its deployment configuration rather than allowing a browser to delete arbitrary imported source files.
+
+The complete selection is checked for permissions and active runs before any deletion. Filesystem or audit I/O failure can interrupt a batch; the UI reports an incomplete operation and asks you to reload/retry the remaining history. It never reports a failed batch as successful.

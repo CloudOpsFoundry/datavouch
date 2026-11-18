@@ -18,7 +18,7 @@ The [OAuth2 Proxy configuration](https://oauth2-proxy.github.io/oauth2-proxy/con
 
 ## Configure DataVouch
 
-Copy [the example policy](../examples/web/gateway-policy.json) to a private configuration directory. Replace every example value. List only the gateway's actual peer IP/CIDR, exact public host, approved stable subjects and connection IDs from your connections file. A connection scopes a configured project/location pair; it does not limit access within that connection to individual workloads.
+Copy [the example policy](../examples/web/gateway-policy.json) to a private configuration directory. Replace every example value. List only the gateway's actual peer IP/CIDR, exact public host, approved stable subjects and connection IDs from your connections file, or exact discovered IDs (`gcp:PROJECT_ID:LOCATION`) when [live discovery](connections.md) is enabled. A connection scopes a configured project/location pair; it does not limit access within that connection to individual workloads.
 
 ```sh
 mkdir -p "$HOME/.config/datavouch" "$HOME/.local/share/datavouch/runs"
@@ -52,6 +52,8 @@ Raw downloads require a separate server opt-in and are unavailable to viewers. P
 
 This deployment supports one process, one active experiment, up to 50 saved experiments, ten financial assessments per experiment and 100 explicit subjects. There is no distributed worker queue, automatic group synchronization, high availability or billing integration. These are bounded deployment limits, not an enterprise capacity guarantee.
 
-Stop the service before backing up the complete private run directory. Use encrypted, access-controlled storage and test restoration. Admin deletion removes the experiment files but preserves a minimal audit event. `audit.jsonl` contains timestamps, opaque actor identifiers, connection IDs, run hashes and outcomes; it is not tamper-proof. Forward it to your controlled audit system if required. Maintain retention for backups and audit data separately under your organization's policy. Archive the audit log while stopped before it reaches 10 MB; operations fail closed at the limit.
+Stop the service before backing up the complete private run directory. Use encrypted, access-controlled storage and test restoration. Admin deletion supports individual, selected or all permitted runs, with an exact-selection preview. It removes experiment files but preserves minimal audit events. SQLite is used only for store ownership, not experiment history. `audit.jsonl` contains timestamps, opaque actor identifiers, connection IDs, run hashes and outcomes; it is not tamper-proof. Forward it to your controlled audit system if required. Maintain retention for backups and audit data separately under your organization's policy. Archive the audit log while stopped before it reaches 10 MB; operations fail closed at the limit.
 
 Before team use, validate the real IdP login/logout and expired sessions, stripped forged headers, blocked direct backend access, each role, two disjoint connection scopes, revoked access, TLS, backup recovery and audit retention. Automated tests cover the application boundary; they do not certify a particular client's gateway configuration or regulatory compliance.
+
+For test identities, step-by-step acceptance cases and required evidence, follow [real client validation](client-validation.md).

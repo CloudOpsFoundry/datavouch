@@ -1,0 +1,8 @@
+# Optional for local testing; use platform workload identity for managed deployment.
+services:
+  datavouch:
+    environment:
+      GOOGLE_APPLICATION_CREDENTIALS: /credentials/adc.json
+      GOOGLE_CLOUD_QUOTA_PROJECT: "${DATAVOUCH_QUOTA_PROJECT:?Set your approved quota project}"
+    volumes:
+      - "${DATAVOUCH_ADC_FILE:?Set absolute ADC file path}:/credentials/adc.json:ro"

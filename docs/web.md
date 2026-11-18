@@ -31,7 +31,7 @@ By default the command binds to loopback, requires HTTP Basic authentication, re
 
 Basic authentication is intended for local use. For shared access, follow [OIDC gateway setup](gateway-access.md); for packaged operation, follow [container setup](container.md). HTTP Basic credentials remain cached by the browser; close the browser session when finished. Real client identity and infrastructure acceptance remains required.
 
-For real validation, first prepare sanitized comparison or verification inputs from authorized runs in `sandbox-platform-services`, location `eu`; keep them in a private catalog directory and set `synthetic` to false only for real evidence. Check CLI results against the UI and compare full report downloads locally. Real billing validation requires separately authorized billing evidence and independent reconciliation.
+For real validation, first prepare sanitized comparison or verification inputs from authorized runs in your approved project and location; keep them in a private catalog directory and set `synthetic` to false only for real evidence. Check CLI results against the UI and compare full report downloads locally. Real billing validation requires separately authorized billing evidence and independent reconciliation.
 
 ## Plan a BigQuery experiment
 

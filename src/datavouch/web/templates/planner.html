@@ -1,13 +1,36 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="page-heading"><div><p class="eyebrow">BIGQUERY · STEP 1</p><h1>Plan your experiment</h1><p class="intro">Compare the original and changed versions of a workload. Define which runs to inspect and what must remain correct.</p></div></div>
-<p class="notice">Select a project and location approved by your deployment administrator. Validate and download do not query the cloud. {% if execution_enabled %}Run experiment explicitly collects metadata using backend credentials and can incur query charges.{% else %}Live execution is disabled by the deployment.{% endif %}</p>
+<p><a href="/guide#experiments">What is an experiment, and what evidence do I need?</a></p>
+<p class="notice">Select a project and location approved by your deployment administrator. Validate and download do not run SQL. When discovery is enabled, they may refresh cloud metadata to verify the selected scope. {% if execution_enabled %}Run experiment explicitly collects metadata using backend credentials and can incur query charges.{% else %}Live execution is disabled by the deployment.{% endif %}</p>
 {% if error %}<div class="notice" role="alert"><strong>Fix the plan before continuing:</strong> {{ error }}</div>{% endif %}
 {% if plan %}<section class="panel detail-panel" aria-label="Validated plan"><h2>Plan structure validated</h2><p>This is not a PASS result. Job existence, comparable execution evidence and correctness still need verification. Required checks without sufficient evidence remain UNKNOWN. Supplied evidence is evaluated, not independently authenticated by DataVouch.</p><details><summary>Inspect the generated plan</summary><pre class="plan-preview">{{ plan }}</pre></details><p>Download the plan below. Follow the <a href="/experiments/new#next-step">next step</a> to collect evidence using the CLI.</p></section>{% endif %}
-{% if not connections %}<p class="notice">No connections configured. Ask your administrator to start DataVouch with a deployment-owned connections file. Planning is disabled until a connection is configured.</p>{% endif %}
+{% if discovery_enabled %}
+<section class="panel detail-panel" aria-label="Google Cloud discovery">
+<h2>Connect to Google Cloud</h2>
+<p>Projects come from the deployment’s Google Cloud identity and are filtered by administrator approval and your access policy. Locations come from visible datasets and recent jobs in the selected project. An empty list does not prove that the project has no data.</p>
+<form method="get" action="/experiments/new">
+<label for="discovery-project">Google Cloud project</label>
+<select id="discovery-project" name="project" required><option value="">Select a project</option>{% for project, label in discovery_projects %}<option value="{{ project }}" {% if values.get('discovery_project') == project %}selected{% endif %}>{{ label }} · {{ project }}</option>{% endfor %}</select>
+<button class="button" type="submit">Load locations</button>
+</form>
+<form method="post" action="/connections/refresh">
+<input type="hidden" name="csrf" value="{{ csrf }}"><input type="hidden" name="project" value="{{ values.get('discovery_project', '') }}">
+<button class="button secondary" type="submit">Refresh cloud metadata</button>
+</form>
+<p>Choose the project before filling out your experiment; loading or refreshing starts a new form. Metadata is cached for up to 60 seconds. Repeated refreshes are limited to once every five seconds.</p>
+{% if discovery_checked %}<p>Metadata checked: <time>{{ discovery_checked }}</time></p>{% endif %}
+{% if discovery_incomplete %}<p class="notice" role="status">Discovery is incomplete because a page limit was reached or a location was unavailable. Ask your administrator for an explicit connection if your location is missing.</p>{% endif %}
+{% if not discovery_projects and not discovery_error %}<p class="notice">No approved projects are visible. Check the backend identity, BigQuery API access and deployment access policy.</p>{% endif %}
+{% if values.get('discovery_project') and not connections and not discovery_error %}<p class="notice">No approved locations were discovered. Check metadata permissions or ask your administrator to configure an explicit connection.</p>{% endif %}
+</section>
+{% endif %}
+{% if discovery_error %}<p class="notice" role="alert">{{ discovery_error }}</p>{% endif %}
+{% if not connections and not discovery_enabled %}<p class="notice">No connections configured. Ask your administrator to start DataVouch with a deployment-owned connections file. Planning is disabled until a connection is configured.</p>{% endif %}
 <datalist id="known-workloads">{% for workload in known_workloads %}<option value="{{ workload }}">{% endfor %}</datalist>
 <form method="post" action="/experiments/new" class="planner panel detail-panel">
 <input type="hidden" name="csrf" value="{{ csrf }}">
+<input type="hidden" name="discovery_project" value="{{ values.get('discovery_project', '') }}">
 <div class="plan-field"><label for="metric">Performance or resource metric</label><select id="metric" name="metric">{% for key, description in metrics.items() %}<option value="{{ key }}" {% if values.get('metric', 'runtime') == key %}selected{% endif %}>{{ description[0] }} ({{ description[1] }})</option>{% endfor %}</select><p>Choose one metric per experiment. Lower values are better. Resource reductions are not proof of monetary savings.</p></div>
 <div class="plan-field plan-section"><label for="connection">Project and location</label><select id="connection" name="connection" required><option value="">Select an approved connection</option>{% for connection in connections %}<option value="{{ connection.id }}" {% if values.get('connection') == connection.id %}selected{% endif %}>{{ connection.label }} · {{ connection.project }} · {{ connection.location }}</option>{% endfor %}</select><p>Each choice is an approved project/location pair. Runtime cloud permissions are checked separately.</p><details><summary>Deployment collection limits</summary><ul>{% for connection in connections %}<li>{{ connection.label }}: up to {{ connection.maximum_bytes_billed }} bytes and {{ connection.timeout_seconds }} seconds per metadata query.</li>{% endfor %}</ul></details></div>
 {% for name, label, help, default in fields %}
@@ -24,7 +47,7 @@
 <label class="plan-choice"><input type="checkbox" name="complete" value="yes" {% if values.get('complete') == 'yes' %}checked{% endif %}> I included every execution, including failures, for both selected cohorts. Without this confirmation, reliability remains UNKNOWN.</label>
 <label class="plan-choice"><input type="checkbox" name="synthetic" value="yes" {% if values.get('synthetic') == 'yes' %}checked{% endif %}> These jobs use synthetic test data.</label>
 {% if execution_enabled %}<label class="plan-choice"><input type="checkbox" name="confirm_run" value="yes"> I authorize metadata collection in the selected project and location within the configured limits. This can incur query charges. Correctness is evaluated only from the evidence supplied above.</label>{% endif %}
-<div class="actions">{% if execution_enabled %}<button class="button" name="action" value="run">Run experiment</button><a href="/runs">Run history</a>{% endif %}<button class="button" name="action" value="validate" {% if not connections %}disabled{% endif %}>Validate plan</button><button class="button secondary" name="action" value="download" {% if not connections %}disabled{% endif %}>Validate and download</button></div>
+<div class="actions">{% if execution_enabled %}<button class="button" name="action" value="run" {% if not connections %}disabled{% endif %}>Run experiment</button><a href="/runs">Run history</a>{% endif %}<button class="button" name="action" value="validate" {% if not connections %}disabled{% endif %}>Validate plan</button><button class="button secondary" name="action" value="download" {% if not connections %}disabled{% endif %}>Validate and download</button></div>
 </form>
 <section class="interpretation" id="next-step"><h2>Next: collect execution evidence</h2><p>Save the download as datavouch-plan.json in your project folder. With the BigQuery extra installed and authorized credentials configured, the CLI can collect the selected metadata. Use a new output directory each time. This is an explicit cloud operation; review the plan and query byte limit first.</p><pre class="plan-preview">.venv/bin/python -m datavouch run-bigquery datavouch-plan.json --live --output-dir experiment-results</pre><p>Required correctness checks need independent evidence before a fully verified result is possible. Supplied attestations are not proof that DataVouch itself checked the underlying data. {% if execution_enabled %}Run experiment above to collect metadata without leaving the UI. Run history retains submitted plans and results. Identical plans reuse their existing run; use a new experiment name for an intentional rerun.{% else %}An administrator can enable UI execution with a private run directory and the explicit live-execution option.{% endif %}</p></section>
 {% endblock %}

@@ -28,6 +28,8 @@ jobs:
         run: uv run --no-sync python scripts/validate.py --stage lint
       - name: Workflow lint
         run: uv run --no-sync python scripts/validate.py --stage workflows
+      - name: Helm deployment contracts
+        run: uv run --no-sync python scripts/validate.py --stage deployment
       - name: Static type analysis
         run: uv run --no-sync python scripts/validate.py --stage types
       - name: Source security analysis

@@ -1,0 +1,13 @@
+{% extends "base.html" %}{% block content %}
+<a class="back" href="/runs">Cancel and return to history</a>
+<h1>Delete {{ runs|length }} saved experiment{% if runs|length != 1 %}s{% endif %}?</h1>
+<p class="notice">This permanently removes the listed plans, evidence, reports and financial assessments from local storage. It also removes duplicate-submission protection for these plans. It does not delete cloud jobs, backups, read-only catalogs or audit events.</p>
+<section class="panel">{% for run in runs %}<div class="history-row"><div><strong>{{ run.title }}</strong><p>{{ run.connection }} · {{ run.submitted_at }}</p></div><span class="pill {{ run.status or 'neutral' }}">{{ run.status or run.state }}</span></div>{% endfor %}</section>
+<form action="/runs/delete-history" method="post" class="panel evidence">
+<input type="hidden" name="csrf" value="{{ csrf }}">
+<input type="hidden" name="selection" value="{{ selection }}">
+<input type="hidden" name="proof" value="{{ proof }}">
+<label><input type="checkbox" name="confirmed" value="yes" required> Permanently delete exactly these {{ runs|length }} saved experiments.</label>
+<div class="actions"><button class="button">Confirm deletion</button><a href="/runs">Cancel</a></div>
+</form>
+{% endblock %}

@@ -385,7 +385,7 @@ def test_running_page_and_busy_submission(setup, monkeypatch):
             config.write_text('{"connections": []}')
             denied = client.post("/experiments/new", data={**form, "id": "revoked"})
             assert denied.status_code == 422
-            assert "Run not started" in denied.text
+            assert "Select a connection approved" in denied.text
         finally:
             release.set()
 

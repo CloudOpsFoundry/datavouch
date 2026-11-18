@@ -1,0 +1,13 @@
+DataVouch is a single-process deployment with private retained evidence.
+The authentication Secret {{ .Values.auth.existingSecret }} must exist in {{ .Release.Namespace }}.
+
+Local access (keep this process running):
+  kubectl --context <your-context> -n {{ .Release.Namespace }} port-forward service/{{ include "datavouch.name" . }} 8766:{{ .Values.service.port }}
+
+Open http://127.0.0.1:8766. Basic mode uses username datavouch.
+Gateway mode requires the configured verified gateway headers and private routing.
+
+No Ingress or cloud credentials are provisioned. Configure your existing OIDC gateway,
+TLS, approved connections, workload identity and network policies before shared live use.
+A chart-created PVC is retained on uninstall. Deleting its namespace still deletes the PVC.
+Do not scale this deployment beyond one replica. Back up the private volume while stopped.

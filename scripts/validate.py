@@ -10,6 +10,7 @@ STAGES = {
     "format": [["-m", "ruff", "format", "--check", "."]],
     "lint": [["-m", "ruff", "check", "."]],
     "workflows": [["scripts/check_workflows.py"]],
+    "deployment": [["scripts/check_deployment.py"]],
     "types": [
         ["-m", "mypy"],
         [

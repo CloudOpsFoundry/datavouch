@@ -4,6 +4,7 @@
 {% if experiment.synthetic %}<div class="notice">This experiment uses synthetic data. Its outcomes are not measurements of production workloads or actual spending.</div>{% endif %}
 {% if experiment.kind == 'compare' %}<div class="notice">This is a metric-only comparison. PASS does not imply correctness or reliability.</div>{% endif %}
 {% if not experiment.available %}<section class="panel empty"><h2>Report unavailable</h2><p>{{ experiment.notes[0] }}</p></section>{% else %}
+{% include 'decision.html' %}
 <div class="report-grid">{% for section in experiment.sections %}<section class="panel detail-panel"><h2>{{ section.title }}</h2><dl>{% for key, value in section.rows %}<div><dt>{{ key }}</dt><dd>{% if value in ['PASS','FAIL','UNKNOWN'] %}<span class="pill {{ value }}">{{ value }}</span>{% else %}{{ value }}{% endif %}</dd></div>{% endfor %}</dl></section>{% endfor %}</div>
 <section class="panel evidence"><h2>Evidence and limitations</h2><ul>{% for note in experiment.notes %}<li>{{ note }}</li>{% endfor %}</ul><details><summary>Report fingerprint</summary><code>{{ experiment.digest }}</code><p>This identifies the full report bytes. It does not authenticate the evidence producer.</p></details></section>
 {% endif %}

@@ -22,6 +22,7 @@ from starlette.middleware.trustedhost import TrustedHostMiddleware
 from datavouch.web.access import LOCAL_ADMIN, account, gateway_principal, policy, principal
 from datavouch.web.catalog import ExperimentView, WorkloadView, load_catalog
 from datavouch.web.connections import load_connections
+from datavouch.web.discovery import ConnectionCatalog
 from datavouch.web.planner import planning_router
 from datavouch.web.runs import RunStore, run_router
 
@@ -88,6 +89,7 @@ def create_app(
     if enable_live_execution and (connections is None or run_directory is None):
         raise ValueError("Execution requires connections and a private run directory")
     configured_connections = load_connections(connections)
+    connection_catalog = ConnectionCatalog(connections)
 
     def authorize_actor(subject: str, connection: str) -> None:
         user = account(gateway_config, subject) if gateway_config else LOCAL_ADMIN
@@ -95,7 +97,7 @@ def create_app(
             raise ValueError("Execution authorization revoked")
 
     store = (
-        RunStore(run_directory, connections, authorize_actor)
+        RunStore(run_directory, connections, authorize_actor, connection_catalog.resolve)
         if enable_live_execution and run_directory is not None and connections is not None
         else None
     )
@@ -146,7 +148,9 @@ def create_app(
             {
                 "Cache-Control": "no-store",
                 "X-Content-Type-Options": "nosniff",
-                "Referrer-Policy": "no-referrer",
+                # HTML POST forms need their same-origin Origin header. no-referrer
+                # makes browsers send Origin: null, which must remain rejected.
+                "Referrer-Policy": "same-origin",
                 "X-Frame-Options": "DENY",
                 "Content-Security-Policy": (
                     "default-src 'none'; style-src 'self'; img-src 'self'; "
@@ -186,6 +190,31 @@ def create_app(
             },
             status_code=exc.status_code,
             headers=exc.headers,
+        )
+
+    @app.get("/guide", response_class=HTMLResponse)
+    def user_guide(request: Request) -> Response:
+        return templates.TemplateResponse(
+            request=request, name="guide.html", context={"title": "User guide"}
+        )
+
+    @app.get("/guide/ticket-sales", response_class=HTMLResponse)
+    def ticket_story(request: Request) -> Response:
+        return templates.TemplateResponse(
+            request=request,
+            name="ticket-sales.html",
+            context={
+                "title": "Understand DataVouch through event ticket sales",
+                "examples": [w for w in workloads if w.id == "ticket-sales"],
+                "ticket_runs": [
+                    r
+                    for r in store.list_runs()
+                    if r.get("workload") == "ticket-sales"
+                    and principal(request).permits(r["connection"])
+                ]
+                if store
+                else [],
+            },
         )
 
     @app.get("/", response_class=HTMLResponse)
@@ -301,6 +330,8 @@ def create_app(
             headers={"Content-Disposition": 'attachment; filename="datavouch-report.json"'},
         )
 
-    app.include_router(planning_router(templates, configured_connections, store))
+    app.include_router(
+        planning_router(templates, configured_connections, store, connection_catalog)
+    )
     app.include_router(run_router(templates, store, allow_raw_reports))
     return app

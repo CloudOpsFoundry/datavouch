@@ -3,7 +3,7 @@ services:
     build:
       context: ../..
       dockerfile: deployment/container/Dockerfile
-    image: datavouch-app:local
+    image: "${DATAVOUCH_IMAGE:-datavouch-app:local}"
     user: "${DATAVOUCH_UID:?Set DATAVOUCH_UID}:${DATAVOUCH_GID:?Set DATAVOUCH_GID}"
     read_only: true
     cap_drop: [ALL]

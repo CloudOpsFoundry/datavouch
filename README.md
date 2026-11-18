@@ -8,11 +8,15 @@ A project of **CloudOpsFoundry**. *Tomorrow takes shape in today’s open source
 
 DataVouch helps data engineers validate workload changes with reproducible correctness, performance and reliability evidence. [Purpose, use cases and benefits](docs/product.md).
 
+See the benefit through [an event ticket-sales walkthrough](docs/ticket-sales-walkthrough.md): evaluate a query rewrite without losing multi-ticket booking revenue. Open **Example walkthrough** in the UI, or run the local example without a cloud account.
+
+Learn [workloads, experiments, runs and results](docs/user-guide.md), or open **User guide** in the application.
+
 Start with the [step-by-step local guide](docs/getting-started.md). DataVouch is developed as a monorepo; see the [product and UI roadmap](docs/product-roadmap.md) for delivery scope. The [acceptance checklist](docs/product-acceptance.md) maps product requirements to implementation and final release gates.
 
 ## Available capabilities
 
-The package compares offline workload observations using configurable regression thresholds, explicit units, minimum sample counts and optional input volume normalization. It returns PASS, FAIL or UNKNOWN for the selected metric and includes the underlying evidence in deterministic JSON. The experimental BigQuery adapter collects bounded job metadata from offline fixtures or an explicitly requested live query. A live smoke test with three synthetic SELECT jobs has passed. Broader workload validation remains outstanding.
+The package compares offline workload observations using configurable regression thresholds, explicit units, minimum sample counts and optional input volume normalization. It returns PASS, FAIL or UNKNOWN for the selected metric and includes the underlying evidence in deterministic JSON. The experimental BigQuery adapter collects bounded job metadata from offline fixtures or an explicitly requested live query. The generated ticket-sales walkthrough exercises real BigQuery jobs and verification. Acceptance against real client workloads remains a separate requirement.
 
 The `run-bigquery` command collects baseline and candidate jobs, verifies the experiment, and saves replayable inputs, reports and a local viewer catalog. See [BigQuery experiments](docs/bigquery-experiments.md).
 
@@ -20,7 +24,7 @@ The `verify` command combines performance, execution windows, independently supp
 
 The `finance` command and saved-run financial form distinguishes usage-based estimates, supplied net spending and reviewed counterfactual differences. It rejects overlapping claims and requires matching verification evidence for attribution. See [financial verification](docs/financial.md).
 
-The optional authenticated local UI shows workload history, evidence and report downloads, guides you through creating a validated BigQuery experiment plan, and optionally runs bounded collection with persistent local history. It accepts independently supplied correctness evidence and shows collected resource measurements and financial assessments. See [UI execution](docs/ui-execution.md), [application container](docs/container.md), and [client OIDC gateway access](docs/gateway-access.md).
+The optional authenticated local UI shows workload history, evidence and report downloads, guides you through creating a validated BigQuery experiment plan, and optionally runs bounded collection with persistent local history. It accepts independently supplied correctness evidence and shows collected resource measurements and financial assessments. See [UI execution](docs/ui-execution.md), [Docker Compose](docs/container.md), [Kubernetes with Helm](docs/kubernetes.md), and [client OIDC gateway access](docs/gateway-access.md).
 
 The `gate` command applies an external verification policy for local and CI workflows, with explicit UNKNOWN handling and optional JSON/Markdown/HTML artifacts. See [workflow integration](docs/workflow.md).
 
@@ -50,8 +54,12 @@ The synthetic example has baseline mean 100 ms and candidate mean 80 ms, a 20 pe
 
 This is an experimental release. Comparisons are descriptive and do not establish statistical confidence or causation. The metric-only `compare` command reports correctness as UNKNOWN. Full `verify` results apply only to configured checks and supplied evidence. DataVouch does not independently execute assertion queries, authenticate billing evidence, prove realized savings or authenticate billing sources. Financial examples use synthetic rates and amounts, not actual billing. Live BigQuery use requires the optional SDK and authorized credentials. No production readiness claim is made.
 
+The repository remains private until independent reviews are complete. The [review pack](docs/review-pack.md) and [client validation procedure](docs/client-validation.md) define the required evidence and sign-offs.
+
 See [release readiness](docs/release-readiness.md) for completed local checks and outstanding independent review, and [deployment guidance](docs/deployment.md) for supported local operation.
 
 ## Contributing, licence and security
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md). DataVouch uses the [MIT licence](LICENSE). Follow [SECURITY.md](SECURITY.md) to report vulnerabilities without publishing sensitive information.
+
+Google Cloud projects and observed locations can be discovered using backend workload credentials, with deployment and user access controls. See [Google Cloud connections and discovery](docs/connections.md) for setup and permissions.

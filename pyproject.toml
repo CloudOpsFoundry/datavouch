@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "datavouch"
-version = "0.1.0a1"
+version = "0.1.0a2"
 description = "Reproducible evidence for data workload changes"
 readme = "README.md"
 requires-python = ">=3.15,<3.16"
@@ -20,7 +20,7 @@ web = ["fastapi>=0.115,<1", "uvicorn>=0.34,<1", "jinja2>=3.1,<4"]
 datavouch = "datavouch.cli:main"
 
 [dependency-groups]
-dev = ["httpx>=0.28,<1", "pytest>=8", "ruff>=0.12", "mypy>=1.16", "coverage>=7", "build>=1.2", "bandit>=1.8", "pip-audit>=2.9", "hatchling>=1.27,<2", "editables>=0.5,<1"]
+dev = ["pyyaml>=6,<7", "httpx>=0.28,<1", "pytest>=8", "ruff>=0.12", "mypy>=1.16", "coverage>=7", "build>=1.2", "bandit>=1.8", "pip-audit>=2.9", "hatchling>=1.27,<2", "editables>=0.5,<1"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/datavouch"]

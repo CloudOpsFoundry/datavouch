@@ -1,0 +1,10 @@
+{
+  "connections": [],
+  "discovery": {
+    "quota_project": "client-quota",
+    "allowed_projects": ["client-analytics"],
+    "allowed_locations": ["*"],
+    "maximum_bytes_billed": 100000000,
+    "timeout_seconds": 60
+  }
+}

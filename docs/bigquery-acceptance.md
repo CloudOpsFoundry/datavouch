@@ -1,11 +1,11 @@
 # Manual BigQuery acceptance through the UI
 
-Use only `sandbox-platform-services`, location `eu`, for this repository's real validation. This walkthrough creates no tables and changes no customer data. It runs small synthetic queries and bounded metadata collection, which can incur query charges. Keep the product's project configuration generic; these are test-environment values.
+Select an explicitly approved test project and BigQuery location before starting. No project or location is selected by this guide. This walkthrough creates no tables and changes no customer data. It runs small synthetic queries and bounded metadata collection, which can incur query charges. Keep the product's project configuration generic; keep private deployment values outside the repository.
 
 ## Prepare
 
-1. Start the local UI using [UI execution](ui-execution.md). Configure one approved connection for `sandbox-platform-services`, `eu`, maximum bytes billed `200000000`, timeout `60` seconds. Use matching ADC quota project.
-2. In BigQuery Studio, select that project. Set processing location to EU and turn off cached results for the test queries. Set a query byte limit appropriate for these table-free queries.
+1. Start the local UI using [UI execution](ui-execution.md). Configure a connection for your approved project and location. Choose a metadata byte budget (for example `200000000`) and timeout (for example `60` seconds) within your deployment policy. Use matching ADC quota project.
+2. In BigQuery Studio, select that project. Set processing location to your approved location and turn off cached results for the test queries. Set a query byte limit appropriate for these table-free queries.
 3. Record UTC times and the job ID from each completed query's job details. Use a baseline window starting before the first baseline job starts and ending after the last baseline job finishes. The candidate window starts after the declared change time and ends after its last job finishes.
 
 ## Run baseline and candidate manually
@@ -29,10 +29,10 @@ Independently verify all three candidate results equal `500500`. Save a private 
 
 | Field | Value |
 | --- | --- |
-| Connection | Your approved sandbox EU connection |
+| Connection | Your approved project/location connection |
 | Experiment ID | A unique name such as `manual-equivalent-001` |
 | Workload | `synthetic-business-total` |
-| Environment | `sandbox` |
+| Environment | Your test-environment identifier |
 | Input snapshot | `integer-sequence-1-through-1000` |
 | Description | Equivalent aggregate rewritten as arithmetic |
 | Change time | Recorded UTC time between the two cohorts |

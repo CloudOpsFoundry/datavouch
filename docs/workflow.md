@@ -63,4 +63,4 @@ For a consuming repository, install a trusted released wheel or an immutable tru
 
 1. Run the local PASS, FAIL and UNKNOWN examples and inspect all three report formats.
 2. After the project is committed to an authorized GitHub repository, run **Workload verification example** manually. Confirm its summary and artifact, then use a disposable branch to test FAIL and blocked UNKNOWN. Remote GitHub execution has not yet been validated.
-3. For workload evidence, use sanitized inputs from authorized `sandbox-platform-services` runs in `eu`, with the same project for quota/billing. Run the gate locally first and compare with `datavouch verify` using equivalent policy. Do not include credentials or raw billing extracts in artifacts. Real financial reconciliation is a separate task.
+3. For workload evidence, use sanitized inputs from authorized runs in your approved project and location, with the same project for quota/billing. Run the gate locally first and compare with `datavouch verify` using equivalent policy. Do not include credentials or raw billing extracts in artifacts. Real financial reconciliation is a separate task.

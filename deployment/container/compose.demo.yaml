@@ -1,0 +1,3 @@
+services:
+  datavouch:
+    command: [serve, /data/demo/catalog.json, --bind-address, 0.0.0.0, --port, '8765', --password-file, /config/password]

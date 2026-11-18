@@ -50,11 +50,19 @@ def test_access_boundaries(client):
     assert response.status_code == 200
     assert response.headers["cache-control"] == "no-store"
     assert response.headers["x-frame-options"] == "DENY"
+    assert response.headers["referrer-policy"] == "same-origin"
     assert "default-src 'none'" in response.headers["content-security-policy"]
     assert client.get(BASE + "verified/report.json").status_code == 403
 
 
-@pytest.mark.parametrize("route", ["/", "/workloads", "/workloads/daily-summary"])
+@pytest.mark.parametrize("origin", ["null", "https://attacker.example"])
+def test_form_origin_protection(client, origin):
+    assert client.post("/", headers={"Origin": origin}).status_code == 403
+    # A legitimate browser POST reaches routing, rather than the CSRF rejection.
+    assert client.post("/", headers={"Origin": "http://127.0.0.1"}).status_code == 405
+
+
+@pytest.mark.parametrize("route", ["/", "/guide", "/workloads", "/workloads/daily-summary"])
 def test_pages(client, route):
     assert client.get(route).status_code == 200
 
@@ -247,3 +255,15 @@ def test_interactive_password(catalog, monkeypatch):
         patch("uvicorn.run"),
     ):
         assert serve_command(catalog, 8765, False) == 0
+
+
+def test_user_guide_requires_authentication(client):
+    assert client.get("/guide", auth=None).status_code == 401
+    response = client.get("/guide")
+    assert response.status_code == 200
+    assert 'aria-current="page"' in response.text
+    assert 'href="/experiments/new"' in response.text
+    assert 'href="/runs"' not in response.text  # No execution store in viewer mode.
+    assert 'id="workloads"' in response.text
+    assert 'id="experiments"' in response.text
+    assert 'id="runs"' in response.text

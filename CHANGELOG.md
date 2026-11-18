@@ -2,9 +2,29 @@
 
 ## Unreleased
 
+No changes yet.
+
+## 0.1.0a2
+
+Private alpha for acceptance testing. Existing report schemas remain unchanged; stable API compatibility is not promised. Independent client, security, onboarding and license acceptance remains pending.
+
+- Add deployment-approved, authenticated Google Cloud project and observed BigQuery location discovery with bounded requests, caching and refresh.
+- Add an event ticket-sales example walkthrough, measured local and opt-in BigQuery examples, report recommendations and a same-page path to the first experiment.
+
+- Add an authenticated user guide and contextual explanations for workloads, experiments, runs, report types and outcomes.
+- Prepare real client identity/network acceptance and independent security, onboarding, financial-method and license review procedures.
+- Fix legitimate browser form submissions rejected by the referrer policy while retaining cross-site protection.
+
+- Add admin selection and all-history deletion with exact-instance confirmation, connection isolation, durable file removal and explicit failure handling.
+
+- Add a measured local SQL demo with independently checked revenue and replayable PASS/FAIL/UNKNOWN evidence.
+- Fix empty connection allowlists so fresh offline deployments start with planning disabled.
+- Add Helm deployment, schema/security checks, persistent storage and local Kubernetes acceptance tooling.
+- Add Compose execution, gateway, ADC and demo overrides with repeatable runtime checks.
+
 - Add guided correctness evidence, resource metric selection, saved financial assessments and workload history filters.
 - Add existing OIDC gateway integration, explicit roles and connection scopes, subject-bound forms, audit export and confirmed retention deletion.
-- Add a non-root application container, client deployment guidance and final sandbox acceptance walkthrough.
+- Add a non-root application container, client deployment guidance and final BigQuery acceptance walkthrough.
 
 Added opt-in local UI execution through a bounded CLI worker, with deployment scope revalidation, explicit collection consent, duplicate-plan protection, persistent run history and result downloads. Concurrent submissions are bounded and interrupted runs never automatically retry.
 

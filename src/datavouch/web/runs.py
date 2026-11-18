@@ -1,6 +1,7 @@
 """Single-worker local execution with durable state and no automatic cloud retries."""
 
 import hashlib
+import hmac
 import json
 import os
 import re
@@ -24,7 +25,7 @@ from datavouch.core.configuration import read_json
 from datavouch.financial.evaluation import assess
 from datavouch.web.access import administrator, form_token, operator, principal
 from datavouch.web.catalog import ExperimentView, load_catalog, sections
-from datavouch.web.connections import load_connections
+from datavouch.web.connections import Connection, load_connections
 from datavouch.web.financial import financial_document
 
 MAX_RUNS = 50
@@ -46,8 +47,10 @@ class RunStore:
         root: Path,
         connections: Path,
         authorize_actor: Callable[[str, str], None] | None = None,
+        resolve_connection: Callable[[str], Connection | None] | None = None,
     ) -> None:
         self.authorize_actor = authorize_actor
+        self.resolve_connection = resolve_connection
         root.mkdir(mode=0o700, parents=True, exist_ok=True)
         if root.is_symlink() or root.stat().st_mode & 0o077:
             raise ValueError("Run directory must be private (mode 700) and not a symlink")
@@ -116,6 +119,9 @@ class RunStore:
                             "Check cloud job status before creating another experiment."
                         ),
                     )
+                generation = record.setdefault("generation", secrets.token_hex(16))
+                if not isinstance(generation, str) or not re.fullmatch(r"[a-f0-9]{32}", generation):
+                    raise ValueError("Invalid run generation")
                 self.records[key] = record
                 self._save(record)
         except BaseException:
@@ -158,8 +164,12 @@ class RunStore:
         temporary.replace(directory / "state.json")
 
     def _authorize(self, plan: dict[str, Any], connection_id: str) -> int:
-        connection = next(
-            (c for c in load_connections(self.connections) if c.id == connection_id), None
+        connection = (
+            self.resolve_connection(connection_id)
+            if self.resolve_connection
+            else next(
+                (c for c in load_connections(self.connections) if c.id == connection_id), None
+            )
         )
         if connection is None:
             raise ValueError("Connection is no longer approved by this deployment.")
@@ -208,6 +218,7 @@ class RunStore:
                 "title": plan["id"],
                 "connection": connection_id,
                 "submitted_by": actor,
+                "generation": secrets.token_hex(16),
                 "workload": plan["baseline"]["workload"]["id"],
                 "project": plan["baseline"]["project"],
                 "location": plan["baseline"]["location"],
@@ -371,17 +382,35 @@ class RunStore:
                 temporary.replace(target)
             return identifier
 
-    def delete(self, key: str, actor: str = "local:datavouch") -> None:
+    def delete_many(
+        self,
+        keys: list[str],
+        actor: str = "local:datavouch",
+        permits: Callable[[str], bool] | None = None,
+    ) -> None:
+        """Preflight the complete selection before removing any saved run."""
         with self.lock:
-            if self.records[key]["state"] == "RUNNING":
-                raise RunBusy("A running experiment cannot be deleted")
-            directory = self.root / key
-            if directory.is_symlink():
-                raise ValueError("Invalid run directory")
-            self.audit("run_deleted", key, actor, self.records[key]["connection"])
-            shutil.rmtree(directory)
-            del self.records[key]
-            self.views.pop(key, None)
+            if not keys or len(keys) > MAX_RUNS or len(set(keys)) != len(keys):
+                raise ValueError("Select between one and fifty distinct runs")
+            for key in keys:
+                record = self.records[key]
+                if permits is not None and not permits(record["connection"]):
+                    raise KeyError(key)
+                if record["state"] == "RUNNING":
+                    raise RunBusy("A running experiment cannot be deleted")
+                if (self.root / key).is_symlink():
+                    raise ValueError("Invalid run directory")
+            for key in keys:
+                connection = self.records[key]["connection"]
+                self.audit("run_deletion_requested", key, actor, connection)
+                self.views.pop(key, None)
+                if (self.root / key).exists():
+                    shutil.rmtree(self.root / key)
+                del self.records[key]
+                self.audit("run_deleted", key, actor, connection)
+
+    def delete(self, key: str, actor: str = "local:datavouch") -> None:
+        self.delete_many([key], actor)
 
     def close(self) -> None:
         with self.lock:
@@ -442,7 +471,17 @@ def run_router(templates: Jinja2Templates, store: RunStore | None, allow_raw: bo
         return templates.TemplateResponse(
             request=request,
             name="runs.html",
-            context={"title": "Experiment runs", "runs": runs, "q": q, "status": status},
+            context={
+                "title": "Experiment runs",
+                "runs": runs,
+                "q": q,
+                "status": status,
+                "csrf": form_token(token, request),
+                "scoped_count": sum(
+                    principal(request).permits(r["connection"])
+                    for r in required_store().list_runs()
+                ),
+            },
         )
 
     def record(request: Request, key: str) -> dict[str, Any]:
@@ -520,7 +559,7 @@ def run_router(templates: Jinja2Templates, store: RunStore | None, allow_raw: bo
             if len(body) > 65536:
                 raise HTTPException(413, "Form exceeds 64 KiB")
         try:
-            pairs = parse_qsl(body.decode(), keep_blank_values=True, max_num_fields=20)
+            pairs = parse_qsl(body.decode(), keep_blank_values=True, max_num_fields=MAX_RUNS + 5)
         except (ValueError, UnicodeError) as exc:
             raise HTTPException(400, "Invalid form") from exc
         values = dict(pairs)
@@ -529,6 +568,104 @@ def run_router(templates: Jinja2Templates, store: RunStore | None, allow_raw: bo
         ):
             raise HTTPException(403, "Reload before submitting")
         return values
+
+    def deletion_error(request: Request, message: str, status: int = 409) -> Response:
+        return templates.TemplateResponse(
+            request=request,
+            name="history-error.html",
+            context={"title": "History action could not complete", "message": message},
+            status_code=status,
+        )
+
+    def deletion_proof(request: Request, keys: list[str]) -> str:
+        message = json.dumps(
+            [
+                principal(request).subject,
+                [(key, required_store().get(key)["generation"]) for key in sorted(keys)],
+            ]
+        )
+        return hmac.new(token.encode(), message.encode(), "sha256").hexdigest()
+
+    @router.post("/runs/deletion-preview")
+    async def deletion_preview(request: Request) -> Response:
+        user = administrator(request)
+        values = await submitted(request)
+        mode = values.pop("mode", "")
+        if mode not in {"selected", "all"} or any(
+            not re.fullmatch(r"run_[a-f0-9]{64}", key) or value != "yes"
+            for key, value in values.items()
+        ):
+            raise HTTPException(400, "Invalid history selection")
+        current = required_store()
+        with current.lock:
+            keys = (
+                [r["id"] for r in current.list_runs() if user.permits(r["connection"])]
+                if mode == "all"
+                else [key.removeprefix("run_") for key in values]
+            )
+            if not keys:
+                return deletion_error(
+                    request, "Select at least one saved run. Nothing was deleted.", 400
+                )
+            selected = [record(request, key) for key in keys]
+            if any(r["state"] == "RUNNING" for r in selected):
+                return deletion_error(
+                    request, "Wait for running experiments to finish. Nothing was deleted."
+                )
+            proof = deletion_proof(request, keys)
+        return templates.TemplateResponse(
+            request=request,
+            name="delete-runs.html",
+            context={
+                "title": "Confirm history deletion",
+                "runs": selected,
+                "selection": json.dumps(sorted(keys)),
+                "proof": proof,
+                "csrf": form_token(token, request),
+            },
+        )
+
+    @router.post("/runs/delete-history")
+    async def delete_history(request: Request) -> Response:
+        user = administrator(request)
+        values = await submitted(request)
+        if set(values) != {"selection", "proof", "confirmed"} or values["confirmed"] != "yes":
+            raise HTTPException(400, "Confirm the exact previewed selection")
+        try:
+            keys = json.loads(values["selection"])
+            if (
+                not isinstance(keys, list)
+                or not 1 <= len(keys) <= MAX_RUNS
+                or any(
+                    not isinstance(key, str) or not re.fullmatch(r"[a-f0-9]{64}", key)
+                    for key in keys
+                )
+                or len(set(keys)) != len(keys)
+            ):
+                raise ValueError("Invalid selection")
+        except (ValueError, TypeError) as exc:
+            raise HTTPException(400, "Invalid history selection") from exc
+        try:
+            current = required_store()
+            with current.lock:
+                if not secrets.compare_digest(
+                    values["proof"].encode(), deletion_proof(request, keys).encode()
+                ):
+                    raise HTTPException(403, "Reload the deletion preview")
+                current.delete_many(keys, user.subject, user.permits)
+        except KeyError:
+            return deletion_error(
+                request,
+                "History or permissions changed. Reload history and review a new selection.",
+            )
+        except ValueError, OSError:
+            return deletion_error(
+                request,
+                "Deletion could not fully complete. Some files may have been removed. "
+                "Reload history and retry the remaining selection; contact the administrator "
+                "if the error persists.",
+            )
+        return RedirectResponse("/runs", status_code=303)
 
     @router.post("/runs/{key}/financial")
     async def financial(request: Request, key: str) -> Response:

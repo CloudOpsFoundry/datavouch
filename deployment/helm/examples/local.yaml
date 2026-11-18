@@ -1,0 +1,7 @@
+# Local image must be loaded into the chosen cluster before installation.
+image:
+  repository: datavouch-app
+  tag: local
+  pullPolicy: Never
+config:
+  showExamples: true

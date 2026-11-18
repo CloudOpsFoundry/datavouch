@@ -1,0 +1,18 @@
+{{- if and .Values.execution.enabled (not .Values.persistence.enabled) -}}
+{{- fail "Execution requires persistent storage" -}}
+{{- end -}}
+{{- if and .Values.execution.enabled (empty .Values.config.connections) (empty .Values.config.discovery) -}}
+{{- fail "Execution requires deployment-owned connections" -}}
+{{- end -}}
+{{- if and (eq .Values.auth.mode "gateway") (empty .Values.config.gatewayPolicy) -}}
+{{- fail "Gateway mode requires an explicit verified-subject policy" -}}
+{{- end -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "datavouch.name" . }}
+  labels:
+    {{- include "datavouch.labels" . | nindent 4 }}
+data:
+  connections.json: {{ dict "connections" .Values.config.connections "discovery" .Values.config.discovery | toJson | quote }}
+  gateway-policy.json: {{ .Values.config.gatewayPolicy | toJson | quote }}

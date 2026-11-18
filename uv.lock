@@ -362,7 +362,7 @@ wheels = [
 
 [[package]]
 name = "datavouch"
-version = "0.1.0a1"
+version = "0.1.0a2"
 source = { editable = "." }
 
 [package.optional-dependencies]
@@ -386,6 +386,7 @@ dev = [
     { name = "mypy" },
     { name = "pip-audit" },
     { name = "pytest" },
+    { name = "pyyaml" },
     { name = "ruff" },
 ]
 
@@ -409,6 +410,7 @@ dev = [
     { name = "mypy", specifier = ">=1.16" },
     { name = "pip-audit", specifier = ">=2.9" },
     { name = "pytest", specifier = ">=8" },
+    { name = "pyyaml", specifier = ">=6,<7" },
     { name = "ruff", specifier = ">=0.12" },
 ]
 

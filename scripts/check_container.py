@@ -79,13 +79,16 @@ def main() -> int:
                     raise AssertionError("Anonymous access unexpectedly succeeded")
             else:
                 raise AssertionError("Container did not become ready")
-            for path in ("/", "/workloads", "/experiments/new"):
+            for path in ("/", "/guide", "/workloads", "/experiments/new"):
                 request = urllib.request.Request(
                     base + path, headers={"Authorization": "Basic " + token}
                 )
                 with urllib.request.urlopen(request, timeout=5) as response:
                     assert response.status == 200
                     assert response.headers["Cache-Control"] == "no-store"
+                    assert response.headers["Referrer-Policy"] == "same-origin"
+                    if path == "/guide":
+                        assert "Understand your evidence" in response.read().decode()
                     if path == "/":
                         page = response.read().decode()
                         assert all(status in page for status in ("PASS", "FAIL", "UNKNOWN"))

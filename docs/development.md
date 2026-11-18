@@ -51,3 +51,7 @@ The prepared main protection policy requires `CI passed`. GitHub Free does not e
 ## Static analysis tooling
 
 Ruff, mypy and Bandit are the current static checks; pip-audit checks dependencies and coverage measures tests. SonarQube can later add centralized history and quality governance, but it is not needed to run these checks. Its documented small-installation baseline of 4 GB RAM and two cores would compete with the runners and existing containers on this host. Use the official SonarQube image and a separately provisioned database if centralized analysis becomes a requirement, rather than maintaining a custom analyzer image.
+
+## Deployment checks
+
+The code-quality job also runs Helm 4.2.0 lint, schema rejection tests, render/security contracts and chart packaging. On Linux CI the validator downloads the official architecture-specific Helm archive and checks its pinned SHA-256. No cluster credentials or Docker socket are supplied to CI. Local `scripts/check_compose.py` and `scripts/check_kubernetes.py --context YOUR_CONTEXT` exercise actual infrastructure separately; the Kubernetes check creates and removes only its own generated namespace.

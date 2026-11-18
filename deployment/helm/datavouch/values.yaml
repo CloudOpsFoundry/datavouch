@@ -1,0 +1,60 @@
+# Build and load locally, or replace with your private registry image and immutable digest.
+image:
+  repository: datavouch-app
+  tag: local
+  digest: ''
+  pullPolicy: IfNotPresent
+imagePullSecrets: []
+# One process owns the local store. Scaling requires a different storage/worker design.
+replicaCount: 1
+auth:
+  mode: basic
+  existingSecret: datavouch-auth
+  passwordKey: password
+  gatewaySecretKey: gateway-secret
+config:
+  connections: []
+  # Optional bounded Google Cloud metadata discovery; see docs/connections.md.
+  discovery: null
+  gatewayPolicy: {}
+  showExamples: false
+  catalogPath: ''
+execution:
+  enabled: false
+  allowRawReports: false
+persistence:
+  enabled: true
+  existingClaim: ''
+  size: 1Gi
+  storageClass: null
+  accessMode: ReadWriteOnce
+service:
+  port: 8765
+serviceAccount:
+  create: true
+  name: ''
+  annotations: {}
+# Workload identity can require a projected API token. Opt in only for your platform.
+automountServiceAccountToken: false
+podAnnotations: {}
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: '1'
+    memory: 512Mi
+# Empty rules deny pod-network traffic when supported by the cluster CNI.
+# Configure gateway ingress, DNS and provider/identity egress explicitly for live use.
+networkPolicy:
+  enabled: true
+  ingress: []
+  egress: []
+# Prefer workload identity. Optional existing ADC Secret; never embed keys in values.
+credentials:
+  existingSecret: ''
+  key: adc.json
+  quotaProject: ''
+nodeSelector: {}
+tolerations: []
+affinity: {}
