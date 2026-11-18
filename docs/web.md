@@ -1,4 +1,4 @@
-# Local report viewer
+# Local experiment workspace
 
 The optional FastAPI application provides workload history, experiment details, correctness and reliability checks, financial classifications, and JSON downloads. It calculates a bounded snapshot once at startup using the same engines as the CLI. Requests do not query BigQuery or recalculate reports.
 
@@ -27,8 +27,22 @@ Choose catalog labels and assertion names suitable for display. The UI omits raw
 
 ## Access model and limits
 
-The command binds only to loopback, requires HTTP Basic authentication, rejects unexpected Host headers and cross-site browser requests, and supplies restrictive browser security headers. Static CSS and the icon contain no report data. There are no upload, mutation, cloud collection or browser-side calculation routes. A restart creates a new immutable snapshot.
+The command binds only to loopback, requires HTTP Basic authentication, rejects unexpected Host headers and cross-site browser requests, and supplies restrictive browser security headers. Static CSS and the icon contain no report data. Report routes remain read-only. The bounded plan form validates submitted fields and returns a preview or JSON download without saving server-side state or collecting cloud data. It requires authentication and a server-issued form token; cross-site submissions are rejected. A restart creates a new immutable snapshot.
 
 This is a single-user local viewer. Do not expose it through port forwarding or a public proxy. Multi-user identity, TLS deployment, session revocation, public hosting and containers are outside this phase. HTTP Basic credentials remain cached by the browser; close the browser session when finished. No production security claim is made.
 
 For real validation, first prepare sanitized comparison or verification inputs from authorized runs in `sandbox-platform-services`, location `eu`; keep them in a private catalog directory and set `synthetic` to false only for real evidence. Check CLI results against the UI and compare full report downloads locally. Real billing validation requires separately authorized billing evidence and independent reconciliation.
+
+## Plan a BigQuery experiment
+
+1. Start the local UI and sign in, following the [setup guide](getting-started.md).
+2. Configure [deployment connections](connections.md), restart with `--connections`, and select **New experiment** in the navigation. Choose your approved project/location.
+3. Describe the workload, input snapshot and change. Explain why the original and changed executions are comparable.
+4. Enter separate baseline and candidate job IDs, one per line, and execution windows using the date-and-time pickers. All five fields, including change time, are explicitly UTC. Your browser may display dates in its locale, but the selected time is never interpreted as local time. Minute, second and millisecond precision are supported; exported plans carry the UTC `Z` suffix. The baseline must end before the change; the candidate must start at or after the change. Each window may span at most 31 days.
+5. Set the minimum run count, permitted runtime regression and reliability thresholds. Name the required correctness checks. Their evidence remains empty until independently supplied.
+6. Review the metadata query byte cap and timeout. Choose an approved project/location from the deployment dropdown. See [connection configuration](connections.md). It does not submit queries.
+7. Confirm cohort completeness only if all selected executions, including failures, are accounted for. Mark synthetic data explicitly where applicable.
+8. Select **Validate plan**. Errors retain your entries. A valid plan is not a PASS result and does not establish that job IDs exist or that correctness checks passed.
+9. Select **Validate and download** to save `datavouch-plan.json`. The file contains workload and job identifiers, so keep it private. It uses the same schema and validator as `run-bigquery`.
+
+For authorized collection, follow [BigQuery experiment setup](bigquery-experiments.md) and run the downloaded plan through the CLI. Missing correctness evidence remains UNKNOWN. The browser does not yet collect evidence or retain drafts; downloading is how you preserve a plan. Restarting the server invalidates outstanding form tokens, so reload the form before submitting again.

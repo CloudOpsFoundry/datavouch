@@ -6,7 +6,9 @@ import sys
 from pathlib import Path
 
 
-def serve_command(catalog: Path, port: int, allow_raw_reports: bool) -> int:
+def serve_command(
+    catalog: Path, port: int, allow_raw_reports: bool, connections: Path | None = None
+) -> int:
     if not 1024 <= port <= 65535:
         print("Port must be between 1024 and 65535.", file=sys.stderr)
         return 2
@@ -24,9 +26,14 @@ def serve_command(catalog: Path, port: int, allow_raw_reports: bool) -> int:
         print("Install datavouch[web] to run the viewer.", file=sys.stderr)
         return 2
     try:
-        app = create_app(catalog, password, allow_raw_reports=allow_raw_reports)
+        app = create_app(
+            catalog, password, allow_raw_reports=allow_raw_reports, connections=connections
+        )
     except ValueError, TypeError, OSError, OverflowError, RecursionError:
-        print("Invalid catalog or password. Check the viewer setup guide.", file=sys.stderr)
+        print(
+            "Invalid catalog, connections configuration or password. Check the viewer setup guide.",
+            file=sys.stderr,
+        )
         return 2
     print(f"DataVouch: http://127.0.0.1:{port} (username: datavouch)", flush=True)
     uvicorn.run(app, host="127.0.0.1", port=port, access_log=False, proxy_headers=False)

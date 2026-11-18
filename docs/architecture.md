@@ -10,7 +10,7 @@ The financial layer validates immutable pricing, usage, billing and claim record
 
 ## Local viewer
 
-The optional FastAPI/Jinja2 presentation layer loads an explicit, bounded catalog into immutable startup snapshots. Existing comparison, verification and financial engines own calculations and JSON serialization. HTTP routes render allowlisted fields and require local authentication; full evidence downloads require an explicit flag. The core package remains dependency-free. See [web setup](web.md).
+The optional FastAPI/Jinja2 presentation layer loads an explicit, bounded catalog into immutable startup snapshots. Existing comparison, verification and financial engines own calculations and JSON serialization. HTTP routes render allowlisted fields and require local authentication; full evidence downloads require an explicit flag. The plan builder accepts bounded authenticated form submissions, checks a server-issued token, and calls the same experiment validator as the CLI. It returns a preview or download without cloud access or server-side draft storage. The core package remains dependency-free. See [web setup](web.md).
 
 ## Workflow gate
 

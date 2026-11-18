@@ -6,15 +6,9 @@
 
 A project of **CloudOpsFoundry**. *Tomorrow takes shape in today’s open source.*
 
-DataVouch is an experimental data engineering assurance framework. Its purpose is to compare workload executions using reproducible evidence, with explicit PASS, FAIL and UNKNOWN conclusions.
+DataVouch helps data engineers validate workload changes with reproducible correctness, performance and reliability evidence. [Purpose, use cases and benefits](docs/product.md).
 
-## Product objective
-
-Help users decide whether a data workload change is safe and beneficial using reproducible evidence. DataVouch reports PASS, FAIL or UNKNOWN for configured correctness, performance and reliability checks, and distinguishes financial estimates from supported financial evidence.
-
-DataVouch is a monorepo: the UI, CLI, shared verification engines, provider adapters, tests, examples and documentation evolve together. The goal is a guided experience that both technical and nontechnical users can operate, with copy-paste setup instructions and clear explanations of results. Today the UI reviews saved results; browser-based experiment creation and execution are planned. The repository stays private during development, with public open-source release subject to the [readiness gates](docs/release-readiness.md).
-
-Start with the [step-by-step local guide](docs/getting-started.md). See the [product and UI roadmap](docs/product-roadmap.md) for the delivery sequence.
+Start with the [step-by-step local guide](docs/getting-started.md). DataVouch is developed as a monorepo; see the [product and UI roadmap](docs/product-roadmap.md) for available features and planned milestones.
 
 ## Available capabilities
 
@@ -26,7 +20,7 @@ The `verify` command combines performance, execution windows, independently supp
 
 The offline `finance` command distinguishes usage-based estimates, supplied net spending and reviewed counterfactual differences. It rejects overlapping claims and requires matching verification evidence for attribution. See [financial verification](docs/financial.md).
 
-The optional authenticated local viewer shows workload history, evidence and report downloads. See [local viewer setup](docs/web.md).
+The optional authenticated local UI shows workload history, evidence and report downloads, and guides you through creating a validated BigQuery experiment plan. See [local viewer setup](docs/web.md).
 
 The `gate` command applies an external verification policy for local and CI workflows, with explicit UNKNOWN handling and optional JSON/Markdown/HTML artifacts. See [workflow integration](docs/workflow.md).
 
