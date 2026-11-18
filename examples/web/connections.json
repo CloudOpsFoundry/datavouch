@@ -1,0 +1,12 @@
+{
+  "connections": [
+    {
+      "id": "analytics-eu",
+      "label": "Analytics EU",
+      "project": "example-analytics",
+      "location": "eu",
+      "maximum_bytes_billed": 100000000,
+      "timeout_seconds": 60
+    }
+  ]
+}

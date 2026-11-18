@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+Added UTC calendar and time controls for baseline, change and candidate windows, with explicit UTC serialization and server-side calendar validation.
+
+Added deployment-owned project/location connections with a dropdown, server-side scope validation and collection limits. Missing configuration disables planning without affecting report review.
+
+Added guided local BigQuery experiment planning with bounded authenticated form submission, shared CLI validation, conservative evidence defaults and plan downloads. Clarified the product purpose and first optimization use case.
+
 Classified BigQuery failures may omit the provider's optional normalized fingerprint without losing reliability evidence. Successful jobs still require fingerprints, and all other exclusions remain conservative.
 
 BigQuery experiments now retain complete, otherwise eligible failed executions for reliability evaluation. Failure rates can fail the verification policy while performance remains UNKNOWN. Missing or otherwise excluded execution evidence still withholds the entire cohort.

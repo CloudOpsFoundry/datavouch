@@ -36,6 +36,7 @@ def main(argv: list[str] | None = None) -> int:
     server.add_argument("catalog", type=Path)
     server.add_argument("--port", type=int, default=8765)
     server.add_argument("--allow-raw-reports", action="store_true")
+    server.add_argument("--connections", type=Path, help="Deployment-owned project allowlist")
     subparsers.add_parser("adapters", help="List registered adapter versions and capabilities")
     generic = subparsers.add_parser("collect", help="Collect through a versioned connector")
     generic.add_argument("config", type=Path)
@@ -80,7 +81,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "serve":
         from datavouch.web.commands import serve_command
 
-        return serve_command(args.catalog, args.port, args.allow_raw_reports)
+        return serve_command(args.catalog, args.port, args.allow_raw_reports, args.connections)
     if args.command == "finance":
         from datavouch.financial.commands import finance_command
 

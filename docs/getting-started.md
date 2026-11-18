@@ -1,6 +1,6 @@
 # Get DataVouch running locally
 
-The local viewer lets you explore sample results without a Google Cloud account, credentials or cloud charges. It is currently a report viewer; experiment creation still uses the CLI. Commands below start from a terminal. Keep the server terminal open while using the browser.
+The local viewer lets you explore sample results without a Google Cloud account, credentials or cloud charges. You can review reports and create a BigQuery experiment plan in the browser; collecting evidence still uses the CLI. Commands below start from a terminal. Keep the server terminal open while using the browser.
 
 ## 1. Get the source
 
@@ -58,6 +58,8 @@ At the prompt, choose a password of 16 to 256 printable ASCII characters. Typing
 5. Download a summary from a detail page and open the JSON file in a text editor.
 
 All bundled examples are synthetic. These checks demonstrate the interface, not production performance or realized savings. See [BigQuery experiments](bigquery-experiments.md) when you are ready to collect authorized evidence. For this development environment, live validation uses only `sandbox-platform-services`, location `eu`.
+
+To create your own plan, first configure [deployment connections](connections.md), then select **New experiment** and follow the [guided planning steps](web.md#plan-a-bigquery-experiment). Validating or downloading a plan does not query Google Cloud.
 
 ## 5. Stop, update and restart
 

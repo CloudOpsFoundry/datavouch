@@ -16,11 +16,19 @@ from starlette.middleware.base import RequestResponseEndpoint
 from starlette.middleware.trustedhost import TrustedHostMiddleware
 
 from datavouch.web.catalog import ExperimentView, WorkloadView, load_catalog
+from datavouch.web.connections import load_connections
+from datavouch.web.planner import planning_router
 
 ASSETS = Path(__file__).parent
 
 
-def create_app(catalog: Path, password: str, *, allow_raw_reports: bool = False) -> FastAPI:
+def create_app(
+    catalog: Path,
+    password: str,
+    *,
+    allow_raw_reports: bool = False,
+    connections: Path | None = None,
+) -> FastAPI:
     """Create a read-only startup snapshot guarded by local HTTP Basic authentication."""
     if (
         not isinstance(password, str)
@@ -203,4 +211,5 @@ def create_app(catalog: Path, password: str, *, allow_raw_reports: bool = False)
             headers={"Content-Disposition": 'attachment; filename="datavouch-report.json"'},
         )
 
+    app.include_router(planning_router(templates, load_connections(connections)))
     return app
