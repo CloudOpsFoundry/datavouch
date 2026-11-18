@@ -11,17 +11,17 @@ from datavouch.verification.evaluation import verify
 from datavouch.web.catalog import load_catalog
 
 
-def test_local_revenue_workflow(tmp_path):
+def test_local_aggregation_workflow(tmp_path):
     output = tmp_path / "demo"
     summary = run_demo(output)
     outcomes = {row["scenario"]: row for row in summary["results"]}
     correct = outcomes["equivalent"]
     incorrect = outcomes["incorrect"]
-    assert correct["expected_total_cents"] == correct["observed_total_cents"] == 55500000
-    assert incorrect["observed_total_cents"] == 24000000
+    assert correct["expected_total"] == correct["observed_total"] == 555000
+    assert incorrect["observed_total"] == 240000
     assert incorrect["status"] == "FAIL"
-    assert correct["checks"]["ticket_sales_total"] == "PASS"
-    assert outcomes["missing-evidence"]["checks"]["ticket_sales_total"] == "UNKNOWN"
+    assert correct["checks"]["weighted_total"] == "PASS"
+    assert outcomes["missing-evidence"]["checks"]["weighted_total"] == "UNKNOWN"
     assert all(row["candidate_mean_ms"] > 0 for row in summary["results"])
     assert "UNKNOWN" in summary["financial_conclusion"]
     assert len(load_catalog(output / "catalog.json")[0].experiments) == 3
@@ -41,10 +41,10 @@ def test_local_revenue_workflow(tmp_path):
         run_demo(output)
 
 
-@pytest.mark.parametrize("orders", [0, 99, 2001])
-def test_demo_is_bounded(tmp_path, orders):
+@pytest.mark.parametrize("groups", [0, 99, 2001])
+def test_demo_is_bounded(tmp_path, groups):
     with pytest.raises(ValueError):
-        run_demo(tmp_path / "invalid", orders)
+        run_demo(tmp_path / "invalid", groups)
     assert not (tmp_path / "invalid").exists()
 
 
@@ -55,7 +55,7 @@ def test_cli_demo_and_no_overwrite(tmp_path):
         "-m",
         "datavouch",
         "demo",
-        "--bookings",
+        "--groups",
         "100",
         "--output-dir",
         str(output),

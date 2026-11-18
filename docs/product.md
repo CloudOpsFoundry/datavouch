@@ -8,18 +8,18 @@ A query can finish successfully and run faster while producing the wrong busines
 
 The target product turns that review into a repeatable workflow: select original and changed executions, define acceptance checks, collect evidence and inspect a report that another engineer can replay.
 
-## Example: a faster sales query that misses refunds
+## Example: a faster aggregate that omits weights
 
-A retailer rewrites its daily sales query. The following numbers are illustrative, not a DataVouch benchmark.
+An engineer rewrites a weighted aggregation query. The following numbers are illustrative, not a DataVouch benchmark.
 
 | Check | Original query | Rewritten query | Result |
 | --- | --- | --- | --- |
 | Average runtime | 10 minutes | 5 minutes | PASS |
 | Output rows | 200,000 | 200,000 | PASS |
-| Total sales | $8.4 million | $8.1 million | FAIL |
+| Weighted total | 555,000 units | 240,000 units | FAIL |
 | Failed runs | 0 of 10 | 0 of 10 | PASS |
 
-The overall result is FAIL because a required business check failed. Matching row counts and faster execution did not make the changed calculation correct. After fixing the logic and providing passing evidence for every required check, the experiment can pass. If total-sales evidence is absent, correctness stays UNKNOWN.
+The overall result is FAIL because a required business check failed. Matching row counts and faster execution did not make the changed calculation correct. After fixing the logic and providing passing evidence for every required check, the experiment can pass. If weighted-total evidence is absent, correctness stays UNKNOWN.
 
 PASS applies only to configured checks, comparable inputs and supplied evidence. It is not proof that all future executions or untested business rules are correct.
 

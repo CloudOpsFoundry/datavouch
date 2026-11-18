@@ -20,7 +20,7 @@ web = ["fastapi>=0.115,<1", "uvicorn>=0.34,<1", "jinja2>=3.1,<4"]
 datavouch = "datavouch.cli:main"
 
 [dependency-groups]
-dev = ["pyyaml>=6,<7", "httpx>=0.28,<1", "pytest>=8", "ruff>=0.12", "mypy>=1.16", "coverage>=7", "build>=1.2", "bandit>=1.8", "pip-audit>=2.9", "hatchling>=1.27,<2", "editables>=0.5,<1"]
+dev = ["commitizen==4.19.3", "pyyaml>=6,<7", "httpx>=0.28,<1", "pytest>=8", "ruff>=0.12", "mypy>=1.16", "coverage>=7", "build>=1.2", "bandit>=1.8", "pip-audit>=2.9", "hatchling>=1.27,<2", "editables>=0.5,<1"]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/datavouch"]
@@ -52,3 +52,16 @@ branch = true
 [tool.coverage.report]
 fail_under = 90
 show_missing = true
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version_provider = "uv"
+version_scheme = "pep440"
+tag_format = "v$version"
+version_files = ["src/datavouch/__init__.py:__version__"]
+update_changelog_on_bump = true
+changelog_file = "CHANGELOG.md"
+changelog_incremental = true
+major_version_zero = false
+annotated_tag = true
+bump_message = "chore(release): $new_version"

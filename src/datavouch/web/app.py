@@ -198,18 +198,18 @@ def create_app(
             request=request, name="guide.html", context={"title": "User guide"}
         )
 
-    @app.get("/guide/ticket-sales", response_class=HTMLResponse)
-    def ticket_story(request: Request) -> Response:
+    @app.get("/guide/weighted-aggregation", response_class=HTMLResponse)
+    def aggregation_story(request: Request) -> Response:
         return templates.TemplateResponse(
             request=request,
-            name="ticket-sales.html",
+            name="aggregation.html",
             context={
-                "title": "Understand DataVouch through event ticket sales",
-                "examples": [w for w in workloads if w.id == "ticket-sales"],
-                "ticket_runs": [
+                "title": "Understand DataVouch through weighted aggregation",
+                "examples": [w for w in workloads if w.id == "weighted-aggregation"],
+                "example_runs": [
                     r
                     for r in store.list_runs()
-                    if r.get("workload") == "ticket-sales"
+                    if r.get("workload") == "weighted-aggregation"
                     and principal(request).permits(r["connection"])
                 ]
                 if store

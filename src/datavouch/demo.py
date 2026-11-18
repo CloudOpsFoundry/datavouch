@@ -10,11 +10,11 @@ from typing import Any
 
 from datavouch.verification.evaluation import verify
 
-BASELINE = """SELECT SUM((SELECT SUM(quantity * ticket_price_cents)
-FROM tickets WHERE tickets.booking_id = bookings.id)) FROM bookings"""
+BASELINE = """SELECT SUM((SELECT SUM(weight * sample_value)
+FROM samples WHERE samples.group_id = sample_groups.id)) FROM sample_groups"""
 CANDIDATES = {
-    "equivalent": "SELECT SUM(quantity * ticket_price_cents) FROM tickets",
-    "incorrect": "SELECT SUM(ticket_price_cents) FROM tickets",
+    "equivalent": "SELECT SUM(weight * sample_value) FROM samples",
+    "incorrect": "SELECT SUM(sample_value) FROM samples",
 }
 
 
@@ -40,7 +40,7 @@ def observe(connection: sqlite3.Connection, sql: str, prefix: str) -> list[dict[
                 "started": started,
                 "completed": timestamp(),
                 "runtime_ms": elapsed_ms,
-                "total_cents": total,
+                "total": total,
             }
         )
     return result
@@ -57,7 +57,11 @@ def document(
     missing: bool = False,
 ) -> dict[str, Any]:
     metric = {"name": "runtime", "unit": "ms", "direction": "lower"}
-    workload = {"id": "ticket-sales", "environment": "local-sqlite", "input_snapshot": snapshot}
+    workload = {
+        "id": "weighted-aggregation",
+        "environment": "local-sqlite",
+        "input_snapshot": snapshot,
+    }
 
     def observation(row: dict[str, Any]) -> dict[str, Any]:
         return {
@@ -66,7 +70,7 @@ def document(
             "measurements": [{"metric": metric, "value": row["runtime_ms"]}],
         }
 
-    experiment_id = "local-ticket-sales-" + name
+    experiment_id = "local-weighted-aggregation-" + name
     return {
         "comparison": {
             "experiment": {
@@ -75,7 +79,7 @@ def document(
                 "candidate": [observation(row) for row in candidate],
                 "change": {
                     "id": name,
-                    "description": "Replace per-booking ticket-sales aggregation",
+                    "description": "Replace per-group weighted aggregation",
                 },
                 "comparability": {
                     "reference": "observations.json",
@@ -88,7 +92,7 @@ def document(
             "policy": {"metric": metric, "minimum_samples": 3, "max_regression_percent": 5},
         },
         "assurance": {
-            "required_checks": ["ticket_sales_total"],
+            "required_checks": ["weighted_total"],
             "windows": {
                 "baseline_start": baseline[0]["started"],
                 "baseline_end": change_at,
@@ -103,10 +107,10 @@ def document(
             if missing
             else [
                 {
-                    "name": "ticket_sales_total",
+                    "name": "weighted_total",
                     "kind": "assertion",
                     "expected": True,
-                    "observed": all(row["total_cents"] == expected for row in candidate),
+                    "observed": all(row["total"] == expected for row in candidate),
                     "reference": "observations.json: independent Python sum of line items",
                     "experiment_id": experiment_id,
                     "execution_ids": [row["id"] for row in candidate],
@@ -116,29 +120,29 @@ def document(
     }
 
 
-def run_demo(output: Path, orders: int = 1000) -> dict[str, Any]:
-    if not 100 <= orders <= 2000:
-        raise ValueError("Use 100 to 2000 bookings for the bounded demo")
+def run_demo(output: Path, groups: int = 1000) -> dict[str, Any]:
+    if not 100 <= groups <= 2000:
+        raise ValueError("Use 100 to 2000 groups for the bounded demo")
     output.mkdir(mode=0o700, parents=True, exist_ok=False)
     # Independent Python oracle; no conclusion is inferred from SQL job success.
     items = [
-        (booking, tier + 1, (4500, 7500, 12000)[tier])
-        for booking in range(1, orders + 1)
+        (group, tier + 1, (45, 75, 120)[tier])
+        for group in range(1, groups + 1)
         for tier in range(3)
     ]
-    expected = sum(quantity * price for _, quantity, price in items)
+    expected = sum(weight * value for _, weight, value in items)
     connection = sqlite3.connect(":memory:")
     try:
-        connection.execute("CREATE TABLE bookings(id INTEGER PRIMARY KEY)")
+        connection.execute("CREATE TABLE sample_groups(id INTEGER PRIMARY KEY)")
         connection.execute(
-            "CREATE TABLE tickets(booking_id INTEGER, quantity INTEGER, ticket_price_cents INTEGER)"
+            "CREATE TABLE samples(group_id INTEGER, weight INTEGER, sample_value INTEGER)"
         )
         connection.executemany(
-            "INSERT INTO bookings VALUES (?)", [(i,) for i in range(1, orders + 1)]
+            "INSERT INTO sample_groups VALUES (?)", [(i,) for i in range(1, groups + 1)]
         )
-        connection.executemany("INSERT INTO tickets VALUES (?, ?, ?)", items)
+        connection.executemany("INSERT INTO samples VALUES (?, ?, ?)", items)
         baseline = observe(connection, BASELINE, "baseline")
-        if any(row["total_cents"] != expected for row in baseline):
+        if any(row["total"] != expected for row in baseline):
             raise ValueError("Demo baseline disagrees with the independent oracle")
         change_at = timestamp()
         candidates = {name: observe(connection, sql, name) for name, sql in CANDIDATES.items()}
@@ -148,9 +152,9 @@ def run_demo(output: Path, orders: int = 1000) -> dict[str, Any]:
         output / "observations.json",
         {
             "synthetic": True,
-            "bookings": orders,
+            "groups": groups,
             "line_items": len(items),
-            "expected_total_cents": expected,
+            "expected_total": expected,
             "baseline_sql": BASELINE,
             "candidate_sql": CANDIDATES,
             "baseline": baseline,
@@ -170,7 +174,7 @@ def run_demo(output: Path, orders: int = 1000) -> dict[str, Any]:
             rows,
             expected,
             change_at,
-            f"generated-{orders}-ticket-bookings",
+            f"generated-{groups}-sample-groups",
             missing=name == "missing-evidence",
         )
         report = verify(supplied)
@@ -183,8 +187,8 @@ def run_demo(output: Path, orders: int = 1000) -> dict[str, Any]:
                 "scenario": name,
                 "status": report["overall_status"],
                 "checks": checks,
-                "expected_total_cents": expected,
-                "observed_total_cents": rows[0]["total_cents"],
+                "expected_total": expected,
+                "observed_total": rows[0]["total"],
                 "baseline_mean_ms": metric["baseline_mean"],
                 "candidate_mean_ms": metric["candidate_mean"],
                 "regression_percent": metric["regression_percent"],
@@ -194,8 +198,8 @@ def run_demo(output: Path, orders: int = 1000) -> dict[str, Any]:
             {
                 "id": name,
                 "title": {
-                    "equivalent": "Equivalent rewrite: ticket quantities preserved",
-                    "incorrect": "Incorrect rewrite: ticket quantities ignored",
+                    "equivalent": "Equivalent rewrite: weights preserved",
+                    "incorrect": "Incorrect rewrite: weights ignored",
                     "missing-evidence": "Do not approve without correctness evidence",
                 }[name],
                 "kind": "verify",
@@ -209,15 +213,15 @@ def run_demo(output: Path, orders: int = 1000) -> dict[str, Any]:
         {
             "workloads": [
                 {
-                    "id": "ticket-sales",
-                    "name": "Event ticket sales: a measured local example",
+                    "id": "weighted-aggregation",
+                    "name": "Weighted aggregation: a measured local example",
                     "description": (
-                        f"Measured SQL over {orders:,} generated bookings "
-                        f"and {len(items):,} ticket lines. "
-                        f"Expected ticket sales: {expected:,} cents. "
+                        f"Measured SQL over {groups:,} generated groups "
+                        f"and {len(items):,} sample rows. "
+                        f"Expected weighted total: {expected:,} units. "
                         "The incorrect rewrite returns "
-                        f"{candidates['incorrect'][0]['total_cents']:,} "
-                        "cents because it ignores quantities. No cloud savings claim."
+                        f"{candidates['incorrect'][0]['total']:,} "
+                        "units because it ignores weights. No cloud savings claim."
                     ),
                     "experiments": experiments,
                 }
@@ -233,12 +237,12 @@ def run_demo(output: Path, orders: int = 1000) -> dict[str, Any]:
     return summary
 
 
-def demo_command(output: Path, orders: int) -> int:
+def demo_command(output: Path, groups: int) -> int:
     try:
-        summary = run_demo(output, orders)
+        summary = run_demo(output, groups)
     except ValueError, OSError, sqlite3.Error:
         print(
-            "Demo failed. Choose a new writable output directory and 100 to 2000 bookings.",
+            "Demo failed. Choose a new writable output directory and 100 to 2000 groups.",
             file=sys.stderr,
         )
         return 2

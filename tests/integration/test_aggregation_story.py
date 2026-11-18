@@ -1,4 +1,4 @@
-"""Ticket-sales onboarding uses real decisions and respects existing access boundaries."""
+"""Aggregation onboarding uses real decisions and respects existing access boundaries."""
 
 import importlib.util
 import json
@@ -19,7 +19,7 @@ from datavouch.web.catalog import load_catalog
 
 ROOT = Path(__file__).resolve().parents[2]
 SPEC = importlib.util.spec_from_file_location(
-    "ticket_example", ROOT / "examples/bigquery/ticket_sales.py"
+    "aggregation_example", ROOT / "examples/bigquery/aggregation.py"
 )
 example = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(example)
@@ -31,27 +31,30 @@ def test_guided_story_uses_measured_reports_and_honest_empty_state(tmp_path):
     with TestClient(
         create_app(output / "catalog.json", "fixture-only-password"), base_url="http://127.0.0.1"
     ) as client:
-        assert client.get("/guide/ticket-sales").status_code == 401
+        assert client.get("/guide/weighted-aggregation").status_code == 401
         client.auth = ("datavouch", "fixture-only-password")
-        page = client.get("/guide/ticket-sales")
+        page = client.get("/guide/weighted-aggregation")
         assert page.status_code == 200
-        assert "€555,000" in page.text and "€240,000" in page.text
+        assert "555,000" in page.text and "240,000" in page.text
         assert "measured local example" in page.text
         assert "smaller local examples have different totals" in page.text
         for scenario in example.TITLES:
-            assert f"/workloads/ticket-sales/experiments/{scenario}" in page.text
-        wrong = client.get("/workloads/ticket-sales/experiments/incorrect")
+            assert f"/workloads/weighted-aggregation/experiments/{scenario}" in page.text
+        wrong = client.get("/workloads/weighted-aggregation/experiments/incorrect")
         assert "Do not approve this change" in wrong.text
-        assert "Ticket sales total:" in wrong.text
-        missing = client.get("/workloads/ticket-sales/experiments/missing-evidence")
-        assert "Ticket sales total:" in missing.text
+        assert "Weighted total:" in wrong.text
+        missing = client.get("/workloads/weighted-aggregation/experiments/missing-evidence")
+        assert "Weighted total:" in missing.text
         assert "UNKNOWN" in missing.text
     with TestClient(
         create_app(ROOT / "examples/web/empty-catalog.json", "fixture-only-password"),
         base_url="http://127.0.0.1",
     ) as client:
         client.auth = ("datavouch", "fixture-only-password")
-        assert "No measured ticket-sales examples" in client.get("/guide/ticket-sales").text
+        assert (
+            "No measured weighted-aggregation examples"
+            in client.get("/guide/weighted-aggregation").text
+        )
 
 
 def test_gateway_story_never_exposes_startup_catalog(tmp_path):
@@ -74,12 +77,12 @@ def test_gateway_story_never_exposes_startup_catalog(tmp_path):
         client=("127.0.0.1", 12345),
     ) as client:
         page = client.get(
-            "/guide/ticket-sales",
+            "/guide/weighted-aggregation",
             headers={"X-DataVouch-Gateway-Token": secret, "X-Auth-Request-User": "reader"},
         )
         assert page.status_code == 200
-        assert "No measured ticket-sales examples" in page.text
-        assert "/workloads/ticket-sales/experiments/" not in page.text
+        assert "No measured weighted-aggregation examples" in page.text
+        assert "/workloads/weighted-aggregation/experiments/" not in page.text
         assert "Create your own experiment" not in page.text
 
 
@@ -107,14 +110,14 @@ def test_bigquery_example_with_sdk_boundary_mock_and_real_verifier(tmp_path, mon
             assert job_config.use_query_cache is False
             assert job_config.maximum_bytes_billed == 10000000
             created = datetime(2026, 11, 16, tzinfo=UTC) + timedelta(seconds=3 * len(jobs))
-            total = 24000000 if "_incorrect_" in job_id else 55500000
+            total = 240000 if "_incorrect_" in job_id else 555000
             job = SimpleNamespace(
                 query=sql,
                 use_query_cache=False,
                 cache_hit=False,
                 created=created,
                 ended=created + timedelta(seconds=1),
-                result=lambda **kw: [{"ticket_sales_cents": total}],
+                result=lambda **kw: [{"weighted_total": total}],
             )
             jobs[job_id] = job
             return job
@@ -163,7 +166,7 @@ def test_bigquery_example_with_sdk_boundary_mock_and_real_verifier(tmp_path, mon
         "incorrect": "FAIL",
         "missing-evidence": "UNKNOWN",
     }
-    assert catalog[0].id == "ticket-sales"
+    assert catalog[0].id == "weighted-aggregation"
     assert all(c.project == "client-project" and c.location == "eu" for c in collection_calls)
     with pytest.raises(FileExistsError):
         example.execute("client-project", "eu", "sample", output)
@@ -191,7 +194,7 @@ def test_example_requires_explicit_live_authorization(tmp_path):
     result = subprocess.run(
         [
             sys.executable,
-            str(ROOT / "examples/bigquery/ticket_sales.py"),
+            str(ROOT / "examples/bigquery/aggregation.py"),
             "--project",
             "client-project",
             "--location",
@@ -208,7 +211,7 @@ def test_example_requires_explicit_live_authorization(tmp_path):
     assert not (tmp_path / "demo").exists()
 
 
-def test_story_lists_only_permitted_ticket_runs(tmp_path, monkeypatch):
+def test_story_lists_only_permitted_example_runs(tmp_path, monkeypatch):
     config = tmp_path / "connections.json"
     config.write_text('{"connections": []}')
     gateway = tmp_path / "gateway.json"
@@ -225,16 +228,16 @@ def test_story_lists_only_permitted_ticket_runs(tmp_path, monkeypatch):
     records = [
         {
             "id": "a" * 64,
-            "title": "Permitted ticket example",
-            "workload": "ticket-sales",
+            "title": "Permitted aggregation example",
+            "workload": "weighted-aggregation",
             "connection": "one",
             "status": "PASS",
             "state": "COMPLETED",
         },
         {
             "id": "b" * 64,
-            "title": "Hidden ticket example",
-            "workload": "ticket-sales",
+            "title": "Hidden aggregation example",
+            "workload": "weighted-aggregation",
             "connection": "two",
             "status": "FAIL",
             "state": "COMPLETED",
@@ -262,10 +265,10 @@ def test_story_lists_only_permitted_ticket_runs(tmp_path, monkeypatch):
         app, base_url="https://datavouch.example.test", client=("127.0.0.1", 12345)
     ) as client:
         page = client.get(
-            "/guide/ticket-sales",
+            "/guide/weighted-aggregation",
             headers={"X-DataVouch-Gateway-Token": secret, "X-Auth-Request-User": "reader"},
         )
         assert page.status_code == 200
-        assert "Permitted ticket example" in page.text
-        assert "Hidden ticket example" not in page.text
+        assert "Permitted aggregation example" in page.text
+        assert "Hidden aggregation example" not in page.text
         assert "Unrelated example" not in page.text

@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="page-heading"><div><p class="eyebrow">WORKSPACE / OVERVIEW</p><h1>Change, backed by evidence.</h1><p class="intro">Review workload changes, find regressions, and see where evidence is still missing.</p></div><a class="button secondary" href="/workloads">Browse workloads →</a></div>
-<p class="notice"><strong>New to DataVouch?</strong> <a href="/guide/ticket-sales">Follow an event ticket-sales example</a> to see how a successful query can still report the wrong sales total.</p>
+<p class="notice"><strong>New to DataVouch?</strong> <a href="/guide/weighted-aggregation">Follow a synthetic aggregation example</a> to see how a successful query can still report the wrong result.</p>
 <div class="stats"><article><span>Experiments</span><strong>{{ total }}</strong><small>Across {{ workloads|length }} workloads</small></article><article><span class="status-text PASS">Passed</span><strong>{{ counts.PASS }}</strong><small>Within configured checks</small></article><article><span class="status-text FAIL">Failed</span><strong>{{ counts.FAIL }}</strong><small>Require investigation</small></article><article><span class="status-text UNKNOWN">Unknown</span><strong>{{ counts.UNKNOWN }}</strong><small>Evidence is insufficient</small></article></div>
 <section class="panel">
 <div class="panel-heading"><div><h2>Experiment history</h2><p>Listed by the recorded time supplied in your catalog.</p></div><span class="count">{{ experiments|length }} results</span></div>

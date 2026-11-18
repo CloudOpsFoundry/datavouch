@@ -2,14 +2,16 @@
 
 ## Unreleased
 
-No changes yet.
+Add automatic private alpha versions, annotated tags and release notes after successful main CI, with Conventional Commit classification, synchronized package/Helm metadata and retry-safe atomic pushes.
+
+Replace the industry-specific demonstration with a neutral synthetic weighted aggregation example. The demo now uses `--groups`, generic result fields and `/guide/weighted-aggregation`; regenerate sample catalogs rather than mixing old and new example outputs. Existing saved verification reports are not modified. Add a technical dependency-license review; independent ownership and publication approval remain pending.
 
 ## 0.1.0a2
 
 Private alpha for acceptance testing. Existing report schemas remain unchanged; stable API compatibility is not promised. Independent client, security, onboarding and license acceptance remains pending.
 
 - Add deployment-approved, authenticated Google Cloud project and observed BigQuery location discovery with bounded requests, caching and refresh.
-- Add an event ticket-sales example walkthrough, measured local and opt-in BigQuery examples, report recommendations and a same-page path to the first experiment.
+- Add a synthetic aggregation example walkthrough, measured local and opt-in BigQuery examples, report recommendations and a same-page path to the first experiment.
 
 - Add an authenticated user guide and contextual explanations for workloads, experiments, runs, report types and outcomes.
 - Prepare real client identity/network acceptance and independent security, onboarding, financial-method and license review procedures.
@@ -17,7 +19,7 @@ Private alpha for acceptance testing. Existing report schemas remain unchanged; 
 
 - Add admin selection and all-history deletion with exact-instance confirmation, connection isolation, durable file removal and explicit failure handling.
 
-- Add a measured local SQL demo with independently checked revenue and replayable PASS/FAIL/UNKNOWN evidence.
+- Add a measured local SQL demo with independently checked results and replayable PASS/FAIL/UNKNOWN evidence.
 - Fix empty connection allowlists so fresh offline deployments start with planning disabled.
 - Add Helm deployment, schema/security checks, persistent storage and local Kubernetes acceptance tooling.
 - Add Compose execution, gateway, ADC and demo overrides with repeatable runtime checks.

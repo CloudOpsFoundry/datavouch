@@ -3,6 +3,7 @@
 import hashlib
 import importlib.metadata
 import json
+import re
 import tarfile
 import tomllib
 import zipfile
@@ -18,7 +19,10 @@ def main() -> int:
     project = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]
     if project["version"] != __version__:
         raise ValueError("Package and project versions disagree")
-    if f"## {__version__}" not in (ROOT / "CHANGELOG.md").read_text():
+    if not re.search(
+        rf"(?m)^## v?{re.escape(__version__)}(?: \([^)]+\))?[ \t]*$",
+        (ROOT / "CHANGELOG.md").read_text(),
+    ):
         raise ValueError("Version is absent from changelog")
     wheels = list((ROOT / "dist").glob("*.whl"))
     sources = list((ROOT / "dist").glob("*.tar.gz"))

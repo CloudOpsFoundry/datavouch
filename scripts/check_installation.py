@@ -39,12 +39,12 @@ def main() -> int:
         subprocess.run([str(python), "-m", "datavouch", "--version"], cwd=directory, check=True)
         command = binary / ("datavouch.exe" if os.name == "nt" else "datavouch")
         demo_result = subprocess.check_output(
-            [str(command), "demo", "--output-dir", str(directory / "demo"), "--orders", "100"],
+            [str(command), "demo", "--output-dir", str(directory / "demo"), "--groups", "100"],
             cwd=directory,
         )
         demo = json.loads(demo_result)
         assert demo["results"][1]["status"] == "FAIL"
-        assert demo["results"][2]["checks"]["ticket_sales_total"] == "UNKNOWN"
+        assert demo["results"][2]["checks"]["weighted_total"] == "UNKNOWN"
         result = subprocess.check_output(
             [str(command), "compare", str(ROOT / "examples/bigquery/comparison.json")],
             cwd=directory,
