@@ -1,0 +1,200 @@
+{
+  "experiment": {
+    "baseline": {
+      "observations": [
+        {
+          "execution": {
+            "cached": false,
+            "id": "b0",
+            "successful": true
+          },
+          "input_unit": "rows",
+          "input_units": 1000,
+          "measurements": [
+            {
+              "metric": {
+                "direction": "lower",
+                "name": "runtime",
+                "unit": "ms"
+              },
+              "value": 100
+            }
+          ],
+          "workload": {
+            "environment": "fixture",
+            "id": "synthetic-daily-summary",
+            "input_snapshot": "snapshot-1"
+          }
+        },
+        {
+          "execution": {
+            "cached": false,
+            "id": "b1",
+            "successful": true
+          },
+          "input_unit": "rows",
+          "input_units": 1000,
+          "measurements": [
+            {
+              "metric": {
+                "direction": "lower",
+                "name": "runtime",
+                "unit": "ms"
+              },
+              "value": 110
+            }
+          ],
+          "workload": {
+            "environment": "fixture",
+            "id": "synthetic-daily-summary",
+            "input_snapshot": "snapshot-1"
+          }
+        },
+        {
+          "execution": {
+            "cached": false,
+            "id": "b2",
+            "successful": true
+          },
+          "input_unit": "rows",
+          "input_units": 1000,
+          "measurements": [
+            {
+              "metric": {
+                "direction": "lower",
+                "name": "runtime",
+                "unit": "ms"
+              },
+              "value": 90
+            }
+          ],
+          "workload": {
+            "environment": "fixture",
+            "id": "synthetic-daily-summary",
+            "input_snapshot": "snapshot-1"
+          }
+        }
+      ]
+    },
+    "candidate": [
+      {
+        "execution": {
+          "cached": false,
+          "id": "a0",
+          "successful": true
+        },
+        "input_unit": "rows",
+        "input_units": 1000,
+        "measurements": [
+          {
+            "metric": {
+              "direction": "lower",
+              "name": "runtime",
+              "unit": "ms"
+            },
+            "value": 80
+          }
+        ],
+        "workload": {
+          "environment": "fixture",
+          "id": "synthetic-daily-summary",
+          "input_snapshot": "snapshot-1"
+        }
+      },
+      {
+        "execution": {
+          "cached": false,
+          "id": "a1",
+          "successful": true
+        },
+        "input_unit": "rows",
+        "input_units": 1000,
+        "measurements": [
+          {
+            "metric": {
+              "direction": "lower",
+              "name": "runtime",
+              "unit": "ms"
+            },
+            "value": 85
+          }
+        ],
+        "workload": {
+          "environment": "fixture",
+          "id": "synthetic-daily-summary",
+          "input_snapshot": "snapshot-1"
+        }
+      },
+      {
+        "execution": {
+          "cached": false,
+          "id": "a2",
+          "successful": true
+        },
+        "input_unit": "rows",
+        "input_units": 1000,
+        "measurements": [
+          {
+            "metric": {
+              "direction": "lower",
+              "name": "runtime",
+              "unit": "ms"
+            },
+            "value": 75
+          }
+        ],
+        "workload": {
+          "environment": "fixture",
+          "id": "synthetic-daily-summary",
+          "input_snapshot": "snapshot-1"
+        }
+      }
+    ],
+    "change": {
+      "description": "Synthetic query rewrite",
+      "id": "change-1"
+    },
+    "comparability": {
+      "reference": "fixture-contract",
+      "statement": "Same input snapshot, environment and execution conditions"
+    },
+    "id": "synthetic-1"
+  },
+  "input_sha256": "407008eb89a196f061d9a2715725b09b791ebff12851d8665c015c07ea0d1981",
+  "limitations": [
+    "Descriptive comparison only. No statistical confidence or causal attribution.",
+    "Comparability is caller supplied and is not independently verified.",
+    "This metric-only report does not evaluate correctness, reliability or financial impact."
+  ],
+  "policy": {
+    "max_regression_percent": 5,
+    "metric": {
+      "direction": "lower",
+      "name": "runtime",
+      "unit": "ms"
+    },
+    "minimum_samples": 3,
+    "normalize": false
+  },
+  "results": [
+    {
+      "baseline_mean": 100.0,
+      "candidate_mean": 80.0,
+      "check": "runtime",
+      "reason": "Within regression threshold",
+      "regression_percent": -19.999999999999996,
+      "status": "PASS",
+      "unit": "ms"
+    },
+    {
+      "baseline_mean": null,
+      "candidate_mean": null,
+      "check": "correctness",
+      "reason": "No supported correctness verification",
+      "regression_percent": null,
+      "status": "UNKNOWN",
+      "unit": "not applicable"
+    }
+  ],
+  "schema_version": "0.1"
+}

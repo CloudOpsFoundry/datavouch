@@ -1,0 +1,53 @@
+[build-system]
+requires = ["hatchling>=1.27,<2"]
+build-backend = "hatchling.build"
+
+[project]
+name = "datavouch"
+version = "0.1.0a1"
+description = "Reproducible evidence for data workload changes"
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+classifiers = ["Development Status :: 3 - Alpha", "Programming Language :: Python :: 3"]
+dependencies = []
+
+[project.optional-dependencies]
+bigquery = ["google-cloud-bigquery>=3.47,<4"]
+web = ["fastapi>=0.115,<1", "uvicorn>=0.34,<1", "jinja2>=3.1,<4"]
+
+[project.scripts]
+datavouch = "datavouch.cli:main"
+
+[dependency-groups]
+dev = ["httpx>=0.28,<1", "pytest>=8", "ruff>=0.12", "mypy>=1.16", "coverage>=7", "build>=1.2", "bandit>=1.8", "pip-audit>=2.9", "hatchling>=1.27,<2"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/datavouch"]
+
+[tool.hatch.build.targets.sdist]
+include = ["/src", "/tests", "/scripts", "/docs", "/examples", "/pyproject.toml", "/uv.lock", "/README.md", "/LICENSE", "/SECURITY.md", "/CONTRIBUTING.md", "/CHANGELOG.md"]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "examples/adapters"]
+addopts = "-ra"
+
+[tool.coverage.run]
+source = ["datavouch"]
+branch = true
+
+[tool.coverage.report]
+fail_under = 90
+show_missing = true

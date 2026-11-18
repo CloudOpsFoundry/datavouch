@@ -1,0 +1,17 @@
+{
+  "adapter": "local-metrics",
+  "api_version": "adapter-1",
+  "config_version": "local-metrics-config-1",
+  "config": {
+    "workload": {
+      "id": "example",
+      "environment": "fixture",
+      "input_snapshot": "snapshot-1"
+    },
+    "execution_ids": [
+      "a0",
+      "a1",
+      "a2"
+    ]
+  }
+}

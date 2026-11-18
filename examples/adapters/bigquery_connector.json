@@ -1,0 +1,21 @@
+{
+  "adapter": "bigquery",
+  "api_version": "adapter-1",
+  "config_version": "bigquery-config-0.1",
+  "config": {
+    "project": "synthetic-project",
+    "location": "us",
+    "start": "2026-11-16T00:00:00Z",
+    "end": "2026-11-17T00:00:00Z",
+    "job_ids": [
+      "baseline_1",
+      "baseline_2",
+      "baseline_3"
+    ],
+    "workload": {
+      "id": "daily-summary",
+      "environment": "synthetic-project/us/test",
+      "input_snapshot": "synthetic-snapshot-1"
+    }
+  }
+}

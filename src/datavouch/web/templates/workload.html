@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% block content %}
+<a class="back" href="/workloads">← All workloads</a>
+<div class="page-heading"><div><p class="eyebrow">WORKLOAD</p><h1>{{ workload.name }}</h1><p class="intro">{{ workload.description }}</p></div><span class="pill neutral">{{ workload.experiments|length }} experiments</span></div>
+<section class="panel"><div class="panel-heading"><h2>Experiment history</h2></div>{% for experiment in workload.experiments %}<article class="history-row"><div><a class="primary-link" href="/workloads/{{ workload.id }}/experiments/{{ experiment.id }}">{{ experiment.title }}</a><p>{{ experiment.label }} · {{ experiment.recorded_at }}{% if experiment.synthetic %} · Synthetic evidence{% endif %}</p></div><span class="pill {{ experiment.status }}">{{ experiment.status }}</span></article>{% else %}<div class="empty"><p>No experiments registered for this workload.</p></div>{% endfor %}</section>
+{% endblock %}

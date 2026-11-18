@@ -1,0 +1,40 @@
+{
+  "experiment_id": "synthetic-1",
+  "claim_id": "synthetic-claim-1",
+  "scope": "synthetic/bigquery/compute",
+  "pricing": {
+    "model": "on_demand",
+    "currency": "USD",
+    "rate": "5",
+    "reference": "synthetic-rate-not-a-provider-price",
+    "valid_from": "2026-11-01T00:00:00Z",
+    "valid_to": "2026-12-01T00:00:00Z"
+  },
+  "claims": [],
+  "claims_complete": false,
+  "minimum_reduction": "0",
+  "baseline": {
+    "start": "2026-11-10T00:00:00Z",
+    "end": "2026-11-11T00:00:00Z",
+    "execution_ids": [
+      "b0",
+      "b1",
+      "b2"
+    ],
+    "reference": "synthetic-usage-baseline",
+    "billed_bytes": 2199023255552,
+    "consumed_slot_ms": 2000
+  },
+  "candidate": {
+    "start": "2026-11-12T00:00:00Z",
+    "end": "2026-11-13T00:00:00Z",
+    "execution_ids": [
+      "a0",
+      "a1",
+      "a2"
+    ],
+    "reference": "synthetic-usage-candidate",
+    "billed_bytes": 1099511627776,
+    "consumed_slot_ms": 1000
+  }
+}

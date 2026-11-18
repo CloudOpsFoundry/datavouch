@@ -1,0 +1,23 @@
+{
+  "schema_version": "workflow-policy-0.1",
+  "unknown": "block",
+  "comparison": {
+    "metric": {
+      "name": "runtime",
+      "unit": "ms",
+      "direction": "lower"
+    },
+    "minimum_samples": 3,
+    "max_regression_percent": 5
+  },
+  "required_checks": [
+    "business_total",
+    "output_schema",
+    "output_checksum",
+    "freshness"
+  ],
+  "reliability": {
+    "max_failure_percent": 0,
+    "max_increase_points": 0
+  }
+}

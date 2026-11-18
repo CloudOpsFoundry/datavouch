@@ -1,0 +1,51 @@
+{
+  "workloads": [
+    {
+      "id": "daily-summary",
+      "name": "Daily summary",
+      "description": "Synthetic examples for reviewing an engineering change. No production data or actual billing.",
+      "experiments": [
+        {
+          "id": "verified",
+          "title": "Rewrite verification",
+          "kind": "verify",
+          "input": "verification/passing.json",
+          "recorded_at": "2026-11-18T10:00:00Z",
+          "synthetic": true
+        },
+        {
+          "id": "incorrect",
+          "title": "Changed result detected",
+          "kind": "verify",
+          "input": "verification/incorrect.json",
+          "recorded_at": "2026-11-18T11:00:00Z",
+          "synthetic": true
+        },
+        {
+          "id": "estimates",
+          "title": "Financial evidence pending",
+          "kind": "finance",
+          "input": "financial/estimate_only.json",
+          "recorded_at": "2026-11-18T09:00:00Z",
+          "synthetic": true
+        },
+        {
+          "id": "reviewed",
+          "title": "Reviewed financial evidence",
+          "kind": "finance",
+          "input": "financial/reviewed.json",
+          "recorded_at": "2026-11-18T08:00:00Z",
+          "synthetic": true
+        },
+        {
+          "id": "runtime",
+          "title": "Runtime comparison",
+          "kind": "compare",
+          "input": "bigquery/comparison.json",
+          "recorded_at": "2026-11-18T07:00:00Z",
+          "synthetic": true
+        }
+      ]
+    }
+  ]
+}

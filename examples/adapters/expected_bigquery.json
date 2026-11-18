@@ -1,0 +1,195 @@
+{
+  "adapter": {
+    "api_version": "adapter-1",
+    "config_version": "bigquery-config-0.1",
+    "metrics": [
+      {
+        "direction": "lower",
+        "name": "runtime",
+        "unit": "ms"
+      },
+      {
+        "direction": "lower",
+        "name": "slot_time",
+        "unit": "slot_ms"
+      },
+      {
+        "direction": "lower",
+        "name": "processed_bytes",
+        "unit": "bytes"
+      },
+      {
+        "direction": "lower",
+        "name": "billed_bytes",
+        "unit": "bytes"
+      }
+    ],
+    "modes": [
+      "fixture",
+      "live"
+    ],
+    "name": "bigquery",
+    "version": "1.0.0"
+  },
+  "eligible": true,
+  "exclusions": [],
+  "missing_ids": [],
+  "mode": "fixture",
+  "notes": [
+    "Eligibility does not establish comparability, correctness or financial impact.",
+    "Workload identity and input snapshot are caller assertions.",
+    "Missing jobs, exclusions or mixed fingerprints make the batch ineligible."
+  ],
+  "observations": [
+    {
+      "execution": {
+        "cached": false,
+        "id": "synthetic-project/us/baseline_1",
+        "successful": true
+      },
+      "input_unit": null,
+      "input_units": null,
+      "measurements": [
+        {
+          "metric": {
+            "direction": "lower",
+            "name": "runtime",
+            "unit": "ms"
+          },
+          "value": 1000.0
+        },
+        {
+          "metric": {
+            "direction": "lower",
+            "name": "slot_time",
+            "unit": "slot_ms"
+          },
+          "value": 1000
+        },
+        {
+          "metric": {
+            "direction": "lower",
+            "name": "processed_bytes",
+            "unit": "bytes"
+          },
+          "value": 1048576
+        },
+        {
+          "metric": {
+            "direction": "lower",
+            "name": "billed_bytes",
+            "unit": "bytes"
+          },
+          "value": 10485760
+        }
+      ],
+      "workload": {
+        "environment": "synthetic-project/us/test",
+        "id": "daily-summary",
+        "input_snapshot": "synthetic-snapshot-1"
+      }
+    },
+    {
+      "execution": {
+        "cached": false,
+        "id": "synthetic-project/us/baseline_2",
+        "successful": true
+      },
+      "input_unit": null,
+      "input_units": null,
+      "measurements": [
+        {
+          "metric": {
+            "direction": "lower",
+            "name": "runtime",
+            "unit": "ms"
+          },
+          "value": 1000.0
+        },
+        {
+          "metric": {
+            "direction": "lower",
+            "name": "slot_time",
+            "unit": "slot_ms"
+          },
+          "value": 1100
+        },
+        {
+          "metric": {
+            "direction": "lower",
+            "name": "processed_bytes",
+            "unit": "bytes"
+          },
+          "value": 1048576
+        },
+        {
+          "metric": {
+            "direction": "lower",
+            "name": "billed_bytes",
+            "unit": "bytes"
+          },
+          "value": 10485760
+        }
+      ],
+      "workload": {
+        "environment": "synthetic-project/us/test",
+        "id": "daily-summary",
+        "input_snapshot": "synthetic-snapshot-1"
+      }
+    },
+    {
+      "execution": {
+        "cached": false,
+        "id": "synthetic-project/us/baseline_3",
+        "successful": true
+      },
+      "input_unit": null,
+      "input_units": null,
+      "measurements": [
+        {
+          "metric": {
+            "direction": "lower",
+            "name": "runtime",
+            "unit": "ms"
+          },
+          "value": 1000.0
+        },
+        {
+          "metric": {
+            "direction": "lower",
+            "name": "slot_time",
+            "unit": "slot_ms"
+          },
+          "value": 1200
+        },
+        {
+          "metric": {
+            "direction": "lower",
+            "name": "processed_bytes",
+            "unit": "bytes"
+          },
+          "value": 1048576
+        },
+        {
+          "metric": {
+            "direction": "lower",
+            "name": "billed_bytes",
+            "unit": "bytes"
+          },
+          "value": 10485760
+        }
+      ],
+      "workload": {
+        "environment": "synthetic-project/us/test",
+        "id": "daily-summary",
+        "input_snapshot": "synthetic-snapshot-1"
+      }
+    }
+  ],
+  "requested_ids": [
+    "synthetic-project/us/baseline_1",
+    "synthetic-project/us/baseline_2",
+    "synthetic-project/us/baseline_3"
+  ],
+  "schema_version": "adapter-collection-1"
+}

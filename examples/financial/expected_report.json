@@ -1,0 +1,382 @@
+{
+  "attribution": {
+    "classification": "counterfactual",
+    "normalized_difference": "4.000000000000",
+    "reasons": [
+      "Reviewed counterfactual meets threshold"
+    ]
+  },
+  "consumed_slot_ms_difference": 1000,
+  "currency": "USD",
+  "eligible_for_aggregation": true,
+  "estimated_costs": {
+    "classification": "estimated",
+    "values": {
+      "baseline_cost": "10.000000000000",
+      "baseline_cost_at_candidate_volume": "10.000000000000",
+      "candidate_cost": "5.000000000000",
+      "normalized_classification": "counterfactual",
+      "normalized_difference": "5.000000000000",
+      "raw_difference": "5.000000000000"
+    }
+  },
+  "input_sha256": "a834397bb0b5307d9ff9b196ce4679a627116ffd275bbb096bdf03e9f2923b43",
+  "limitations": [
+    "Measured means supplied billing amounts, not independently reconciled invoices.",
+    "Normalized differences are counterfactual, not realized monetary savings.",
+    "References, billing completeness, scope identity and reviews are caller attestations.",
+    "Pricing is supplied. Estimates exclude unspecified discounts, credits and free tiers.",
+    "Consumed slot milliseconds are efficiency evidence, not purchased capacity charges.",
+    "Amounts display 12 fractional digits; thresholds use exact rational values."
+  ],
+  "observed_spending": {
+    "classification": "measured",
+    "reason": "Complete supplied net-cost periods match scope windows and currency",
+    "values": {
+      "baseline_cost": "8.000000000000",
+      "baseline_cost_at_candidate_volume": "8.000000000000",
+      "candidate_cost": "4.000000000000",
+      "normalized_classification": "counterfactual",
+      "normalized_difference": "4.000000000000",
+      "raw_difference": "4.000000000000"
+    }
+  },
+  "overlapping_claim_ids": [],
+  "pricing_model": "on_demand",
+  "registry_conflict_count": 0,
+  "registry_conflicts": [],
+  "registry_conflicts_truncated": false,
+  "schema_version": "financial-0.1",
+  "source": {
+    "baseline": {
+      "billed_bytes": 2199023255552,
+      "consumed_slot_ms": 2000,
+      "end": "2026-11-11T00:00:00Z",
+      "execution_ids": [
+        "b0",
+        "b1",
+        "b2"
+      ],
+      "reference": "synthetic-usage-baseline",
+      "start": "2026-11-10T00:00:00Z"
+    },
+    "billing": {
+      "baseline": {
+        "complete": true,
+        "currency": "USD",
+        "end": "2026-11-11T00:00:00Z",
+        "evidence_ids": [
+          "synthetic-billing-baseline"
+        ],
+        "net_cost": "8",
+        "reference": "synthetic-net-billing-baseline",
+        "scope": "synthetic/bigquery/compute",
+        "start": "2026-11-10T00:00:00Z"
+      },
+      "candidate": {
+        "complete": true,
+        "currency": "USD",
+        "end": "2026-11-13T00:00:00Z",
+        "evidence_ids": [
+          "synthetic-billing-candidate"
+        ],
+        "net_cost": "4",
+        "reference": "synthetic-net-billing-candidate",
+        "scope": "synthetic/bigquery/compute",
+        "start": "2026-11-12T00:00:00Z"
+      }
+    },
+    "candidate": {
+      "billed_bytes": 1099511627776,
+      "consumed_slot_ms": 1000,
+      "end": "2026-11-13T00:00:00Z",
+      "execution_ids": [
+        "a0",
+        "a1",
+        "a2"
+      ],
+      "reference": "synthetic-usage-candidate",
+      "start": "2026-11-12T00:00:00Z"
+    },
+    "claim_id": "synthetic-claim-1",
+    "claims": [],
+    "claims_complete": true,
+    "experiment_id": "synthetic-1",
+    "minimum_reduction": "0",
+    "pricing": {
+      "currency": "USD",
+      "model": "on_demand",
+      "rate": "5",
+      "reference": "synthetic-rate-not-a-provider-price",
+      "valid_from": "2026-11-01T00:00:00Z",
+      "valid_to": "2026-12-01T00:00:00Z"
+    },
+    "review": {
+      "confounders_addressed": true,
+      "experiment_id": "synthetic-1",
+      "method": "controlled_experiment",
+      "reference": "synthetic-independent-review",
+      "scope": "synthetic/bigquery/compute"
+    },
+    "scope": "synthetic/bigquery/compute",
+    "verification": {
+      "assurance": {
+        "completed_at": {
+          "a0": "2026-11-12T12:00:00Z",
+          "a1": "2026-11-12T12:00:00Z",
+          "a2": "2026-11-12T12:00:00Z",
+          "b0": "2026-11-10T12:00:00Z",
+          "b1": "2026-11-10T12:00:00Z",
+          "b2": "2026-11-10T12:00:00Z"
+        },
+        "evidence": [
+          {
+            "execution_ids": [
+              "a0",
+              "a1",
+              "a2"
+            ],
+            "expected": true,
+            "experiment_id": "synthetic-1",
+            "kind": "assertion",
+            "name": "business_total",
+            "observed": true,
+            "reference": "synthetic-independent-check-fixture"
+          },
+          {
+            "execution_ids": [
+              "a0",
+              "a1",
+              "a2"
+            ],
+            "expected": [
+              "total:INT64:NULLABLE"
+            ],
+            "experiment_id": "synthetic-1",
+            "kind": "schema",
+            "name": "output_schema",
+            "observed": [
+              "total:INT64:NULLABLE"
+            ],
+            "reference": "synthetic-independent-check-fixture"
+          },
+          {
+            "execution_ids": [
+              "a0",
+              "a1",
+              "a2"
+            ],
+            "expected": "47e8d7ed6f65d29a1ef0f2ad6695d9d0744ed93ba113607dd049f9e8ff3fa6fe",
+            "experiment_id": "synthetic-1",
+            "kind": "sha256",
+            "method": "Synthetic whole-result canonical JSON, ordered rows, UTF-8, SHA256",
+            "name": "output_checksum",
+            "observed": "47e8d7ed6f65d29a1ef0f2ad6695d9d0744ed93ba113607dd049f9e8ff3fa6fe",
+            "reference": "synthetic-independent-check-fixture"
+          },
+          {
+            "as_of": "2026-11-13T00:00:30Z",
+            "execution_ids": [
+              "a0",
+              "a1",
+              "a2"
+            ],
+            "expected": 60,
+            "experiment_id": "synthetic-1",
+            "kind": "freshness",
+            "name": "freshness",
+            "observed": "2026-11-13T00:00:00Z",
+            "reference": "synthetic-independent-check-fixture"
+          }
+        ],
+        "reliability": {
+          "complete": true,
+          "max_failure_percent": 0,
+          "max_increase_points": 0
+        },
+        "required_checks": [
+          "business_total",
+          "output_schema",
+          "output_checksum",
+          "freshness"
+        ],
+        "started_at": {
+          "a0": "2026-11-12T12:00:00Z",
+          "a1": "2026-11-12T12:00:00Z",
+          "a2": "2026-11-12T12:00:00Z",
+          "b0": "2026-11-10T12:00:00Z",
+          "b1": "2026-11-10T12:00:00Z",
+          "b2": "2026-11-10T12:00:00Z"
+        },
+        "windows": {
+          "baseline_end": "2026-11-11T00:00:00Z",
+          "baseline_start": "2026-11-10T00:00:00Z",
+          "candidate_end": "2026-11-13T00:00:00Z",
+          "candidate_start": "2026-11-12T00:00:00Z",
+          "change_at": "2026-11-11T01:00:00Z"
+        }
+      },
+      "comparison": {
+        "experiment": {
+          "baseline": {
+            "observations": [
+              {
+                "execution": {
+                  "id": "b0"
+                },
+                "input_unit": "rows",
+                "input_units": 1000,
+                "measurements": [
+                  {
+                    "metric": {
+                      "direction": "lower",
+                      "name": "runtime",
+                      "unit": "ms"
+                    },
+                    "value": 100
+                  }
+                ],
+                "workload": {
+                  "environment": "fixture",
+                  "id": "synthetic-daily-summary",
+                  "input_snapshot": "snapshot-1"
+                }
+              },
+              {
+                "execution": {
+                  "id": "b1"
+                },
+                "input_unit": "rows",
+                "input_units": 1000,
+                "measurements": [
+                  {
+                    "metric": {
+                      "direction": "lower",
+                      "name": "runtime",
+                      "unit": "ms"
+                    },
+                    "value": 110
+                  }
+                ],
+                "workload": {
+                  "environment": "fixture",
+                  "id": "synthetic-daily-summary",
+                  "input_snapshot": "snapshot-1"
+                }
+              },
+              {
+                "execution": {
+                  "id": "b2"
+                },
+                "input_unit": "rows",
+                "input_units": 1000,
+                "measurements": [
+                  {
+                    "metric": {
+                      "direction": "lower",
+                      "name": "runtime",
+                      "unit": "ms"
+                    },
+                    "value": 90
+                  }
+                ],
+                "workload": {
+                  "environment": "fixture",
+                  "id": "synthetic-daily-summary",
+                  "input_snapshot": "snapshot-1"
+                }
+              }
+            ]
+          },
+          "candidate": [
+            {
+              "execution": {
+                "id": "a0"
+              },
+              "input_unit": "rows",
+              "input_units": 1000,
+              "measurements": [
+                {
+                  "metric": {
+                    "direction": "lower",
+                    "name": "runtime",
+                    "unit": "ms"
+                  },
+                  "value": 80
+                }
+              ],
+              "workload": {
+                "environment": "fixture",
+                "id": "synthetic-daily-summary",
+                "input_snapshot": "snapshot-1"
+              }
+            },
+            {
+              "execution": {
+                "id": "a1"
+              },
+              "input_unit": "rows",
+              "input_units": 1000,
+              "measurements": [
+                {
+                  "metric": {
+                    "direction": "lower",
+                    "name": "runtime",
+                    "unit": "ms"
+                  },
+                  "value": 85
+                }
+              ],
+              "workload": {
+                "environment": "fixture",
+                "id": "synthetic-daily-summary",
+                "input_snapshot": "snapshot-1"
+              }
+            },
+            {
+              "execution": {
+                "id": "a2"
+              },
+              "input_unit": "rows",
+              "input_units": 1000,
+              "measurements": [
+                {
+                  "metric": {
+                    "direction": "lower",
+                    "name": "runtime",
+                    "unit": "ms"
+                  },
+                  "value": 75
+                }
+              ],
+              "workload": {
+                "environment": "fixture",
+                "id": "synthetic-daily-summary",
+                "input_snapshot": "snapshot-1"
+              }
+            }
+          ],
+          "change": {
+            "description": "Synthetic query rewrite",
+            "id": "change-1"
+          },
+          "comparability": {
+            "reference": "fixture-contract",
+            "statement": "Same input snapshot, environment and execution conditions"
+          },
+          "id": "synthetic-1"
+        },
+        "policy": {
+          "max_regression_percent": 5,
+          "metric": {
+            "direction": "lower",
+            "name": "runtime",
+            "unit": "ms"
+          },
+          "minimum_samples": 3
+        }
+      }
+    }
+  },
+  "status": "PASS"
+}

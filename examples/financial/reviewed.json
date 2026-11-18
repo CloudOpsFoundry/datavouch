@@ -1,0 +1,331 @@
+{
+  "experiment_id": "synthetic-1",
+  "claim_id": "synthetic-claim-1",
+  "scope": "synthetic/bigquery/compute",
+  "pricing": {
+    "model": "on_demand",
+    "currency": "USD",
+    "rate": "5",
+    "reference": "synthetic-rate-not-a-provider-price",
+    "valid_from": "2026-11-01T00:00:00Z",
+    "valid_to": "2026-12-01T00:00:00Z"
+  },
+  "claims": [],
+  "claims_complete": true,
+  "minimum_reduction": "0",
+  "review": {
+    "experiment_id": "synthetic-1",
+    "scope": "synthetic/bigquery/compute",
+    "reference": "synthetic-independent-review",
+    "method": "controlled_experiment",
+    "confounders_addressed": true
+  },
+  "verification": {
+    "comparison": {
+      "experiment": {
+        "id": "synthetic-1",
+        "baseline": {
+          "observations": [
+            {
+              "workload": {
+                "id": "synthetic-daily-summary",
+                "environment": "fixture",
+                "input_snapshot": "snapshot-1"
+              },
+              "execution": {
+                "id": "b0"
+              },
+              "measurements": [
+                {
+                  "metric": {
+                    "name": "runtime",
+                    "unit": "ms",
+                    "direction": "lower"
+                  },
+                  "value": 100
+                }
+              ],
+              "input_units": 1000,
+              "input_unit": "rows"
+            },
+            {
+              "workload": {
+                "id": "synthetic-daily-summary",
+                "environment": "fixture",
+                "input_snapshot": "snapshot-1"
+              },
+              "execution": {
+                "id": "b1"
+              },
+              "measurements": [
+                {
+                  "metric": {
+                    "name": "runtime",
+                    "unit": "ms",
+                    "direction": "lower"
+                  },
+                  "value": 110
+                }
+              ],
+              "input_units": 1000,
+              "input_unit": "rows"
+            },
+            {
+              "workload": {
+                "id": "synthetic-daily-summary",
+                "environment": "fixture",
+                "input_snapshot": "snapshot-1"
+              },
+              "execution": {
+                "id": "b2"
+              },
+              "measurements": [
+                {
+                  "metric": {
+                    "name": "runtime",
+                    "unit": "ms",
+                    "direction": "lower"
+                  },
+                  "value": 90
+                }
+              ],
+              "input_units": 1000,
+              "input_unit": "rows"
+            }
+          ]
+        },
+        "candidate": [
+          {
+            "workload": {
+              "id": "synthetic-daily-summary",
+              "environment": "fixture",
+              "input_snapshot": "snapshot-1"
+            },
+            "execution": {
+              "id": "a0"
+            },
+            "measurements": [
+              {
+                "metric": {
+                  "name": "runtime",
+                  "unit": "ms",
+                  "direction": "lower"
+                },
+                "value": 80
+              }
+            ],
+            "input_units": 1000,
+            "input_unit": "rows"
+          },
+          {
+            "workload": {
+              "id": "synthetic-daily-summary",
+              "environment": "fixture",
+              "input_snapshot": "snapshot-1"
+            },
+            "execution": {
+              "id": "a1"
+            },
+            "measurements": [
+              {
+                "metric": {
+                  "name": "runtime",
+                  "unit": "ms",
+                  "direction": "lower"
+                },
+                "value": 85
+              }
+            ],
+            "input_units": 1000,
+            "input_unit": "rows"
+          },
+          {
+            "workload": {
+              "id": "synthetic-daily-summary",
+              "environment": "fixture",
+              "input_snapshot": "snapshot-1"
+            },
+            "execution": {
+              "id": "a2"
+            },
+            "measurements": [
+              {
+                "metric": {
+                  "name": "runtime",
+                  "unit": "ms",
+                  "direction": "lower"
+                },
+                "value": 75
+              }
+            ],
+            "input_units": 1000,
+            "input_unit": "rows"
+          }
+        ],
+        "change": {
+          "id": "change-1",
+          "description": "Synthetic query rewrite"
+        },
+        "comparability": {
+          "reference": "fixture-contract",
+          "statement": "Same input snapshot, environment and execution conditions"
+        }
+      },
+      "policy": {
+        "metric": {
+          "name": "runtime",
+          "unit": "ms",
+          "direction": "lower"
+        },
+        "minimum_samples": 3,
+        "max_regression_percent": 5
+      }
+    },
+    "assurance": {
+      "required_checks": [
+        "business_total",
+        "output_schema",
+        "output_checksum",
+        "freshness"
+      ],
+      "windows": {
+        "baseline_start": "2026-11-10T00:00:00Z",
+        "baseline_end": "2026-11-11T00:00:00Z",
+        "change_at": "2026-11-11T01:00:00Z",
+        "candidate_start": "2026-11-12T00:00:00Z",
+        "candidate_end": "2026-11-13T00:00:00Z"
+      },
+      "completed_at": {
+        "b0": "2026-11-10T12:00:00Z",
+        "b1": "2026-11-10T12:00:00Z",
+        "b2": "2026-11-10T12:00:00Z",
+        "a0": "2026-11-12T12:00:00Z",
+        "a1": "2026-11-12T12:00:00Z",
+        "a2": "2026-11-12T12:00:00Z"
+      },
+      "reliability": {
+        "complete": true,
+        "max_failure_percent": 0,
+        "max_increase_points": 0
+      },
+      "evidence": [
+        {
+          "name": "business_total",
+          "kind": "assertion",
+          "expected": true,
+          "observed": true,
+          "reference": "synthetic-independent-check-fixture",
+          "experiment_id": "synthetic-1",
+          "execution_ids": [
+            "a0",
+            "a1",
+            "a2"
+          ]
+        },
+        {
+          "name": "output_schema",
+          "kind": "schema",
+          "expected": [
+            "total:INT64:NULLABLE"
+          ],
+          "observed": [
+            "total:INT64:NULLABLE"
+          ],
+          "reference": "synthetic-independent-check-fixture",
+          "experiment_id": "synthetic-1",
+          "execution_ids": [
+            "a0",
+            "a1",
+            "a2"
+          ]
+        },
+        {
+          "name": "output_checksum",
+          "kind": "sha256",
+          "expected": "47e8d7ed6f65d29a1ef0f2ad6695d9d0744ed93ba113607dd049f9e8ff3fa6fe",
+          "observed": "47e8d7ed6f65d29a1ef0f2ad6695d9d0744ed93ba113607dd049f9e8ff3fa6fe",
+          "method": "Synthetic whole-result canonical JSON, ordered rows, UTF-8, SHA256",
+          "reference": "synthetic-independent-check-fixture",
+          "experiment_id": "synthetic-1",
+          "execution_ids": [
+            "a0",
+            "a1",
+            "a2"
+          ]
+        },
+        {
+          "name": "freshness",
+          "kind": "freshness",
+          "expected": 60,
+          "observed": "2026-11-13T00:00:00Z",
+          "as_of": "2026-11-13T00:00:30Z",
+          "reference": "synthetic-independent-check-fixture",
+          "experiment_id": "synthetic-1",
+          "execution_ids": [
+            "a0",
+            "a1",
+            "a2"
+          ]
+        }
+      ],
+      "started_at": {
+        "b0": "2026-11-10T12:00:00Z",
+        "b1": "2026-11-10T12:00:00Z",
+        "b2": "2026-11-10T12:00:00Z",
+        "a0": "2026-11-12T12:00:00Z",
+        "a1": "2026-11-12T12:00:00Z",
+        "a2": "2026-11-12T12:00:00Z"
+      }
+    }
+  },
+  "billing": {
+    "baseline": {
+      "scope": "synthetic/bigquery/compute",
+      "start": "2026-11-10T00:00:00Z",
+      "end": "2026-11-11T00:00:00Z",
+      "currency": "USD",
+      "net_cost": "8",
+      "reference": "synthetic-net-billing-baseline",
+      "evidence_ids": [
+        "synthetic-billing-baseline"
+      ],
+      "complete": true
+    },
+    "candidate": {
+      "scope": "synthetic/bigquery/compute",
+      "start": "2026-11-12T00:00:00Z",
+      "end": "2026-11-13T00:00:00Z",
+      "currency": "USD",
+      "net_cost": "4",
+      "reference": "synthetic-net-billing-candidate",
+      "evidence_ids": [
+        "synthetic-billing-candidate"
+      ],
+      "complete": true
+    }
+  },
+  "baseline": {
+    "start": "2026-11-10T00:00:00Z",
+    "end": "2026-11-11T00:00:00Z",
+    "execution_ids": [
+      "b0",
+      "b1",
+      "b2"
+    ],
+    "reference": "synthetic-usage-baseline",
+    "billed_bytes": 2199023255552,
+    "consumed_slot_ms": 2000
+  },
+  "candidate": {
+    "start": "2026-11-12T00:00:00Z",
+    "end": "2026-11-13T00:00:00Z",
+    "execution_ids": [
+      "a0",
+      "a1",
+      "a2"
+    ],
+    "reference": "synthetic-usage-candidate",
+    "billed_bytes": 1099511627776,
+    "consumed_slot_ms": 1000
+  }
+}

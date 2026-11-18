@@ -1,0 +1,55 @@
+{
+  "checks": [
+    {
+      "name": "windows",
+      "status": "PASS"
+    },
+    {
+      "name": "performance",
+      "status": "PASS"
+    },
+    {
+      "name": "business_total",
+      "status": "PASS"
+    },
+    {
+      "name": "freshness",
+      "status": "PASS"
+    },
+    {
+      "name": "output_checksum",
+      "status": "PASS"
+    },
+    {
+      "name": "output_schema",
+      "status": "PASS"
+    },
+    {
+      "name": "reliability",
+      "status": "PASS"
+    }
+  ],
+  "effective_input_sha256": "7b110a8e85f05fa9e8093e2a3faa3f9fe402d885e074dce91ce1f2047f525649",
+  "evidence_status": "PASS",
+  "exit_code": 0,
+  "gate_status": "PASS",
+  "input_sha256": "b79b9ed69a680fdcf0bdf8d1251b224671c140e2f31b43ab5c8a3a30155b4762",
+  "limitations": [
+    "PASS applies only to the declared checks, not whole-system correctness.",
+    "Evidence references, coverage and completeness are caller attestations, not authenticated proofs.",
+    "Execution timestamps and change time are supplied by the evidence producer.",
+    "No causation, statistical significance or financial savings conclusion is supported.",
+    "An allowed UNKNOWN is not verified evidence or approval to merge.",
+    "Report labels are supplied by the policy or input; review before sharing."
+  ],
+  "performance": {
+    "baseline_mean": 100.0,
+    "candidate_mean": 80.0,
+    "check": "runtime",
+    "regression_percent": -19.999999999999996,
+    "unit": "ms"
+  },
+  "policy_sha256": "2594095ef7892a82735c828425253c60ba46b7819baf876206e143609c3a2880",
+  "schema_version": "workflow-0.1",
+  "unknown_policy": "block"
+}
