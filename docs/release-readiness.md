@@ -1,6 +1,6 @@
 # Release-readiness assessment
 
-DataVouch remains **experimental, unpublished, and not production ready**. The version is `0.1.0a2`. Local engineering checks are distinct from approval to publish or deploy.
+DataVouch remains **experimental, not publicly released, and not production ready**. Use `datavouch --version` and the corresponding Git tag to identify the installed revision. Local engineering checks are distinct from approval to publish or deploy.
 
 ## Assessment matrix
 
@@ -63,7 +63,7 @@ This exercise has been simulated by local automated tests, but no independent ex
 
 The destination is CloudOpsFoundry/datavouch, the selected source license is MIT, and the confirmed private reporting address is security@sourabhsharma.com. Before publication, obtain ownership/dependency-license approval and confirm release maintainers. Review the GitHub Free private-repository protection limitations and establish enforceable protections for public release. The current self-hosted workflow is intentionally restricted to trusted private-repository pushes and must be replaced or adapted for an isolated public-contribution trust model before visibility changes. Run the actual workflows, including failing and blocked-UNKNOWN fixtures. Obtain independent security and user-testing results and resolve material findings.
 
-For each release, update `pyproject.toml` and `src/datavouch/__init__.py` together, move reviewed changes from Unreleased into the versioned changelog, and state report/API compatibility changes and known limitations. Keep the lockfile package version and Helm appVersion aligned; dependency upgrades are a separate reviewed change. Validate the final source revision, rebuild artifacts, retain their hashes and test installation from those artifacts. Publish only the reviewed artifacts after explicit authorization. No automated publishing or release credentials are configured in this project.
+The [automatic release workflow](automated-releases.md) synchronizes package, lockfile and Helm versions and generates the versioned changelog after main CI succeeds. It validates stamped artifacts before atomically pushing the release commit and tag. Dependency upgrades and compatibility changes remain reviewed product changes; manual version edits are not part of the routine release process. Retain artifact hashes with the exact artifacts reviewed. Public publication requires the independent gates and explicit owner authorization; it is not enabled by the private alpha workflow.
 
 See [deployment guidance](deployment.md) for supported operation and rollback. No global originality, award eligibility, production reliability or realized-savings claim is established by this assessment.
 
@@ -78,3 +78,7 @@ Use the [independent review pack](review-pack.md), [client identity/network acce
 ## Private alpha 0.1.0a2
 
 See the [release notes and acceptance handoff](releases/0.1.0a2.md). This tag identifies a tested source revision for private evaluation. It is not public distribution or production certification.
+
+## Dependency license assessment
+
+The [technical dependency-license review](dependency-licenses.md) covers 39 locked optional runtime dependencies and their included license files. It does not close the independent ownership or publication gates.

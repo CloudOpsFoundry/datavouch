@@ -80,10 +80,10 @@ def main() -> int:
             summary = json.loads((data / "demo/summary.json").read_text())
             assert summary["results"][1]["status"] == "FAIL"
             run(["up", "-d", "--no-build", "--pull", "never"], demo=True)
-            assert "Event ticket sales" in page(base_url(True) + "/workloads", password)
+            assert "Weighted aggregation" in page(base_url(True) + "/workloads", password)
             before = (data / "demo/incorrect-report.json").read_bytes()
             run(["restart", "datavouch"], demo=True)
-            assert "Event ticket sales" in page(base_url(True) + "/workloads", password)
+            assert "Weighted aggregation" in page(base_url(True) + "/workloads", password)
             assert before == (data / "demo/incorrect-report.json").read_bytes()
             print(
                 json.dumps(

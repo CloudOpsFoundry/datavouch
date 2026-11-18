@@ -8,7 +8,7 @@ A project of **CloudOpsFoundry**. *Tomorrow takes shape in today’s open source
 
 DataVouch helps data engineers validate workload changes with reproducible correctness, performance and reliability evidence. [Purpose, use cases and benefits](docs/product.md).
 
-See the benefit through [an event ticket-sales walkthrough](docs/ticket-sales-walkthrough.md): evaluate a query rewrite without losing multi-ticket booking revenue. Open **Example walkthrough** in the UI, or run the local example without a cloud account.
+See the benefit through [a synthetic aggregation walkthrough](docs/aggregation-walkthrough.md): compare a query rewrite against an independently checked weighted sum. Open **Example walkthrough** in the UI, or run the local example without a cloud account.
 
 Learn [workloads, experiments, runs and results](docs/user-guide.md), or open **User guide** in the application.
 
@@ -16,7 +16,7 @@ Start with the [step-by-step local guide](docs/getting-started.md). DataVouch is
 
 ## Available capabilities
 
-The package compares offline workload observations using configurable regression thresholds, explicit units, minimum sample counts and optional input volume normalization. It returns PASS, FAIL or UNKNOWN for the selected metric and includes the underlying evidence in deterministic JSON. The experimental BigQuery adapter collects bounded job metadata from offline fixtures or an explicitly requested live query. The generated ticket-sales walkthrough exercises real BigQuery jobs and verification. Acceptance against real client workloads remains a separate requirement.
+The package compares offline workload observations using configurable regression thresholds, explicit units, minimum sample counts and optional input volume normalization. It returns PASS, FAIL or UNKNOWN for the selected metric and includes the underlying evidence in deterministic JSON. The experimental BigQuery adapter collects bounded job metadata from offline fixtures or an explicitly requested live query. The generated weighted-aggregation walkthrough exercises real BigQuery jobs and verification. Acceptance against real client workloads remains a separate requirement.
 
 The `run-bigquery` command collects baseline and candidate jobs, verifies the experiment, and saves replayable inputs, reports and a local viewer catalog. See [BigQuery experiments](docs/bigquery-experiments.md).
 
@@ -63,3 +63,7 @@ See [release readiness](docs/release-readiness.md) for completed local checks an
 Read [CONTRIBUTING.md](CONTRIBUTING.md). DataVouch uses the [MIT licence](LICENSE). Follow [SECURITY.md](SECURITY.md) to report vulnerabilities without publishing sensitive information.
 
 Google Cloud projects and observed locations can be discovered using backend workload credentials, with deployment and user access controls. See [Google Cloud connections and discovery](docs/connections.md) for setup and permissions.
+
+## Release workflow
+
+Successful main CI automatically versions qualifying changes, updates the changelog, creates an annotated tag and generates private alpha release notes. Use Conventional Commit PR titles; see [automatic releases](docs/automated-releases.md) for rules, prerequisites and recovery.

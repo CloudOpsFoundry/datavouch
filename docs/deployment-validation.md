@@ -4,16 +4,7 @@ Validation date: 18 November 2026. This record distinguishes implemented functio
 
 ## What the local use case demonstrated
 
-The earlier retailer-revenue demo (before the current [ticket-sales walkthrough](ticket-sales-walkthrough.md)) executed three real SQLite queries against the same 1,000 generated orders and 3,000 line items. An independent Python oracle computed expected revenue of **882,150 cents**.
-
-| Local UI scenario | Measured mean runtime | Revenue | Result |
-| --- | --- | --- | --- |
-| Original correlated aggregate | 38.505 ms | 882,150 cents | Baseline |
-| Equivalent aggregate | 0.093 ms | 882,150 cents | PASS |
-| Aggregate that ignores quantities | 0.047 ms | 441,075 cents | FAIL |
-| Equivalent measurements, correctness evidence withheld | 0.093 ms | Evidence unavailable to verification | UNKNOWN |
-
-These timings are observations from one local run, not a performance guarantee or cloud benchmark. The incorrect query ran faster and completed successfully, but it returned half the correct revenue. DataVouch rejected it because the business check failed. No financial savings conclusion was made. Saved verification inputs replayed to byte-identical reports; remeasuring the queries naturally produces different timings.
+Previous local validation exercised a correlated aggregate, an equivalent rewrite and an intentionally incorrect rewrite against generated data. It verified actual execution measurements, independent correctness checks and byte-identical replay. These historical checks are not a benchmark of the current example. Use the [aggregation walkthrough](aggregation-walkthrough.md) to generate fresh measurements for the current code.
 
 ## Executed validation
 

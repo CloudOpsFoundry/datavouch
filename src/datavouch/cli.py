@@ -32,11 +32,9 @@ def main(argv: list[str] | None = None) -> int:
     gate.add_argument("input", type=Path)
     gate.add_argument("--policy", type=Path, required=True)
     gate.add_argument("--output-dir", type=Path)
-    demo = subparsers.add_parser(
-        "demo", help="Measure local SQL rewrites and verify event ticket sales"
-    )
+    demo = subparsers.add_parser("demo", help="Measure local SQL rewrites and verify weighted sums")
     demo.add_argument("--output-dir", type=Path, required=True)
-    demo.add_argument("--bookings", "--orders", dest="orders", type=int, default=1000)
+    demo.add_argument("--groups", dest="groups", type=int, default=1000)
     server = subparsers.add_parser("serve", help="Start the authenticated local report viewer")
     server.add_argument("catalog", type=Path)
     server.add_argument("--port", type=int, default=8765)
@@ -91,7 +89,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "demo":
         from datavouch.demo import demo_command
 
-        return demo_command(args.output_dir, args.orders)
+        return demo_command(args.output_dir, args.groups)
     if args.command == "adapters":
         from datavouch.adapters.commands import adapters_command
 

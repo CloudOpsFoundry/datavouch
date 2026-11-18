@@ -1,5 +1,6 @@
 import pytest
 
+from datavouch import __version__
 from datavouch.cli import main
 
 
@@ -12,7 +13,7 @@ def test_version(capsys):
     with pytest.raises(SystemExit) as result:
         main(["--version"])
     assert result.value.code == 0
-    assert "0.1.0a2" in capsys.readouterr().out
+    assert __version__ in capsys.readouterr().out
 
 
 def test_cli_invalid_input(tmp_path, capsys):

@@ -7,14 +7,14 @@ DataVouch answers: **did this specific change preserve the required business res
 | Concept | Meaning | Example |
 | --- | --- | --- |
 | Connection | Administrator-approved project/location pair and collection limits | A client's analytics project in its approved region |
-| Workload | Stable name for a data-processing task | Daily revenue |
+| Workload | Stable name for a data-processing task | Daily aggregate |
 | Change | What you altered and why | Replace a correlated subquery with an aggregate |
 | Baseline | Original completed executions used as the reference | Three uncached jobs using the original SQL |
 | Candidate | Completed executions after the change | Three uncached jobs using the rewritten SQL |
-| Experiment | One change, selected baseline/candidate groups, comparison contract and check policy | Revenue rewrite, revision 2 |
+| Experiment | One change, selected baseline/candidate groups, comparison contract and check policy | Aggregation rewrite, revision 2 |
 | Plan | Validated configuration for an experiment | Job IDs, UTC windows, required assertions and byte limit |
 | Run | Saved execution of a DataVouch plan, with collection state and result | One evaluation of the six selected jobs |
-| Evidence | Measurements or independently supplied checks supporting a conclusion | Job runtime plus independently verified revenue totals |
+| Evidence | Measurements or independently supplied checks supporting a conclusion | Job runtime plus independently verified weighted totals |
 | Financial assessment | Separate evaluation of pricing, spending and attribution evidence | A usage estimate or a reviewed spending difference |
 
 A cloud job and a DataVouch run are different. A run evaluates groups of existing jobs. Clicking **Run experiment** collects metadata; it does not execute the workload SQL, rerun failed jobs, or execute your assertion SQL.
@@ -25,14 +25,14 @@ Workloads are business tasks you name, not a fixed list of built-in product type
 
 | Use case | Example change | Useful independent correctness evidence |
 | --- | --- | --- |
-| Revenue aggregate | Rewrite a query or change joins | Totals including quantities, refunds and currency rules |
+| Weighted aggregate | Rewrite a query or change joins | Weighted totals with defined null and duplicate handling |
 | ETL/ELT transformation | Refactor transformation SQL | Business assertions, schema and stable output checksum |
 | Incremental refresh | Change watermark or partition logic | Freshness, duplicate/missing-record checks and input snapshot |
 | Resource optimization | Reduce processed bytes or slot consumption | Same business result under comparable inputs and conditions |
 
 Live collection currently supports BigQuery. These examples do not imply that DataVouch orchestrates pipelines or already has every cloud adapter. The core accepts explicit adapter contracts and offline evidence; additional live platforms need implementations.
 
-The bundled **Daily summary** workload contains synthetic comparison, verification and financial reports. The generated **Event ticket sales** demo executes real SQLite queries on generated data. These examples are not automatically discovered client workloads. In gateway mode, startup sample catalogs are disabled to keep the shared workspace limited to authorized runs.
+The bundled **Daily summary** workload contains synthetic comparison, verification and financial reports. The generated **Weighted aggregation** demo executes real SQLite queries on generated data. These examples are not automatically discovered client workloads. In gateway mode, startup sample catalogs are disabled to keep the shared workspace limited to authorized runs.
 
 ## Report types
 
@@ -63,7 +63,7 @@ A plan does not automatically discover job IDs, create test data or establish co
 
 A required failure takes precedence over UNKNOWN. Matching row counts alone do not establish correctness. PASS does not establish statistical significance, causation, whole-system correctness or future reliability.
 
-In the local revenue demo, the correct total is **55,500,000 cents (€555,000)**. An incorrect rewrite returns **24,000,000 cents (€240,000)** because it ignores quantities. It can run faster and execute successfully, but must fail the business check. With that check absent, correctness is UNKNOWN. This is why a query execution status alone is not enough.
+In the local aggregation demo, the correct weighted sum is **555,000 units**. An incorrect rewrite returns **240,000 units** because it ignores weights. It can run faster and execute successfully, but must fail the correctness check. With that check absent, correctness is UNKNOWN. This is why a query execution status alone is not enough.
 
 ## Permissions, history and data
 
@@ -73,4 +73,4 @@ Admins can delete one, selected or all permitted saved runs. Bulk deletion previ
 
 Current deployment limits are one process, one active experiment, 50 saved runs and ten financial assessments per run. Shared team access uses an existing client identity gateway. Raw report downloads are an explicit deployment option and are unavailable to viewers. See [client validation](client-validation.md) before shared use.
 
-For a complete event-booking story, open **Example walkthrough** in the UI or follow the [ticket-sales walkthrough](ticket-sales-walkthrough.md). Report recommendations explain whether to proceed to review, reject a failed change, or hold for evidence.
+For a complete synthetic aggregation story, open **Example walkthrough** in the UI or follow the [weighted-aggregation walkthrough](aggregation-walkthrough.md). Report recommendations explain whether to proceed to review, reject a failed change, or hold for evidence.

@@ -133,7 +133,7 @@ def main() -> int:
                         "datavouch",
                         "demo",
                         "--output-dir",
-                        "/data/revenue-demo",
+                        "/data/aggregation-demo",
                     ]
                 )
             )
@@ -147,7 +147,7 @@ def main() -> int:
                     "-f",
                     str(LOCAL),
                     "--set",
-                    "config.catalogPath=/data/revenue-demo/catalog.json",
+                    "config.catalogPath=/data/aggregation-demo/catalog.json",
                     "--set",
                     "execution.allowRawReports=true",
                     "--wait",
@@ -156,10 +156,10 @@ def main() -> int:
                 ]
             )
             base = connect()
-            url = "/workloads/ticket-sales/experiments/incorrect/report.json"
+            url = "/workloads/weighted-aggregation/experiments/incorrect/report.json"
             code, original = request(base, url)
             assert code == 200 and json.loads(original)["overall_status"] == "FAIL"
-            assert "Event ticket sales" in request(base, "/workloads")[1].decode()
+            assert "Weighted aggregation" in request(base, "/workloads")[1].decode()
             run(kube + ["rollout", "restart", "deployment/" + name])
             run(kube + ["rollout", "status", "deployment/" + name, "--timeout=180s"])
             base = connect()

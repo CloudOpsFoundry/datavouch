@@ -9,6 +9,8 @@ from pathlib import Path
 
 import pytest
 
+from datavouch import __version__
+
 ROOT = Path(__file__).resolve().parents[2]
 
 
@@ -22,14 +24,14 @@ def release(tmp_path, monkeypatch):
     monkeypatch.setattr(module, "ROOT", tmp_path)
     monkeypatch.setattr(module.importlib.metadata, "distributions", lambda: [])
     (tmp_path / "pyproject.toml").write_text(
-        '[project]\nname="datavouch"\nversion="0.1.0a2"\nrequires-python=">=3.15,<3.16"\n'
+        f'[project]\nname="datavouch"\nversion="{__version__}"\nrequires-python=">=3.15,<3.16"\n'
     )
-    (tmp_path / "CHANGELOG.md").write_text("## 0.1.0a2\n")
+    (tmp_path / "CHANGELOG.md").write_text(f"## {__version__}\n")
     (tmp_path / "dist").mkdir()
     return module
 
 
-def artifacts(root, *, version="0.1.0a2", license=True, typed=True, python=">=3.15,<3.16"):
+def artifacts(root, *, version=__version__, license=True, typed=True, python=">=3.15,<3.16"):
     metadata = f"Name: datavouch\nVersion: {version}\nRequires-Python: {python}\n".encode()
     with zipfile.ZipFile(root / "dist/package.whl", "w") as archive:
         archive.writestr("datavouch.dist-info/METADATA", metadata)
@@ -60,7 +62,7 @@ def test_release_inventory_is_not_approval(release, capsys):
 def test_release_rejects_invalid_artifacts(release, problem):
     artifacts(
         release.ROOT,
-        version="9.0.0" if problem == "identity" else "0.1.0a2",
+        version="9.0.0" if problem == "identity" else __version__,
         license=problem != "license",
         typed=problem != "typing",
     )
@@ -82,4 +84,17 @@ def test_release_accepts_reordered_python_constraints(release):
 def test_release_rejects_different_python_constraints(release):
     artifacts(release.ROOT, python=">=3.15")
     with pytest.raises(ValueError, match="Python requirement"):
+        release.main()
+
+
+def test_release_accepts_generated_tag_heading(release):
+    artifacts(release.ROOT)
+    (release.ROOT / "CHANGELOG.md").write_text(f"## v{__version__} (2026-11-18)\n")
+    assert release.main() == 0
+
+
+def test_release_requires_exact_version_heading(release):
+    artifacts(release.ROOT)
+    (release.ROOT / "CHANGELOG.md").write_text(f"## {__version__}0\n")
+    with pytest.raises(ValueError, match="absent from changelog"):
         release.main()
