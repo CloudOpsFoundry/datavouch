@@ -53,7 +53,7 @@ Artifacts omit raw source documents, job IDs and evidence references. User-suppl
 
 ## GitHub Actions
 
-[The sample workflow](../.github/workflows/workload_verification.yml) runs the synthetic fixture on hosted runners using read-only repository permission and no cloud credentials. The gate's nonzero exit fails the step. Subsequent `always()` steps retain the summary and reports without masking that failure. Reports expire after seven days. It does not post comments, approve pull requests or enable auto-merge.
+[The sample caller](../.github/workflows/workload_verification.yml) imports the shared Python workflow and runs the synthetic fixture on hosted runners with read-only permissions and no cloud credentials. The gate's nonzero exit fails validation. Reports are temporary runner files and are not uploaded. It does not post comments, approve PRs or enable auto-merge.
 
 GitHub displays Markdown written to `GITHUB_STEP_SUMMARY` on the workflow run summary. See [official summary documentation](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-commands#adding-a-job-summary). Artifact upload is pinned to the reviewed [v7.0.2 release](https://github.com/actions/upload-artifact/releases/tag/v7.0.2).
 
@@ -62,5 +62,5 @@ For a consuming repository, install a trusted released wheel or an immutable tru
 ## Real-environment validation steps
 
 1. Run the local PASS, FAIL and UNKNOWN examples and inspect all three report formats.
-2. After the project is committed to an authorized GitHub repository, run **Workload verification example** manually. Confirm its summary and artifact, then use a disposable branch to test FAIL and blocked UNKNOWN. Remote GitHub execution has not yet been validated.
+2. After the project is committed to an authorized GitHub repository, run **Workload verification example** manually. Confirm its exit status, then use a disposable branch to test FAIL and blocked UNKNOWN. Remote GitHub execution has not yet been validated.
 3. For workload evidence, use sanitized inputs from authorized runs in your approved project and location, with the same project for quota/billing. Run the gate locally first and compare with `datavouch verify` using equivalent policy. Do not include credentials or raw billing extracts in artifacts. Real financial reconciliation is a separate task.
