@@ -13,7 +13,7 @@ def verify_command(path: Path) -> int:
     try:
         report = verify(read_json(path))
         output = json.dumps(report, sort_keys=True, indent=2, allow_nan=False) + "\n"
-    except (ValueError, TypeError, OSError, OverflowError, RecursionError):
+    except ValueError, TypeError, OSError, OverflowError, RecursionError:
         print(
             "Invalid or unreadable verification input. Check the documented schema.",
             file=sys.stderr,

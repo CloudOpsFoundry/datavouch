@@ -244,7 +244,7 @@ def load_catalog(path: Path) -> tuple[WorkloadView, ...]:
                     hashlib.sha256(raw).hexdigest(),
                     raw,
                 )
-            except (ValueError, TypeError, OSError, RecursionError):
+            except ValueError, TypeError, OSError, RecursionError:
                 view = ExperimentView(
                     key,
                     title,

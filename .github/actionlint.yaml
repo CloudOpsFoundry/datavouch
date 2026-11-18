@@ -1,0 +1,4 @@
+self-hosted-runner:
+  labels:
+    - datavouch_local
+    - datavouch_container

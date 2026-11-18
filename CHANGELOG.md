@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+Added `run-bigquery` to collect and verify explicit baseline and candidate cohorts, retain collection diagnostics, and generate replayable verification input and a local viewer catalog. Partial or out-of-window cohorts cannot produce PASS. Existing collection command output remains unchanged.
+
 Release-readiness assessment, source-archive rebuild validation, version/license metadata checks, dependency inventory, security/deployment guidance and contributor onboarding. No public release has been published.
 
 ## 0.1.0a1

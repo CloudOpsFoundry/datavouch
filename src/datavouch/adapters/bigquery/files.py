@@ -70,11 +70,18 @@ def load_fixture(path: Path, config: CollectionConfig) -> Collection:
     return collect_rows(rows, config)
 
 
-def render_collection(collection: Collection) -> str:
+def render_collection(collection: Collection, *, include_times: bool = False) -> str:
     """Preserve safe metadata and explicitly identify missing or excluded jobs."""
     data = asdict(collection)
     data["config"]["job_ids"] = sorted(data["config"]["job_ids"])
-    data["schema_version"] = "bigquery-collection-0.1"
+    data["schema_version"] = (
+        "bigquery-collection-0.2" if include_times else "bigquery-collection-0.1"
+    )
+    if not include_times:
+        # Preserve the existing collection contract for callers and adapter fixtures.
+        for job in data["jobs"]:
+            job.pop("started_at")
+            job.pop("completed_at")
     data["eligible"] = collection.eligible
     data["fingerprint_groups"] = {
         fingerprint: [j.job_id for j in collection.jobs if j.fingerprint == fingerprint]

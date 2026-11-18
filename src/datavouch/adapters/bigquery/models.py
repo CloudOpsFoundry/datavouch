@@ -79,6 +79,8 @@ class JobEvidence:
     failure_reason: str | None
     observation: Observation | None
     issues: tuple[str, ...]
+    started_at: datetime | None = None
+    completed_at: datetime | None = None
 
 
 @dataclass(frozen=True, slots=True)

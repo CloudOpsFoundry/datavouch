@@ -23,7 +23,7 @@ def collect_command(config: Path, fixture: Path | None, live: bool) -> int:
     try:
         report = builtin_registry().collect(read_json(config), fixture=fixture, live=live)
         output = render(report)
-    except (ValueError, TypeError, OSError, OverflowError, RecursionError):
+    except ValueError, TypeError, OSError, OverflowError, RecursionError:
         print(
             "Adapter collection failed. Check connector version, scope, source and dependencies.",
             file=sys.stderr,

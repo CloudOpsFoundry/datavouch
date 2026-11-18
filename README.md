@@ -1,14 +1,21 @@
 # DataVouch
 
+[![CI](https://github.com/CloudOpsFoundry/datavouch/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/CloudOpsFoundry/datavouch/actions/workflows/main.yml?query=branch%3Amain)
+[![Workload verification](https://github.com/CloudOpsFoundry/datavouch/actions/workflows/workload_verification.yml/badge.svg?branch=main)](https://github.com/CloudOpsFoundry/datavouch/actions/workflows/workload_verification.yml?query=branch%3Amain)
+
+The badges show the latest workflow results on `main`. Check each pull request's Checks tab for its own revision. Private repository badges require repository access.
+
 Measure. Validate. Trust.
 
-A project of **CloudOpsFoundry** — *Tomorrow takes shape in today’s open source.*
+A project of **CloudOpsFoundry**. *Tomorrow takes shape in today’s open source.*
 
 DataVouch is an experimental data engineering assurance framework. Its purpose is to compare workload executions using reproducible evidence, with explicit PASS, FAIL and UNKNOWN conclusions.
 
 ## Available capabilities
 
 The package compares offline workload observations using configurable regression thresholds, explicit units, minimum sample counts and optional input volume normalization. It returns PASS, FAIL or UNKNOWN for the selected metric and includes the underlying evidence in deterministic JSON. The experimental BigQuery adapter collects bounded job metadata from offline fixtures or an explicitly requested live query. A live smoke test with three synthetic SELECT jobs has passed. Broader workload validation remains outstanding.
+
+The `run-bigquery` command collects baseline and candidate jobs, verifies the experiment, and saves replayable inputs, reports and a local viewer catalog. See [BigQuery experiments](docs/bigquery-experiments.md).
 
 The `verify` command combines performance, execution windows, independently supplied correctness evidence and reliability thresholds. Required failures produce FAIL and missing evidence produces UNKNOWN. See [verification](docs/verification.md).
 
@@ -22,7 +29,7 @@ Versioned adapter contracts support explicit registration and capability checks.
 
 ## Installation and quick start
 
-Python 3.12 or newer is required. From this source checkout:
+Python 3.15 is required. From this source checkout:
 
 ```sh
 python -m pip install .

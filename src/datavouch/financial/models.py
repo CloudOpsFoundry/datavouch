@@ -49,7 +49,7 @@ class Usage:
     consumed_slot_ms: int | None
 
     @classmethod
-    def decode(cls, data: Any) -> "Usage":
+    def decode(cls, data: Any) -> Usage:
         value = _object(
             data,
             {"start", "end", "execution_ids"},
@@ -88,7 +88,7 @@ class Pricing:
     valid_to: str | None
 
     @classmethod
-    def decode(cls, data: Any) -> "Pricing":
+    def decode(cls, data: Any) -> Pricing:
         value = _object(
             data, {"model", "currency"}, {"rate", "reference", "valid_from", "valid_to"}
         )
@@ -130,7 +130,7 @@ class Billing:
     complete: bool
 
     @classmethod
-    def decode(cls, data: Any) -> "Billing":
+    def decode(cls, data: Any) -> Billing:
         value = _object(
             data,
             {
@@ -174,7 +174,7 @@ class Claim:
     evidence_ids: tuple[str, ...]
 
     @classmethod
-    def decode(cls, data: Any) -> "Claim":
+    def decode(cls, data: Any) -> Claim:
         value = _object(data, {"id", "scope", "start", "end", "evidence_ids"})
         nonempty(value["id"], "claim ID")
         nonempty(value["scope"], "billing scope")

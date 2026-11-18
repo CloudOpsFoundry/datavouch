@@ -23,7 +23,7 @@ def collect_command(config_path: Path, fixture: Path | None, live: bool) -> int:
     except CollectionError as error:
         print(str(error), file=sys.stderr)
         return 2
-    except (ValueError, OSError, TypeError, OverflowError, RecursionError):
+    except ValueError, OSError, TypeError, OverflowError, RecursionError:
         print("Invalid or unreadable BigQuery input. Check the documented schema.", file=sys.stderr)
         return 2
     print(output, end="")
