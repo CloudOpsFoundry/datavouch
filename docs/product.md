@@ -1,6 +1,8 @@
-# What DataVouch is for
+# DataVouch: BigQuery optimization validation and regression testing
 
 DataVouch helps data engineers evaluate a workload change before treating it as a successful optimization or release. It brings configured correctness, performance and reliability checks into a reproducible experiment, with explicit PASS, FAIL and UNKNOWN conclusions.
+
+Use it for **SQL performance regression testing**, **BigQuery query optimization validation**, and **FinOps evidence review**. The current cloud adapter targets Google BigQuery; other cloud platforms require additional adapters and validation. DataVouch evaluates supplied data correctness checks rather than discovering or running every business assertion automatically.
 
 ## The problem
 

@@ -1,4 +1,4 @@
-# DataVouch
+# DataVouch: BigQuery Optimization Validation
 
 [![CI](https://github.com/CloudOpsFoundry/datavouch/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/CloudOpsFoundry/datavouch/actions/workflows/main.yml?query=branch%3Amain)
 
@@ -6,7 +6,9 @@
 
 A project of **CloudOpsFoundry**. *Tomorrow takes shape in today’s open source.*
 
-DataVouch helps data engineers validate workload changes with reproducible correctness, performance and reliability evidence. [Purpose, use cases and benefits](docs/product.md).
+DataVouch is a Python tool for **BigQuery optimization validation, data correctness checks and performance regression testing**. Compare baseline and candidate workloads, review reliability and FinOps evidence, and use explicit **PASS, FAIL or UNKNOWN** results in your release decisions. [Purpose, use cases and benefits](docs/product.md).
+
+**Did your SQL optimization make the query faster without changing the result?** DataVouch brings the measurements and independently supplied correctness checks into one replayable report. Use the CLI, authenticated web UI or CI workflow gate in your own environment.
 
 See the benefit through [a synthetic aggregation walkthrough](docs/aggregation-walkthrough.md): compare a query rewrite against an independently checked weighted sum. Open **Example walkthrough** in the UI, or run the local example without a cloud account.
 
@@ -15,6 +17,14 @@ Learn [workloads, experiments, runs and results](docs/user-guide.md), or open **
 Start with the [step-by-step local guide](docs/getting-started.md). DataVouch is developed as a monorepo; see the [product and UI roadmap](docs/product-roadmap.md) for delivery scope. The [acceptance checklist](docs/product-acceptance.md) maps product requirements to implementation and final release gates.
 
 ## Available capabilities
+
+| Your question | DataVouch capability |
+| --- | --- |
+| Did a BigQuery SQL change cause a performance regression? | Compare baseline and candidate execution measurements against configured thresholds. |
+| Does the optimized query still produce the expected result? | Evaluate independently supplied correctness evidence; missing evidence stays UNKNOWN. |
+| Did failures increase after the change? | Evaluate observed execution reliability alongside performance. |
+| Does reduced resource usage support a cost claim? | Separate usage estimates, supplied spending and reviewed attribution in a FinOps assessment. |
+| Can a reviewer reproduce the release decision? | Replay saved evidence and apply an explicit CI acceptance policy. |
 
 The package compares offline workload observations using configurable regression thresholds, explicit units, minimum sample counts and optional input volume normalization. It returns PASS, FAIL or UNKNOWN for the selected metric and includes the underlying evidence in deterministic JSON. The experimental BigQuery adapter collects bounded job metadata from offline fixtures or an explicitly requested live query. The generated weighted-aggregation walkthrough exercises real BigQuery jobs and verification. Acceptance against real client workloads remains a separate requirement.
 

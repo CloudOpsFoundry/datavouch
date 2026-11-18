@@ -13,9 +13,9 @@ DataVouch remains **experimental, not publicly released, and not production read
 | Python compatibility | Full suite on Python 3.15.2, macOS and Linux ARM64 | Python 3.15 required; other OS combinations require validation |
 | Benchmarks | Reproducible synthetic comparison benchmark on Python 3.15.2 | Measured; no service-level guarantee |
 | Documentation | Setup, CLI, policy, adapter, web and deployment guides | Locally reviewed; external onboarding pending |
-| Versioning/changelog | Versioned private alpha, Unreleased section, package/artifact consistency checks | Implemented |
+| Versioning/changelog | Automated private alpha versions, annotated tags, preserved changelog history and package/artifact consistency checks | Implemented; verify each main release run |
 | Licensing | MIT file present in source and distributions; dependency license metadata inventoried | Ownership and compatibility approval pending |
-| Source publication | Private CloudOpsFoundry/datavouch repository; exclusion checks and artifact hashes; no published release | Private development; public release requires owner approval |
+| Source publication | Private CloudOpsFoundry/datavouch repository with private alpha releases, exclusion checks and artifact hashes | Public release requires completion or explicit disposition of publication gates |
 | GitHub Actions | Pinned actions, read-only permissions, self-hosted push/PR/main validation | Merged main validation passed; each new revision requires checks |
 | External users | Scripted contributor acceptance exercise below | Independent participation pending |
 | Deployment | Local workspace, opt-in execution, Compose and Helm deployments, OIDC gateway roles/scopes | Real IdP and client infrastructure acceptance pending |
@@ -61,7 +61,7 @@ This exercise has been simulated by local automated tests, but no independent ex
 
 ## Release process and outstanding decisions
 
-The destination is CloudOpsFoundry/datavouch, the selected source license is MIT, and the confirmed private reporting address is security@sourabhsharma.com. Before publication, obtain ownership/dependency-license approval and confirm release maintainers. Review the GitHub Free private-repository protection limitations and establish enforceable protections for public release. The current self-hosted workflow is intentionally restricted to trusted private-repository pushes and must be replaced or adapted for an isolated public-contribution trust model before visibility changes. Run the actual workflows, including failing and blocked-UNKNOWN fixtures. Obtain independent security and user-testing results and resolve material findings.
+The destination is CloudOpsFoundry/datavouch, the selected source license is MIT, and the confirmed private reporting address is security@sourabhsharma.com. Before publication, obtain ownership/dependency-license approval and confirm release maintainers. Review the GitHub Free private-repository protection limitations and establish enforceable protections for public release. The self-hosted workflow remains restricted to trusted private-repository pushes. A separate public-contribution workflow is prepared on disposable hosted runners; hosted execution, removal of self-hosted access and enforceable branch protections remain publication gates. See [public CI preparation](development.md#public-contribution-ci-preparation). Run the actual workflows, including failing and blocked-UNKNOWN fixtures. Obtain independent security and user-testing results and resolve material findings.
 
 The [automatic release workflow](automated-releases.md) synchronizes package, lockfile and Helm versions and generates the versioned changelog after main CI succeeds. It validates stamped artifacts before atomically pushing the release commit and tag. Dependency upgrades and compatibility changes remain reviewed product changes; manual version edits are not part of the routine release process. Retain artifact hashes with the exact artifacts reviewed. Public publication requires the independent gates and explicit owner authorization; it is not enabled by the private alpha workflow.
 
