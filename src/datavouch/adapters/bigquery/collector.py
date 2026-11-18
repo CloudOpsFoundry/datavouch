@@ -65,6 +65,7 @@ def _job(row: Mapping[str, object], config: CollectionConfig) -> JobEvidence:
         issues.append("Normalized fingerprint is unavailable")
     measurements = []
     start, end = row.get("start_time"), row.get("end_time")
+    started, ended = None, None
     if start is None or end is None:
         issues.append("Execution timestamps are incomplete")
     else:
@@ -90,7 +91,15 @@ def _job(row: Mapping[str, object], config: CollectionConfig) -> JobEvidence:
             tuple(measurements),
         )
     return JobEvidence(
-        job_id, created, fingerprint, str(state), failure, observation, tuple(issues)
+        job_id,
+        created,
+        fingerprint,
+        str(state),
+        failure,
+        observation,
+        tuple(issues),
+        started,
+        ended,
     )
 
 

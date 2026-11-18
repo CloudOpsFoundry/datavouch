@@ -13,7 +13,7 @@ def gate_command(path: Path, policy: Path, output_dir: Path | None) -> int:
         if output_dir is not None:
             write_reports(output_dir, report)
         output = encoded(report)
-    except (ValueError, TypeError, OSError, OverflowError, RecursionError):
+    except ValueError, TypeError, OSError, OverflowError, RecursionError:
         print(
             "Workflow gate error: check input, policy and a new writable output directory.",
             file=sys.stderr,

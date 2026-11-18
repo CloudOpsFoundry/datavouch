@@ -49,6 +49,14 @@ def main(argv: list[str] | None = None) -> int:
     source.add_argument(
         "--live", action="store_true", help="Run an authorized billable metadata query"
     )
+    run = subparsers.add_parser(
+        "run-bigquery", help="Collect and verify a BigQuery experiment with replayable reports"
+    )
+    run.add_argument("config", type=Path)
+    run.add_argument("--output-dir", type=Path, required=True)
+    run_source = run.add_mutually_exclusive_group(required=True)
+    run_source.add_argument("--fixtures", type=Path, nargs=2, metavar=("BASELINE", "CANDIDATE"))
+    run_source.add_argument("--live", action="store_true")
     args = parser.parse_args(argv)
     if args.command is None:
         parser.print_help()
@@ -57,6 +65,10 @@ def main(argv: list[str] | None = None) -> int:
         from datavouch.adapters.commands import adapters_command
 
         return adapters_command()
+    if args.command == "run-bigquery":
+        from datavouch.adapters.bigquery.experiments import run_command
+
+        return run_command(args.config, args.output_dir, args.fixtures, args.live)
     if args.command == "collect":
         from datavouch.adapters.commands import collect_command as generic_collect
 
@@ -85,7 +97,7 @@ def main(argv: list[str] | None = None) -> int:
         experiment, policy = load(args.input)
         report = compare(experiment, policy)
         output = render(report)
-    except (ValueError, OSError, TypeError, OverflowError, RecursionError):
+    except ValueError, OSError, TypeError, OverflowError, RecursionError:
         print(
             "Invalid or unreadable comparison input. Check the documented schema.", file=sys.stderr
         )

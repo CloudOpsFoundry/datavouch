@@ -92,7 +92,7 @@ class Registry:
             }
         except AdapterError:
             raise
-        except (ValueError, TypeError, OverflowError, RecursionError):
+        except ValueError, TypeError, OverflowError, RecursionError:
             raise AdapterError("Invalid connector configuration") from None
 
 

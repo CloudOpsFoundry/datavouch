@@ -1,0 +1,80 @@
+{
+  "schema_version": "bigquery-experiment-0.1",
+  "id": "query-rewrite-1",
+  "baseline": {
+    "project": "synthetic-project",
+    "location": "eu",
+    "start": "2026-11-16T00:00:00Z",
+    "end": "2026-11-17T00:00:00Z",
+    "job_ids": [
+      "baseline_1",
+      "baseline_2",
+      "baseline_3"
+    ],
+    "workload": {
+      "id": "daily-summary",
+      "environment": "synthetic-project/eu/test",
+      "input_snapshot": "synthetic-snapshot-1"
+    }
+  },
+  "candidate": {
+    "project": "synthetic-project",
+    "location": "eu",
+    "start": "2026-11-18T00:00:00Z",
+    "end": "2026-11-19T00:00:00Z",
+    "job_ids": [
+      "candidate_1",
+      "candidate_2",
+      "candidate_3"
+    ],
+    "workload": {
+      "id": "daily-summary",
+      "environment": "synthetic-project/eu/test",
+      "input_snapshot": "synthetic-snapshot-1"
+    }
+  },
+  "change": {
+    "id": "rewrite-1",
+    "description": "Synthetic query rewrite",
+    "at": "2026-11-17T12:00:00Z"
+  },
+  "comparability": {
+    "reference": "synthetic-workload-contract",
+    "statement": "Same synthetic data, parameters and execution conditions"
+  },
+  "policy": {
+    "metric": {
+      "name": "runtime",
+      "unit": "ms",
+      "direction": "lower"
+    },
+    "minimum_samples": 3,
+    "max_regression_percent": 5
+  },
+  "assurance": {
+    "required_checks": [
+      "business_total"
+    ],
+    "reliability": {
+      "complete": true,
+      "max_failure_percent": 0,
+      "max_increase_points": 0
+    },
+    "evidence": [
+      {
+        "name": "business_total",
+        "kind": "assertion",
+        "expected": true,
+        "observed": true,
+        "reference": "synthetic-independent-check",
+        "experiment_id": "query-rewrite-1",
+        "execution_ids": [
+          "synthetic-project/eu/candidate_1",
+          "synthetic-project/eu/candidate_2",
+          "synthetic-project/eu/candidate_3"
+        ]
+      }
+    ]
+  },
+  "synthetic": true
+}

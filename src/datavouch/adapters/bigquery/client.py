@@ -52,11 +52,11 @@ def collect_live(config: CollectionConfig) -> Collection:
                 job_retry=None,
             )
             return collect_rows((dict(row.items()) for row in rows), config, source="bigquery")
-    except (Forbidden, Unauthorized):
+    except Forbidden, Unauthorized:
         raise CollectionError(
             "BigQuery access denied. Check jobs.create and jobs.listAll permissions"
         ) from None
-    except (DefaultCredentialsError, RefreshError):
+    except DefaultCredentialsError, RefreshError:
         raise CollectionError(
             "Google Application Default Credentials are unavailable or invalid"
         ) from None

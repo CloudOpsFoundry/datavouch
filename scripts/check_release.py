@@ -47,7 +47,9 @@ def main() -> int:
                 metadata = BytesParser().parsebytes(source.read())
         if metadata["Name"] != project["name"] or metadata["Version"] != __version__:
             raise ValueError("Artifact identity differs from project")
-        if metadata["Requires-Python"] != project["requires-python"]:
+        requirement = metadata["Requires-Python"]
+        expected = {part.strip() for part in project["requires-python"].split(",")}
+        if requirement is None or {part.strip() for part in requirement.split(",")} != expected:
             raise ValueError("Artifact Python requirement differs from project")
         if not any(n.endswith("/LICENSE") for n in names):
             raise ValueError("Missing license in distribution")

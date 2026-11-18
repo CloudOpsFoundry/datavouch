@@ -11,6 +11,5 @@ Release-readiness rerun on the same macOS development host (2026-11-18):
 | Python | Median ms/comparison | Minimum ms/comparison |
 | --- | ---: | ---: |
 | 3.15.2 | 0.870 | 0.853 |
-| 3.12.14 | 1.047 | 1.021 |
 
 Each result uses 1,000 observations per group and seven repeats of 100 comparisons after warmup. These timings exclude IO, report rendering and network activity.

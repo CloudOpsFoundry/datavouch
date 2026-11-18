@@ -22,15 +22,15 @@ def release(tmp_path, monkeypatch):
     monkeypatch.setattr(module, "ROOT", tmp_path)
     monkeypatch.setattr(module.importlib.metadata, "distributions", lambda: [])
     (tmp_path / "pyproject.toml").write_text(
-        '[project]\nname="datavouch"\nversion="0.1.0a1"\nrequires-python=">=3.12"\n'
+        '[project]\nname="datavouch"\nversion="0.1.0a1"\nrequires-python=">=3.15,<3.16"\n'
     )
     (tmp_path / "CHANGELOG.md").write_text("## 0.1.0a1\n")
     (tmp_path / "dist").mkdir()
     return module
 
 
-def artifacts(root, *, version="0.1.0a1", license=True, typed=True):
-    metadata = f"Name: datavouch\nVersion: {version}\nRequires-Python: >=3.12\n".encode()
+def artifacts(root, *, version="0.1.0a1", license=True, typed=True, python=">=3.15,<3.16"):
+    metadata = f"Name: datavouch\nVersion: {version}\nRequires-Python: {python}\n".encode()
     with zipfile.ZipFile(root / "dist/package.whl", "w") as archive:
         archive.writestr("datavouch.dist-info/METADATA", metadata)
         if typed:
@@ -71,4 +71,15 @@ def test_release_rejects_invalid_artifacts(release, problem):
     elif problem == "missing":
         (release.ROOT / "dist/package.whl").unlink()
     with pytest.raises(ValueError):
+        release.main()
+
+
+def test_release_accepts_reordered_python_constraints(release):
+    artifacts(release.ROOT, python="<3.16, >=3.15")
+    assert release.main() == 0
+
+
+def test_release_rejects_different_python_constraints(release):
+    artifacts(release.ROOT, python=">=3.15")
+    with pytest.raises(ValueError, match="Python requirement"):
         release.main()

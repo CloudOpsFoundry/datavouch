@@ -107,6 +107,27 @@ def main() -> int:
         extension = json.loads(extension_output)
         if not extension["eligible"] or len(extension["observations"]) != 3:
             raise ValueError("Independent adapter failed against the installed wheel")
+        experiment_example = ROOT / "examples/bigquery/experiment"
+        experiment_output = directory / "experiment"
+        experiment_report = subprocess.check_output(
+            [
+                str(command),
+                "run-bigquery",
+                str(experiment_example / "plan.json"),
+                "--fixtures",
+                str(experiment_example / "baseline-jobs.json"),
+                str(experiment_example / "candidate-jobs.json"),
+                "--output-dir",
+                str(experiment_output),
+            ],
+            cwd=directory,
+        )
+        replay = subprocess.check_output(
+            [str(command), "verify", str(experiment_output / "input.json")],
+            cwd=directory,
+        )
+        if experiment_report != replay or json.loads(replay)["overall_status"] != "PASS":
+            raise ValueError("Installed BigQuery experiment failed deterministic replay")
     print("Clean wheel installation and report comparison passed")
     return 0
 

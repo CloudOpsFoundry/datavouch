@@ -12,3 +12,6 @@ build/
 dist/
 .env
 .DS_Store
+.ci-artifacts/
+github-runner/
+.dockerignore

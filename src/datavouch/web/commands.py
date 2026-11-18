@@ -25,7 +25,7 @@ def serve_command(catalog: Path, port: int, allow_raw_reports: bool) -> int:
         return 2
     try:
         app = create_app(catalog, password, allow_raw_reports=allow_raw_reports)
-    except (ValueError, TypeError, OSError, OverflowError, RecursionError):
+    except ValueError, TypeError, OSError, OverflowError, RecursionError:
         print("Invalid catalog or password. Check the viewer setup guide.", file=sys.stderr)
         return 2
     print(f"DataVouch: http://127.0.0.1:{port} (username: datavouch)", flush=True)

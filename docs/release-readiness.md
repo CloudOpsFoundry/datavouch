@@ -10,7 +10,7 @@ DataVouch remains **experimental, unpublished, and not production ready**. The v
 | Security | Automated source scan, tested input/authentication boundaries, documented threat assessment | Local assessment; independent review pending |
 | Installation | Clean wheel CLI and external adapter replay; prior isolated web-wheel HTTP test | Locally tested |
 | Packaging | Wheel/source metadata, version consistency, LICENSE, typing marker, private-file exclusions; source rebuild compared with wheel | Automated local checks |
-| Python compatibility | Full suite on Python 3.12.14 and 3.15.2, macOS | Tested endpoints; other interpreter/OS combinations unverified |
+| Python compatibility | Full suite on Python 3.15.2, macOS | Python 3.15 required; other OS combinations require validation |
 | Benchmarks | Reproducible synthetic comparison benchmark on both interpreters | Measured; no service-level guarantee |
 | Documentation | Setup, CLI, policy, adapter, web and deployment guides | Locally reviewed; external onboarding pending |
 | Versioning/changelog | Alpha version retained, Unreleased section, package/artifact consistency checks | Implemented |

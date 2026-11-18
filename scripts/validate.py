@@ -1,33 +1,81 @@
-"""Run required local checks. Stop on the first failure."""
+"""Run required validation stages locally or as named CI steps. Fail on any error."""
 
+import argparse
 import subprocess
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-
-
-def main() -> int:
-    commands = [
-        ["-m", "ruff", "format", "--check", "."],
-        ["-m", "ruff", "check", "."],
+STAGES = {
+    "format": [["-m", "ruff", "format", "--check", "."]],
+    "lint": [["-m", "ruff", "check", "."]],
+    "workflows": [["scripts/check_workflows.py"]],
+    "types": [
         ["-m", "mypy"],
+        [
+            "-m",
+            "mypy",
+            "scripts/validate.py",
+            "scripts/check_workflows.py",
+        ],
         ["-m", "mypy", "examples/adapters/local_metrics.py", "examples/adapters/run_example.py"],
-        ["-m", "coverage", "run", "-m", "pytest"],
+    ],
+    "unit": [
+        ["-m", "coverage", "run", "-m", "pytest", "tests/unit", "--junitxml=.ci-artifacts/unit.xml"]
+    ],
+    "contract": [
+        [
+            "-m",
+            "coverage",
+            "run",
+            "--append",
+            "-m",
+            "pytest",
+            "tests/contract",
+            "examples/adapters",
+            "--junitxml=.ci-artifacts/contract.xml",
+        ]
+    ],
+    "integration": [
+        [
+            "-m",
+            "coverage",
+            "run",
+            "--append",
+            "-m",
+            "pytest",
+            "tests/integration",
+            "--junitxml=.ci-artifacts/integration.xml",
+        ]
+    ],
+    "coverage": [
         ["-m", "coverage", "report"],
-        ["-m", "bandit", "-q", "-r", "src"],
-        ["-m", "pip_audit", "--skip-editable"],
-        ["-m", "build", "--no-isolation"],
-        ["scripts/verify_repository.py"],
-        ["scripts/check_installation.py"],
-        ["scripts/check_sdist.py"],
-        ["scripts/check_release.py"],
-    ]
-    for args in commands:
-        print(f"Running: {sys.executable} {' '.join(args)}", flush=True)
-        result = subprocess.run([sys.executable, *args], cwd=ROOT, check=False)
-        if result.returncode:
-            return result.returncode
+        ["-m", "coverage", "xml", "-o", ".ci-artifacts/coverage.xml"],
+    ],
+    "security": [["-m", "bandit", "-q", "-r", "src"]],
+    "dependencies": [["-m", "pip_audit", "--skip-editable"]],
+    "build": [["-m", "build", "--no-isolation"]],
+    "integrity": [["scripts/verify_repository.py"]],
+    "installation": [["scripts/check_installation.py"]],
+    "sdist": [["scripts/check_sdist.py"]],
+    "release": [["scripts/check_release.py"]],
+}
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--stage", choices=["all", *STAGES], default="all")
+    args = parser.parse_args(argv)
+    (ROOT / ".ci-artifacts").mkdir(exist_ok=True)
+    for stage, commands in STAGES.items():
+        if args.stage not in ("all", stage):
+            continue
+        print(f"Stage: {stage}", flush=True)
+        for command in commands:
+            print(f"Running: {sys.executable} {' '.join(command)}", flush=True)
+            result = subprocess.run([sys.executable, *command], cwd=ROOT, check=False)
+            if result.returncode:
+                return result.returncode
     return 0
 
 
