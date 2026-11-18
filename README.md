@@ -1,6 +1,6 @@
 # DataVouch: BigQuery Optimization Validation
 
-[![CI](https://github.com/CloudOpsFoundry/datavouch/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/CloudOpsFoundry/datavouch/actions/workflows/main.yml?query=branch%3Amain)
+[![CI](https://github.com/CloudOpsFoundry/datavouch/actions/workflows/public.yml/badge.svg?branch=main)](https://github.com/CloudOpsFoundry/datavouch/actions/workflows/public.yml?query=branch%3Amain)
 
 ## **Measure. Validate. Trust.**
 
@@ -62,9 +62,9 @@ The synthetic example has baseline mean 100 ms and candidate mean 80 ms, a 20 pe
 
 ## Limitations
 
-This is an experimental release. Comparisons are descriptive and do not establish statistical confidence or causation. The metric-only `compare` command reports correctness as UNKNOWN. Full `verify` results apply only to configured checks and supplied evidence. DataVouch does not independently execute assertion queries, authenticate billing evidence, prove realized savings or authenticate billing sources. Financial examples use synthetic rates and amounts, not actual billing. Live BigQuery use requires the optional SDK and authorized credentials. No production readiness claim is made.
+Version 1.0 covers the implemented BigQuery and offline verification workflows. Comparisons are descriptive and do not establish statistical confidence or causation. The metric-only `compare` command reports correctness as UNKNOWN. Full `verify` results apply only to configured checks and supplied evidence. DataVouch does not independently execute assertion queries, authenticate billing evidence, prove realized savings or authenticate billing sources. Financial examples use synthetic rates and amounts, not actual billing. Live BigQuery use requires the optional SDK and authorized credentials. No production readiness claim is made.
 
-The repository remains private until independent reviews are complete. The [review pack](docs/review-pack.md) and [client validation procedure](docs/client-validation.md) define the required evidence and sign-offs.
+This is a source-only release. No wheel, container image or CI artifact is published. Client-specific acceptance and independent reviews remain unverified. The [review pack](docs/review-pack.md) and [client validation procedure](docs/client-validation.md) define the required evidence and sign-offs.
 
 See [release readiness](docs/release-readiness.md) for completed local checks and outstanding independent review, and [deployment guidance](docs/deployment.md) for supported local operation.
 
@@ -76,4 +76,4 @@ Google Cloud projects and observed locations can be discovered using backend wor
 
 ## Release workflow
 
-Successful main CI automatically versions qualifying changes, updates the changelog, creates an annotated tag and generates private alpha release notes. Use Conventional Commit PR titles; see [automatic releases](docs/automated-releases.md) for rules, prerequisites and recovery.
+See [version 1.0 scope and acceptance](docs/releases/1.0.0.md). Public CI validates each push and pull request. Release tags identify reviewed main revisions; packages and images are built by users in their own environments. The earlier private alpha writer remains disabled for public repositories; see [release automation](docs/automated-releases.md) for its scope.

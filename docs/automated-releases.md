@@ -1,4 +1,4 @@
-# Automatic private alpha releases
+# Release automation
 
 After a push to `main` passes every CI stage and the **CI passed** gate, the release job calculates the next version, updates the changelog, validates release packages, pushes a version commit and annotated tag atomically, and creates a GitHub prerelease with generated notes. Feature branches never release. Repository visibility is unchanged; no PyPI or container-registry publication is configured.
 
@@ -17,7 +17,7 @@ Use Conventional Commits for commits and the PR title used by squash merge. The 
 
 The highest increment since the last release wins. Issue references such as `Closes #123` can appear in the commit body. Commitizen 4.19.3 supplies the conventional-commit classifier, exact increment behavior, Python version/uv lockfile updates and changelog generation. Python versions use PEP 440 (`0.2.0a0`); Helm uses the corresponding SemVer form (`0.2.0-alpha.0`).
 
-Automatic releases remain **alpha**, even for a major compatibility change. A major number is not production certification. Moving to stable releases requires a reviewed policy change after the independent acceptance gates are closed.
+The historical private workflow keeps automatic releases **alpha**, even for a major compatibility change. A major number is not production certification. Moving to stable releases requires a reviewed policy change after the independent acceptance gates are closed.
 
 ## Sequence and safeguards
 
@@ -37,6 +37,6 @@ GitHub's standard workflow token does not trigger another push workflow when it 
 - Permit this release job's standard `GITHUB_TOKEN` to write repository contents. No personal token is required for an unprotected private branch.
 - If enforced branch protection blocks automation writes, configure an approved automation identity and matching branch policy before enabling releases. This workflow does not bypass or weaken protection, and owner-only branch rules may require that one-time setup. Until then, release pushes fail safely.
 
-Only the release job receives `contents: write`; normal jobs retain read access. Public visibility remains blocked pending independent reviews and a separate public-runner trust model. This workflow deliberately requires a private repository.
+Only the historical private release job receives `contents: write`; normal jobs retain read access. This workflow deliberately requires a private repository and does not run after publication. Version 1.0 is an owner-authorized source release. Public release automation is not enabled: protecting main and restricting merges to the owner take precedence over a bot pushing directly to main. Future release metadata must pass the protected PR process before an authorized maintainer tags the tested main revision.
 
 Remote CI requires an online, registered trusted runner. If none is available, checks remain queued and the PR must wait. Local tests exercise version selection, metadata consistency, changelog sections, no-release changes, atomic rejection and retry behavior without publishing anything.

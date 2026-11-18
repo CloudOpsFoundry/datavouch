@@ -1,5 +1,9 @@
 # Changelog
 
+## v1.0.0
+
+Initial source release for BigQuery workload verification with CLI, authenticated UI, replayable evidence, financial assessments, Docker Compose and Helm deployment. Public CI uses disposable hosted runners. No package, image or CI artifact is published. Client-specific identity, network and recovery acceptance remains the deployment owner’s responsibility; this version is not an independent security certification.
+
 ## v0.2.1a0 (2026-11-18)
 
 ### Fix

@@ -1,6 +1,6 @@
 # Dependency license review
 
-Technical review dated 2026-11-18. This is a maintainer assessment of the locked dependency artifacts, not independent legal advice, ownership verification or publication approval. The repository remains private.
+Technical review dated 2026-11-18. This is a maintainer assessment of the locked dependency artifacts, not independent legal advice, ownership verification or publication approval.
 
 ## Scope and result
 
@@ -63,6 +63,6 @@ Jinja2’s missing license metadata was resolved by reading its bundled BSD thre
 
 ## Remaining decisions
 
-The owner has not confirmed ownership or any required employer/client approvals. Replacing an example with synthetic numeric data does not establish rights to the underlying code. Independent ownership/license review, security and client acceptance remain pending. Public visibility, release publication and CI-log/artifact export are not authorized by this document.
+The owner has confirmed complete source ownership and authorized publication. Replacing an example with synthetic numeric data does not establish rights to the underlying code. Independent ownership/license review, security and client acceptance remain pending. The owner separately authorized deletion of retained CI runs and artifacts; no CI-log/artifact export was performed.
 
 Before a future publication, review all Git history and GitHub-visible records, isolate public CI from local runners, resolve review findings, and obtain the owner’s explicit release decision. Current-source scans cannot establish that historical material is safe to publish.
