@@ -394,7 +394,7 @@ wheels = [
 
 [[package]]
 name = "datavouch"
-version = "1.0.0"
+version = "1.0.0" # x-release-please-version
 source = { editable = "." }
 
 [package.optional-dependencies]

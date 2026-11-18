@@ -92,3 +92,41 @@ def test_public_ci_is_isolated_and_runs_all_validation_stages():
         if "--stage " in step.get("run", ""):
             stages.append(step["run"].split("--stage ", 1)[1])
     assert stages == list(load_validator().STAGES)
+
+
+def test_public_release_is_main_only_after_validation_without_checkout():
+    import yaml
+
+    workflow = yaml.load(
+        (ROOT / ".github/workflows/public.yml").read_text(), Loader=yaml.BaseLoader
+    )
+    job = workflow["jobs"]["release"]
+    assert job["needs"] == ["validate"]
+    assert job["if"] == "github.event_name == 'push' && github.ref == 'refs/heads/main'"
+    assert job["concurrency"]["cancel-in-progress"] == "false"
+    assert not any("checkout" in step.get("uses", "") for step in job["steps"])
+    assert not any("upload-artifact" in step.get("uses", "") for step in job["steps"])
+    action = job["steps"][1]
+    assert action["uses"].endswith("@45996ed1f6d02564a971a2fa1b5860e934307cf7")
+    assert action["if"] == "steps.revision.outputs.current == 'true'"
+    assert "gh workflow run public.yml" in job["steps"][2]["run"]
+
+
+def test_release_manifest_and_annotations_match_only_project_version():
+    import json
+    import tomllib
+
+    config = json.loads((ROOT / "release-please-config.json").read_text())
+    manifest = json.loads((ROOT / ".release-please-manifest.json").read_text())
+    version = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]["version"]
+    assert manifest == {".": version}
+    assert config["include-component-in-tag"] is False
+    assert config["packages"]["."]["release-type"] == "python"
+    annotated = [
+        line
+        for line in (ROOT / "uv.lock").read_text().splitlines()
+        if "x-release-please-version" in line
+    ]
+    assert annotated == [f'version = "{version}" # x-release-please-version']
+    lock = tomllib.loads((ROOT / "uv.lock").read_text())
+    assert next(p["version"] for p in lock["package"] if p["name"] == "datavouch") == version

@@ -76,4 +76,4 @@ Google Cloud projects and observed locations can be discovered using backend wor
 
 ## Release workflow
 
-See [version 1.0 scope and acceptance](docs/releases/1.0.0.md). Public CI validates each push and pull request. Release tags identify reviewed main revisions; packages and images are built by users in their own environments. The earlier private alpha writer remains disabled for public repositories; see [release automation](docs/automated-releases.md) for its scope.
+See [version 1.0 scope and acceptance](docs/releases/1.0.0.md). Public CI validates each push and pull request. Release tags identify reviewed main revisions; packages and images are built by users in their own environments. [Release automation](docs/automated-releases.md) prepares version and changelog PRs, validates them, and creates tags and notes after the owner merges and main CI passes.

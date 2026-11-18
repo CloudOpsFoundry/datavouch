@@ -1,42 +1,34 @@
-# Release automation
+# Automated protected releases
 
-After a push to `main` passes every CI stage and the **CI passed** gate, the release job calculates the next version, updates the changelog, validates release packages, pushes a version commit and annotated tag atomically, and creates a GitHub prerelease with generated notes. Feature branches never release. Repository visibility is unchanged; no PyPI or container-registry publication is configured.
+The public workflow uses Google’s Release Please action, pinned to v5.0.0 by commit SHA. It runs only after successful CI for a push to main. It never runs on a pull request or a manual validation dispatch and does not check out contributor code in the write-enabled job.
 
-## Declare the change once
+## Version rules
 
-Use Conventional Commits for commits and the PR title used by squash merge. The owner still reviews and merges product changes. Automation handles version files, tags and notes afterward; it cannot infer compatibility from issue priority or lines changed.
+| Conventional commit | Next version from 1.0.0 |
+| --- | --- |
+| `fix:` or `perf:` | 1.0.1 |
+| `feat:` | 1.1.0 |
+| `feat!:` or a `BREAKING CHANGE:` footer | 2.0.0 |
+| `docs:`, `chore:`, `ci:`, tests without a breaking change | No feature release |
 
-| Merged change | Increment | Example from 0.1.0a2 |
-| --- | --- | --- |
-| `fix: correct a result` | Patch | `v0.1.1a0` |
-| `perf: reduce collection overhead` | Patch | `v0.1.1a0` |
-| `feat: add an adapter` | Minor | `v0.2.0a0` |
-| `feat!: change the report contract` | Major | `v1.0.0a0` |
-| A `BREAKING CHANGE:` footer | Major | `v1.0.0a0` |
-| `docs:`, `test:`, `ci:`, `chore:` without breaking changes | No release | No tag |
+Use these prefixes in squash-merge PR titles. The highest applicable change since the last release determines the increment; issue priority alone does not determine compatibility.
 
-The highest increment since the last release wins. Issue references such as `Closes #123` can appear in the commit body. Commitizen 4.19.3 supplies the conventional-commit classifier, exact increment behavior, Python version/uv lockfile updates and changelog generation. Python versions use PEP 440 (`0.2.0a0`); Helm uses the corresponding SemVer form (`0.2.0-alpha.0`).
+## Protected sequence
 
-The historical private workflow keeps automatic releases **alpha**, even for a major compatibility change. A major number is not production certification. Moving to stable releases requires a reviewed policy change after the independent acceptance gates are closed.
+1. Product changes pass `Public CI passed` and the owner merges the PR.
+2. Successful main CI opens or updates a release PR containing generated release notes and synchronized versions in pyproject.toml, uv.lock, the Python version constant, Helm metadata and the release manifest.
+3. The workflow explicitly dispatches read-only public CI for the bot-created release branch. GitHub's built-in token does not automatically trigger push or pull-request workflows for its own changes. No personal token is stored.
+4. The owner reviews and merges the passing release PR. The bot cannot merge or bypass owner-only protected main.
+5. Successful main CI recognizes the merged release PR and creates the version tag and GitHub release notes. No wheel, container, package-registry publication or CI artifact upload occurs. GitHub automatically supplies source archives for tags.
 
-## Sequence and safeguards
+Version calculation, changelog maintenance, tags and notes are automated. Owner review/merge deliberately remains required. Existing releases are not rewritten. The automation baseline is v1.0.0, so deletion of earlier alpha tags does not affect future increments. Do not edit dependency versions to force a release.
 
-1. Main passes static analysis, tests/coverage, dependency audit, package validation and the aggregate gate.
-2. A serialized release job checks out that exact SHA with full tag history. A superseded revision skips release; the newer main pipeline considers accumulated changes.
-3. Commitizen updates only release metadata. The package version, Python version constant, uv project entry and Helm metadata stay aligned. Dependency versions are not upgraded.
-4. The job rebuilds and validates the stamped wheel/source archives, exclusions, clean installation, source/wheel parity and release metadata. Functional tests have already run on main; unchanged functional code is not tested redundantly here.
-5. A `chore(release): VERSION` commit and annotated tag are pushed together without force. A concurrent main update or branch protection rejection prevents the entire push.
-6. GitHub release notes come from the new changelog section. The release is marked prerelease, and an existing release is not overwritten. Rerunning the original successful workflow recovers a missing GitHub release after a completed push, even if main has moved on.
+## Permissions and recovery
 
-GitHub's standard workflow token does not trigger another push workflow when it creates the version commit, preventing a release loop. The release job itself validates the stamped artifacts. See [GitHub's token behavior](https://docs.github.com/en/actions/concepts/security/github_token).
+Only the main release job receives contents, pull-request, issue-label and Actions-dispatch write permissions. The repository must allow Actions to create pull requests; GitHub combines this setting with review permission, but this workflow never approves reviews. Main restrictions still exclude the bot from pushing or merging. All validation uses read-only tokens on disposable hosted runners. The retired private workflows remain disabled.
 
-## One-time prerequisites
+A failed release job can be rerun after its error is fixed. Release Please reconciles existing release PRs, tags and releases. If main has already advanced when the job starts, it skips the stale run. A failed validation never starts release automation. Inspect the exact SHA and required check before merging a release PR.
 
-- Merge this workflow through the normal reviewed PR process.
-- Restore a trusted self-hosted runner with the `datavouch_local` label. The private repository must retain its trusted-runner and actor variables.
-- Permit this release job's standard `GITHUB_TOKEN` to write repository contents. No personal token is required for an unprotected private branch.
-- If enforced branch protection blocks automation writes, configure an approved automation identity and matching branch policy before enabling releases. This workflow does not bypass or weaken protection, and owner-only branch rules may require that one-time setup. Until then, release pushes fail safely.
+Release automation is not client-deployment acceptance or independent security approval. See [client validation](client-validation.md) and [the review pack](review-pack.md).
 
-Only the historical private release job receives `contents: write`; normal jobs retain read access. This workflow deliberately requires a private repository and does not run after publication. Version 1.0 is an owner-authorized source release. Public release automation is not enabled: protecting main and restricting merges to the owner take precedence over a bot pushing directly to main. Future release metadata must pass the protected PR process before an authorized maintainer tags the tested main revision.
-
-Remote CI requires an online, registered trusted runner. If none is available, checks remain queued and the PR must wait. Local tests exercise version selection, metadata consistency, changelog sections, no-release changes, atomic rejection and retry behavior without publishing anything.
+References: [Release Please action](https://github.com/googleapis/release-please-action), [version file customization](https://github.com/googleapis/release-please/blob/main/docs/customizing.md).

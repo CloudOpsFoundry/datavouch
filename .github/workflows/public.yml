@@ -66,3 +66,50 @@ jobs:
         run: uv run --no-sync python scripts/validate.py --stage sdist
       - name: Release metadata
         run: uv run --no-sync python scripts/validate.py --stage release
+
+  release:
+    name: Prepare release PR or publish approved release
+    needs: [validate]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      actions: write
+    concurrency:
+      group: datavouch-public-release
+      cancel-in-progress: false
+    steps:
+      - name: Check main still matches the tested revision
+        id: revision
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          current=$(gh api "repos/$GITHUB_REPOSITORY/commits/main" --jq .sha)
+          if [ "$current" = "$GITHUB_SHA" ]; then
+            echo 'current=true' >> "$GITHUB_OUTPUT"
+          fi
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        if: steps.revision.outputs.current == 'true'
+        id: release
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+          target-branch: main
+      - name: Validate bot-created release PRs
+        if: steps.release.outputs.prs_created == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_PRS: ${{ steps.release.outputs.prs }}
+        run: |
+          # GITHUB_TOKEN pushes do not start CI. Dispatch read-only CI explicitly.
+          printf '%s' "$RELEASE_PRS" | jq -r '.[].headBranchName' | while IFS= read -r branch; do
+            case "$branch" in
+              release-please--branches--main*)
+                gh workflow run public.yml --repo "$GITHUB_REPOSITORY" --ref "$branch"
+                ;;
+              *) echo 'Unexpected release branch' >&2; exit 1 ;;
+            esac
+          done

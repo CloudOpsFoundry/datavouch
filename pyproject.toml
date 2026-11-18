@@ -26,7 +26,7 @@ dev = ["commitizen==4.19.3", "pyyaml>=6,<7", "httpx>=0.28,<1", "pytest>=8", "ruf
 packages = ["src/datavouch"]
 
 [tool.hatch.build.targets.sdist]
-include = ["/.github", "/src", "/tests", "/scripts", "/docs", "/examples", "/pyproject.toml", "/uv.lock", "/README.md", "/LICENSE", "/SECURITY.md", "/CONTRIBUTING.md", "/CHANGELOG.md", "/deployment"]
+include = ["/.github", "/src", "/tests", "/scripts", "/docs", "/examples", "/pyproject.toml", "/uv.lock", "/README.md", "/LICENSE", "/SECURITY.md", "/CONTRIBUTING.md", "/CHANGELOG.md", "/deployment", "/release-please-config.json", "/.release-please-manifest.json"]
 
 [tool.ruff]
 target-version = "py315"

@@ -1,0 +1,55 @@
+{
+  "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "bootstrap-sha": "e746ce944433f0c34151fa9a45a1fedf33561908",
+  "include-v-in-tag": true,
+  "include-component-in-tag": false,
+  "packages": {
+    ".": {
+      "release-type": "python",
+      "package-name": "datavouch",
+      "extra-files": [
+        {
+          "type": "generic",
+          "path": "uv.lock"
+        },
+        {
+          "type": "generic",
+          "path": "deployment/helm/datavouch/Chart.yaml"
+        },
+        {
+          "type": "generic",
+          "path": "src/datavouch/__init__.py"
+        }
+      ],
+      "changelog-sections": [
+        {
+          "type": "feat",
+          "section": "Features"
+        },
+        {
+          "type": "fix",
+          "section": "Fixes"
+        },
+        {
+          "type": "perf",
+          "section": "Performance"
+        },
+        {
+          "type": "docs",
+          "section": "Documentation",
+          "hidden": true
+        },
+        {
+          "type": "chore",
+          "section": "Maintenance",
+          "hidden": true
+        },
+        {
+          "type": "ci",
+          "section": "CI",
+          "hidden": true
+        }
+      ]
+    }
+  }
+}
