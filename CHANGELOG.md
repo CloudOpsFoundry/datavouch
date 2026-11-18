@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+Classified BigQuery failures may omit the provider's optional normalized fingerprint without losing reliability evidence. Successful jobs still require fingerprints, and all other exclusions remain conservative.
+
 BigQuery experiments now retain complete, otherwise eligible failed executions for reliability evaluation. Failure rates can fail the verification policy while performance remains UNKNOWN. Missing or otherwise excluded execution evidence still withholds the entire cohort.
 
 Added `run-bigquery` to collect and verify explicit baseline and candidate cohorts, retain collection diagnostics, and generate replayable verification input and a local viewer catalog. Partial or out-of-window cohorts cannot produce PASS. Existing collection command output remains unchanged.

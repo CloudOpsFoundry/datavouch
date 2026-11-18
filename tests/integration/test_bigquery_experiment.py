@@ -79,6 +79,7 @@ def test_complete_workflow_replay_and_viewer(inputs, capsys):
         lambda rows: rows.pop(),
         lambda rows: rows[0].update(cache_hit=True),
         lambda rows: rows[0].update(fingerprint="ffff"),
+        lambda rows: rows[0].update(fingerprint=None),
         lambda rows: rows[0].update(end_time=None),
         lambda rows: rows[0].update(state="RUNNING"),
         lambda rows: rows.clear(),
@@ -299,7 +300,6 @@ def test_failed_jobs_count_for_reliability(
 @pytest.mark.parametrize(
     "edit",
     [
-        lambda r: r.update(fingerprint=None),
         lambda r: r.update(cache_hit=True),
         lambda r: r.pop("cache_hit"),
         lambda r: r.update(state="RUNNING"),
@@ -342,3 +342,59 @@ def test_missing_job_prevents_partial_failure_rate(inputs):
     assert run(inputs) == 3
     assert checks(inputs)["reliability"] == "UNKNOWN"
     assert read_json(inputs / "result/report.json")["reliability_metrics"]["candidate_total"] == 0
+
+
+@pytest.mark.parametrize("side", ["baseline", "candidate"])
+@pytest.mark.parametrize("failure_count", [1, 3])
+def test_failed_jobs_without_provider_fingerprints_are_counted(inputs, side, failure_count):
+    change(
+        inputs / f"{side}-jobs.json",
+        lambda rows: [
+            r.update(failure_reason="invalidQuery", fingerprint=None) for r in rows[:failure_count]
+        ],
+    )
+    assert run(inputs) == (1 if side == "candidate" else 3)
+    report = read_json(inputs / "result/report.json")
+    assert report["reliability_metrics"][f"{side}_failures"] == failure_count
+    assert report["reliability_metrics"][f"{side}_total"] == 3
+    assert checks(inputs)["performance"] == "UNKNOWN"
+    assert checks(inputs)["reliability"] == ("FAIL" if side == "candidate" else "PASS")
+    collection = read_json(inputs / f"result/{side}-collection.json")
+    failed = [j for j in collection["jobs"] if j["failure_reason"]]
+    assert len(failed) == failure_count
+    assert all(j["fingerprint"] is None and j["observation"] is None for j in failed)
+    assert not collection["eligible"]
+    document = read_json(inputs / "result/input.json")
+    assert json.loads(json.dumps(verify(document))) == report
+
+
+@pytest.mark.parametrize(
+    "edit",
+    [
+        lambda r: r.update(cache_hit=None),
+        lambda r: r.update(state="RUNNING"),
+        lambda r: r.update(end_time=None),
+        lambda r: r.update(statement_type=None),
+        lambda r: r.update(parent_job_id="script-parent"),
+        lambda r: r.update(failure_reason=None),
+        lambda r: r.pop("failure_reason"),
+    ],
+)
+def test_missing_failure_fingerprint_does_not_excuse_other_exclusions(inputs, edit):
+    def mutate(rows):
+        rows[0].update(failure_reason="invalidQuery", fingerprint=None)
+        edit(rows[0])
+
+    change(inputs / "candidate-jobs.json", mutate)
+    assert run(inputs) == 3
+    assert checks(inputs)["reliability"] == "UNKNOWN"
+
+
+def test_failed_job_without_hash_does_not_hide_mixed_known_fingerprints(inputs):
+    def mutate(rows):
+        rows[0].update(failure_reason="invalidQuery", fingerprint=None)
+        rows[1].update(fingerprint="ffff")
+
+    change(inputs / "candidate-jobs.json", mutate)
+    assert run(inputs) == 3
+    assert checks(inputs)["reliability"] == "UNKNOWN"
