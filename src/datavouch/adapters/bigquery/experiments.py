@@ -11,7 +11,7 @@ from typing import Any
 from datavouch.adapters.bigquery.files import decode_config, load_fixture, render_collection
 from datavouch.adapters.bigquery.models import Collection, CollectionConfig, CollectionError
 from datavouch.core.configuration import MAX_INPUT_BYTES, _object, read_json
-from datavouch.core.models import Status
+from datavouch.core.models import Execution, Observation, Status
 from datavouch.verification.evaluation import verify
 from datavouch.verification.windows import Windows
 
@@ -96,26 +96,39 @@ def assemble(
             < collection.config.end
             for job in collection.jobs
         )
-        usable = collection.eligible and contained
+        usable = collection.reliability_eligible and contained
         scopes[name] = {
             "eligible": collection.eligible,
+            "reliability_eligible": collection.reliability_eligible,
             "fully_contained": contained,
             "used": usable,
             "requested_count": len(collection.config.job_ids),
             "returned_count": len(collection.jobs),
-            "reason": "Complete eligible cohort"
+            "reason": (
+                "Complete eligible cohort"
+                if collection.eligible
+                else "Complete cohort includes failed executions; performance unavailable"
+            )
             if usable
             else "Cohort withheld: missing, excluded, mixed-fingerprint or out-of-window jobs",
         }
         observations = []
         if usable:
             for job in collection.jobs:
-                if job.observation is None or job.started_at is None or job.completed_at is None:
+                if job.started_at is None or job.completed_at is None:
                     raise ValueError("Eligible job is missing execution evidence")
-                observation = asdict(job.observation)
+                execution = job.observation or Observation(
+                    collection.config.workload,
+                    Execution(
+                        f"{collection.config.project}/{collection.config.location}/{job.job_id}",
+                        successful=False,
+                    ),
+                    (),
+                )
+                observation = asdict(execution)
                 observation["measurements"] = list(observation["measurements"])
                 observations.append(observation)
-                key = job.observation.execution.id
+                key = execution.execution.id
                 assurance["started_at"][key] = job.started_at.isoformat()
                 assurance["completed_at"][key] = job.completed_at.isoformat()
         if name == "baseline":

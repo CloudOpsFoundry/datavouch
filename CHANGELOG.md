@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+BigQuery experiments now retain complete, otherwise eligible failed executions for reliability evaluation. Failure rates can fail the verification policy while performance remains UNKNOWN. Missing or otherwise excluded execution evidence still withholds the entire cohort.
+
 Added `run-bigquery` to collect and verify explicit baseline and candidate cohorts, retain collection diagnostics, and generate replayable verification input and a local viewer catalog. Partial or out-of-window cohorts cannot produce PASS. Existing collection command output remains unchanged.
 
 Release-readiness assessment, source-archive rebuild validation, version/license metadata checks, dependency inventory, security/deployment guidance and contributor onboarding. No public release has been published.

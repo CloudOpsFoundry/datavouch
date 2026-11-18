@@ -10,13 +10,13 @@ DataVouch remains **experimental, unpublished, and not production ready**. The v
 | Security | Automated source scan, tested input/authentication boundaries, documented threat assessment | Local assessment; independent review pending |
 | Installation | Clean wheel CLI and external adapter replay; prior isolated web-wheel HTTP test | Locally tested |
 | Packaging | Wheel/source metadata, version consistency, LICENSE, typing marker, private-file exclusions; source rebuild compared with wheel | Automated local checks |
-| Python compatibility | Full suite on Python 3.15.2, macOS | Python 3.15 required; other OS combinations require validation |
-| Benchmarks | Reproducible synthetic comparison benchmark on both interpreters | Measured; no service-level guarantee |
+| Python compatibility | Full suite on Python 3.15.2, macOS and Linux ARM64 | Python 3.15 required; other OS combinations require validation |
+| Benchmarks | Reproducible synthetic comparison benchmark on Python 3.15.2 | Measured; no service-level guarantee |
 | Documentation | Setup, CLI, policy, adapter, web and deployment guides | Locally reviewed; external onboarding pending |
 | Versioning/changelog | Alpha version retained, Unreleased section, package/artifact consistency checks | Implemented |
 | Licensing | MIT file present in source and distributions; dependency license metadata inventoried | Ownership and compatibility approval pending |
-| Source publication | Exclusion checks and artifact hashes; no configured remote or published release | Blocked pending repository/owner decisions |
-| GitHub Actions | Pinned actions, read-only permissions, local workflow lint/replay | Actual remote execution pending |
+| Source publication | Private CloudOpsFoundry/datavouch repository; exclusion checks and artifact hashes; no published release | Private development; public release requires owner approval |
+| GitHub Actions | Pinned actions, read-only permissions, self-hosted push/PR/main validation | Merged main validation passed; each new revision requires checks |
 | External users | Scripted contributor acceptance exercise below | Independent participation pending |
 | Deployment | Single-user local viewer and offline CLI only | Public/multi-user deployment unsupported |
 
@@ -31,7 +31,7 @@ uv run --no-sync python scripts/check_release.py > /tmp/datavouch-release-invent
 
 The validator stops at the first failure. It checks formatting, lint, types, tests/coverage, source and dependency security scans, builds, archive boundaries, clean installation, source-archive rebuild and release metadata. `check_release.py` emits artifact hashes and a bounded inventory of the installed validation environment, including development tools. It is not a complete SBOM, license opinion, or approval gate. A successful exit means local checks passed; it does not clear external readiness requirements. Inventory hashes change when artifacts are rebuilt; retain the report with the exact artifacts reviewed.
 
-The standard build command already builds a wheel via its source archive. `check_sdist.py` adds an explicit direct-checkout wheel build and a separate source-archive rebuild using installed build dependencies, then compares every wheel member. This proves archive completeness under the tested toolchain; it does not establish reproducibility across all platforms or dependency versions.
+The validator builds the source archive and wheel directly from the checkout. `check_sdist.py` rebuilds one wheel from that source archive using installed build dependencies, then compares every member with the existing wheel. This proves archive completeness under the tested toolchain; it does not establish reproducibility across all platforms or dependency versions.
 
 ## Security assessment
 
@@ -42,7 +42,7 @@ The standard build command already builds a wheel via its source archive. `check
 | Local viewer | Loopback binding, password authentication, Host allowlist, cross-site checks, CSP, no-store, escaped templates, bounded startup snapshot | HTTP Basic has no application logout/session revocation; local machine/browser must be trusted; no public deployment assessment |
 | Evidence display | Allowlisted viewer/workflow summaries and opt-in raw viewer downloads | Labels can contain sensitive text; CLI collection/raw reports include execution metadata |
 | Adapter extension | Explicit registration, version/mode/metric checks, immutable result contracts, generic errors | Adapter Python code is trusted and not sandboxed; claims and side effects cannot be independently enforced |
-| CI | Hosted PR jobs, read-only permissions, pinned action commits, checkout credential persistence disabled, no cloud secrets | Repository writers can alter policies/workflows; branch protection and trusted evidence production must be configured |
+| CI | Isolated self-hosted jobs, read-only permissions, pinned action commits, checkout credential persistence disabled, no cloud secrets | Repository writers can alter policies/workflows; branch protection and trusted evidence production must be configured |
 | Releases | Private-context exclusions, artifact metadata/content checks and hashes | Pattern-based secret scan is incomplete; independent source/security review and private reporting channel are required |
 
 Actions were pinned to official [checkout v7.0.1](https://github.com/actions/checkout/releases/tag/v7.0.1) and [setup-python v7.1.0](https://github.com/actions/setup-python/releases/tag/v7.1.0), replacing moving major-version tags. Dependabot can propose pin updates. Pinning fixes the reviewed reference; it is not an independent audit of those actions.

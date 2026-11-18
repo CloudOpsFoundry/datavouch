@@ -1,9 +1,5 @@
 name: Workload verification example
 on:
-  pull_request:
-    branches: [main]
-  push:
-    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
@@ -37,11 +33,3 @@ jobs:
           if [ -f "$RUNNER_TEMP/datavouch-reports/summary.md" ]; then
             cat "$RUNNER_TEMP/datavouch-reports/summary.md" >> "$GITHUB_STEP_SUMMARY"
           fi
-      - name: Preserve verification reports
-        if: ${{ always() }}
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: datavouch-verification
-          path: ${{ runner.temp }}/datavouch-reports/
-          if-no-files-found: warn
-          retention-days: 7

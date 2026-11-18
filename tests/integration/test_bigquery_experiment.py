@@ -78,7 +78,6 @@ def test_complete_workflow_replay_and_viewer(inputs, capsys):
     [
         lambda rows: rows.pop(),
         lambda rows: rows[0].update(cache_hit=True),
-        lambda rows: rows[0].update(failure_reason="invalidQuery"),
         lambda rows: rows[0].update(fingerprint="ffff"),
         lambda rows: rows[0].update(end_time=None),
         lambda rows: rows[0].update(state="RUNNING"),
@@ -243,3 +242,103 @@ def test_prepare_does_not_mutate_config(inputs):
     original = copy.deepcopy(document)
     prepare(document)
     assert document == original
+
+
+@pytest.mark.parametrize(
+    ("baseline_failures", "candidate_failures", "maximum", "increase", "status"),
+    [
+        (0, 1, 0, 0, "FAIL"),
+        (1, 0, 0, 0, "PASS"),
+        (1, 1, 40, 0, "PASS"),
+        (1, 2, 100, 0, "FAIL"),
+        (0, 3, 100, 100, "PASS"),
+    ],
+)
+def test_failed_jobs_count_for_reliability(
+    inputs, baseline_failures, candidate_failures, maximum, increase, status
+):
+    for side, count in (("baseline", baseline_failures), ("candidate", candidate_failures)):
+        change(
+            inputs / f"{side}-jobs.json",
+            lambda rows, count=count: [
+                r.update(failure_reason="backendError") for r in rows[:count]
+            ],
+        )
+    change(
+        inputs / "plan.json",
+        lambda p: p["assurance"]["reliability"].update(
+            max_failure_percent=maximum, max_increase_points=increase
+        ),
+    )
+    assert run(inputs) == (1 if status == "FAIL" else 3)
+    assert checks(inputs)["reliability"] == status
+    assert checks(inputs)["performance"] == "UNKNOWN"
+    report = read_json(inputs / "result/report.json")
+    rates = report["reliability_metrics"]
+    assert rates["baseline_total"] == rates["candidate_total"] == 3
+    assert rates["baseline_failures"] == baseline_failures
+    assert rates["candidate_failures"] == candidate_failures
+    assert rates["candidate_failure_percent"] == pytest.approx(candidate_failures / 3 * 100)
+    document = read_json(inputs / "result/input.json")
+    assert json.loads(json.dumps(verify(document))) == report
+    view = load_catalog(inputs / "result/catalog.json")[0].experiments[0]
+    assert view.raw == (inputs / "result/report.json").read_bytes()
+    for side in ("baseline", "candidate"):
+        scope = read_json(inputs / "result/collection-status.json")[side]
+        assert scope["used"] and scope["reliability_eligible"]
+    observations = (
+        document["comparison"]["experiment"]["baseline"]["observations"]
+        + document["comparison"]["experiment"]["candidate"]
+    )
+    failed = [o for o in observations if not o["execution"]["successful"]]
+    assert len(failed) == baseline_failures + candidate_failures
+    assert all(o["measurements"] == [] for o in failed)
+
+
+@pytest.mark.parametrize("side", ["baseline", "candidate"])
+@pytest.mark.parametrize(
+    "edit",
+    [
+        lambda r: r.update(fingerprint=None),
+        lambda r: r.update(cache_hit=True),
+        lambda r: r.pop("cache_hit"),
+        lambda r: r.update(state="RUNNING"),
+        lambda r: r.update(statement_type="SCRIPT"),
+        lambda r: r.update(parent_job_id="parent"),
+        lambda r: r.update(end_time=None),
+        lambda r: r.update(end_time="2026-11-20T00:00:00Z"),
+    ],
+)
+def test_failed_job_with_other_exclusions_still_withholds_cohort(inputs, side, edit):
+    def mutate(rows):
+        rows[0].update(failure_reason="backendError")
+        edit(rows[0])
+
+    change(inputs / f"{side}-jobs.json", mutate)
+    assert run(inputs) == 3
+    assert checks(inputs)["reliability"] == "UNKNOWN"
+    assert not read_json(inputs / "result/collection-status.json")[side]["used"]
+
+
+@pytest.mark.parametrize(
+    "edit",
+    [
+        lambda p: p["assurance"]["reliability"].update(complete=False),
+        lambda p: p["assurance"].pop("reliability"),
+        lambda p: p.pop("comparability"),
+        lambda p: p["policy"].update(minimum_samples=4),
+    ],
+)
+def test_failed_jobs_do_not_override_missing_assurances(inputs, edit):
+    change(inputs / "candidate-jobs.json", lambda r: r[0].update(failure_reason="backendError"))
+    change(inputs / "plan.json", edit)
+    assert run(inputs) == 3
+    assert checks(inputs)["reliability"] == "UNKNOWN"
+
+
+def test_missing_job_prevents_partial_failure_rate(inputs):
+    change(inputs / "candidate-jobs.json", lambda r: r[0].update(failure_reason="backendError"))
+    change(inputs / "candidate-jobs.json", lambda r: r.pop())
+    assert run(inputs) == 3
+    assert checks(inputs)["reliability"] == "UNKNOWN"
+    assert read_json(inputs / "result/report.json")["reliability_metrics"]["candidate_total"] == 0

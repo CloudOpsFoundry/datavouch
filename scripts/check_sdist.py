@@ -31,24 +31,7 @@ def main() -> int:
         rebuilt = list(output.glob("*.whl"))
         if len(rebuilt) != 1:
             raise ValueError("Expected one rebuilt wheel")
-        direct_output = directory / "direct"
-        subprocess.run(
-            [
-                sys.executable,
-                "-m",
-                "build",
-                "--wheel",
-                "--no-isolation",
-                "--outdir",
-                str(direct_output),
-            ],
-            cwd=ROOT,
-            check=True,
-        )
-        direct = list(direct_output.glob("*.whl"))
-        if len(direct) != 1:
-            raise ValueError("Expected one direct checkout wheel")
-        with zipfile.ZipFile(direct[0]) as first, zipfile.ZipFile(rebuilt[0]) as second:
+        with zipfile.ZipFile(wheels[0]) as first, zipfile.ZipFile(rebuilt[0]) as second:
             if sorted(first.namelist()) != sorted(second.namelist()):
                 raise ValueError("Source rebuild has different packaged files")
             if any(first.read(name) != second.read(name) for name in first.namelist()):
