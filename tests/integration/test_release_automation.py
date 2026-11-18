@@ -86,6 +86,30 @@ def test_existing_tag_retry_and_notes_do_not_include_older_entries(repo):
     assert "first" in notes and "Original entry" not in notes
 
 
+def test_handwritten_history_survives_successive_releases(repo):
+    history = (
+        "## 0.1.0a2\n\nPrivate alpha acceptance details.\n\n"
+        "- Existing capability.\n\n## 0.1.0a1\n\nOriginal foundation.\n"
+    )
+    changelog = repo / "CHANGELOG.md"
+    changelog.write_text("# Changelog\n\n## Unreleased\n\nMigration instructions.\n\n" + history)
+    git("add", ".")
+    git("commit", "-m", "feat: first release")
+    first = release.prepare()
+    text = changelog.read_text()
+    assert text.endswith(history)
+    assert text.index(f"## v{first}") < text.index("## 0.1.0a2")
+    assert "Migration instructions." in release.release_notes(first, text)
+    git("add", ".")
+    git("commit", "-m", f"chore(release): {first}")
+    git("tag", f"v{first}")
+    git("commit", "--allow-empty", "-m", "fix: subsequent release")
+    second = release.prepare()
+    updated = changelog.read_text()
+    assert updated.endswith(text.split("# Changelog\n\n", 1)[1])
+    assert "Migration instructions." not in release.release_notes(second, updated)
+
+
 def test_atomic_push_race_leaves_remote_without_new_tag(repo, tmp_path):
     remote = tmp_path.parent / (tmp_path.name + "-remote.git")
     git("init", "--bare", str(remote))
