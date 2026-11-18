@@ -2,7 +2,7 @@
 
 Measure. Validate. Trust.
 
-A project of **Sourabh Digital Foundry** — *Tomorrow takes shape in today’s open source.*
+A project of **CloudOpsFoundry** — *Tomorrow takes shape in today’s open source.*
 
 DataVouch is an experimental data engineering assurance framework. Its purpose is to compare workload executions using reproducible evidence, with explicit PASS, FAIL and UNKNOWN conclusions.
 
