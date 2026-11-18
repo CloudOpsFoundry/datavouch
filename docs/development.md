@@ -55,3 +55,12 @@ Ruff, mypy and Bandit are the current static checks; pip-audit checks dependenci
 ## Deployment checks
 
 The code-quality job also runs Helm 4.2.0 lint, schema rejection tests, render/security contracts and chart packaging. On Linux CI the validator downloads the official architecture-specific Helm archive and checks its pinned SHA-256. No cluster credentials or Docker socket are supplied to CI. Local `scripts/check_compose.py` and `scripts/check_kubernetes.py --context YOUR_CONTEXT` exercise actual infrastructure separately; the Kubernetes check creates and removes only its own generated namespace.
+
+
+## Public contribution CI preparation
+
+The `Public contribution CI` workflow is inactive while the repository is private. After publication it validates pushes and pull requests on disposable standard GitHub-hosted Ubuntu runners, using a read-only token, no cloud credentials and pinned, checksum-verified tools. It installs dependencies once and runs the existing validation stages in one job with separately visible steps. It does not publish releases or upload artifacts.
+
+Before changing visibility, stop the local runner supervisors and unregister this repository's self-hosted runners, including any organization runner access. Workflow conditions alone cannot prevent a contributor from changing a workflow. Set fork workflow approval to all outside collaborators and verify the effective policy. Require `Public CI passed` on main after the first successful hosted run; the private `CI passed` check intentionally stops running in public mode. Configure owner-controlled merges, reviewed changes, and blocked force pushes/deletion using enforceable repository rules. A sole author cannot approve their own pull request.
+
+The public workflow has syntax and trust-boundary tests, but a hosted execution and fork acceptance test are required before it can be declared operational. Keep the repository private until the publication decision is recorded. The private alpha release writer remains private-only; public release automation needs its own reviewed main-branch permission policy before enablement.

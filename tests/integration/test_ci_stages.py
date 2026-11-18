@@ -63,3 +63,32 @@ def test_selected_stage_only(monkeypatch, tmp_path):
     assert "--append" in commands[0]
     with pytest.raises(SystemExit):
         validator.main(["--stage", "unknown"])
+
+
+def test_public_ci_is_isolated_and_runs_all_validation_stages():
+    import re
+
+    import yaml
+
+    content = (ROOT / ".github/workflows/public.yml").read_text()
+    workflow = yaml.load(content, Loader=yaml.BaseLoader)
+    assert "pull_request" in workflow["on"]
+    assert "pull_request_target" not in workflow["on"]
+    assert workflow["permissions"] == {"contents": "read"}
+    assert "secrets." not in content
+    assert "self-hosted" not in content
+    job = workflow["jobs"]["validate"]
+    assert job["runs-on"] == "ubuntu-24.04"
+    assert job["if"] == "${{ !github.event.repository.private }}"
+    assert "permissions" not in job
+    stages = []
+    for step in job["steps"]:
+        assert "continue-on-error" not in step
+        assert "if" not in step
+        if "uses" in step and not step["uses"].startswith("./"):
+            assert re.fullmatch(r"[^@]+@[0-9a-f]{40}", step["uses"])
+        if step.get("uses", "").startswith("actions/checkout@"):
+            assert step["with"]["persist-credentials"] == "false"
+        if "--stage " in step.get("run", ""):
+            stages.append(step["run"].split("--stage ", 1)[1])
+    assert stages == list(load_validator().STAGES)

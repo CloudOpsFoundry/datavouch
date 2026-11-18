@@ -1,0 +1,68 @@
+name: Public contribution CI
+on:
+  push:
+    branches: ['**']
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    name: Public CI passed
+    if: ${{ !github.event.repository.private }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install verified validation tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          tools_dir="$(mktemp -d "$RUNNER_TEMP/datavouch-tools.XXXXXX")"
+          curl --fail --location --retry 3 --max-time 120 \
+            https://github.com/astral-sh/uv/releases/download/0.13.9/uv-x86_64-unknown-linux-gnu.tar.gz \
+            --output "$tools_dir/uv.tar.gz"
+          echo "a7fbaff2b9a271d85c1bdb540941090fd1ce011797b4abeb48e4dcd39c2471d5  $tools_dir/uv.tar.gz" | sha256sum --check
+          tar -xzf "$tools_dir/uv.tar.gz" -C "$tools_dir" --strip-components=1 uv-x86_64-unknown-linux-gnu/uv
+          curl --fail --location --retry 3 --max-time 120 \
+            https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz \
+            --output "$tools_dir/actionlint.tar.gz"
+          echo "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8  $tools_dir/actionlint.tar.gz" | sha256sum --check
+          tar -xzf "$tools_dir/actionlint.tar.gz" -C "$tools_dir" actionlint
+          echo "$tools_dir" >> "$GITHUB_PATH"
+          "$tools_dir/uv" python install 3.15.2
+      - uses: ./.github/actions/setup
+      - name: Formatting
+        run: uv run --no-sync python scripts/validate.py --stage format
+      - name: Lint
+        run: uv run --no-sync python scripts/validate.py --stage lint
+      - name: Workflow security and syntax
+        run: uv run --no-sync python scripts/validate.py --stage workflows
+      - name: Helm deployment contracts
+        run: uv run --no-sync python scripts/validate.py --stage deployment
+      - name: Static analysis
+        run: uv run --no-sync python scripts/validate.py --stage types
+      - name: Unit tests
+        run: uv run --no-sync python scripts/validate.py --stage unit
+      - name: Adapter contracts
+        run: uv run --no-sync python scripts/validate.py --stage contract
+      - name: Integration and regression tests
+        run: uv run --no-sync python scripts/validate.py --stage integration
+      - name: Coverage threshold
+        run: uv run --no-sync python scripts/validate.py --stage coverage
+      - name: Source security scan
+        run: uv run --no-sync python scripts/validate.py --stage security
+      - name: Dependency vulnerability audit
+        run: uv run --no-sync python scripts/validate.py --stage dependencies
+      - name: Build package
+        run: uv run --no-sync python scripts/validate.py --stage build
+      - name: Archive boundaries
+        run: uv run --no-sync python scripts/validate.py --stage integrity
+      - name: Installed package regression
+        run: uv run --no-sync python scripts/validate.py --stage installation
+      - name: Source and wheel parity
+        run: uv run --no-sync python scripts/validate.py --stage sdist
+      - name: Release metadata
+        run: uv run --no-sync python scripts/validate.py --stage release
