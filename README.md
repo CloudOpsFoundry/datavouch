@@ -42,7 +42,7 @@ Versioned adapter contracts support explicit registration and capability checks.
 
 ## Installation and quick start
 
-CI groups fast checks into quality, tests with coverage, dependency audit, and package regression jobs. See the [pipeline stages](docs/development.md#visible-ci-stages).
+CI imports a pinned reusable workflow from CloudOpsFoundry/ci-templates and runs the product validator with visible stage groups. See the [pipeline stages](docs/development.md#visible-ci-stages).
 
 Python 3.15 is required. From this source checkout:
 
@@ -76,4 +76,4 @@ Google Cloud projects and observed locations can be discovered using backend wor
 
 ## Release workflow
 
-See [version 1.0 scope and acceptance](docs/releases/1.0.0.md). Public CI validates each push and pull request. Release tags identify reviewed main revisions; packages and images are built by users in their own environments. The earlier private alpha writer remains disabled for public repositories; see [release automation](docs/automated-releases.md) for its scope.
+See [version 1.0 scope and acceptance](docs/releases/1.0.0.md). Public CI validates each push and pull request. Release tags identify reviewed main revisions; packages and images are built by users in their own environments. Releases are maintained manually through protected PRs; see the [release procedure](docs/automated-releases.md).

@@ -1,6 +1,7 @@
 """Run required validation stages locally or as named CI steps. Fail on any error."""
 
 import argparse
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -18,7 +19,6 @@ STAGES = {
             "mypy",
             "scripts/validate.py",
             "scripts/check_workflows.py",
-            "scripts/check_ci_results.py",
         ],
         ["-m", "mypy", "examples/adapters/local_metrics.py", "examples/adapters/run_example.py"],
     ],
@@ -72,12 +72,16 @@ def main(argv: list[str] | None = None) -> int:
     for stage, commands in STAGES.items():
         if args.stage not in ("all", stage):
             continue
+        if os.environ.get("GITHUB_ACTIONS") == "true":
+            print(f"::group::Stage: {stage}", flush=True)
         print(f"Stage: {stage}", flush=True)
         for command in commands:
             print(f"Running: {sys.executable} {' '.join(command)}", flush=True)
             result = subprocess.run([sys.executable, *command], cwd=ROOT, check=False)
             if result.returncode:
                 return result.returncode
+        if os.environ.get("GITHUB_ACTIONS") == "true":
+            print("::endgroup::", flush=True)
     return 0
 
 

@@ -65,7 +65,7 @@ def test_selected_stage_only(monkeypatch, tmp_path):
         validator.main(["--stage", "unknown"])
 
 
-def test_public_ci_is_isolated_and_runs_all_validation_stages():
+def test_public_ci_calls_pinned_template_and_keeps_fail_closed_gate():
     import re
 
     import yaml
@@ -75,20 +75,22 @@ def test_public_ci_is_isolated_and_runs_all_validation_stages():
     assert "pull_request" in workflow["on"]
     assert "pull_request_target" not in workflow["on"]
     assert workflow["permissions"] == {"contents": "read"}
-    assert "secrets." not in content
-    assert "self-hosted" not in content
+    assert "secrets" not in content
     job = workflow["jobs"]["validate"]
-    assert job["runs-on"] == "ubuntu-24.04"
-    assert job["if"] == "${{ !github.event.repository.private }}"
-    assert "permissions" not in job
-    stages = []
-    for step in job["steps"]:
-        assert "continue-on-error" not in step
-        assert "if" not in step
-        if "uses" in step and not step["uses"].startswith("./"):
-            assert re.fullmatch(r"[^@]+@[0-9a-f]{40}", step["uses"])
-        if step.get("uses", "").startswith("actions/checkout@"):
-            assert step["with"]["persist-credentials"] == "false"
-        if "--stage " in step.get("run", ""):
-            stages.append(step["run"].split("--stage ", 1)[1])
-    assert stages == list(load_validator().STAGES)
+    assert re.fullmatch(
+        r"CloudOpsFoundry/ci-templates/\.github/workflows/python-uv\.yml@[0-9a-f]{40}",
+        job["uses"],
+    )
+    assert job["with"]["validation-command"] == "uv run --no-sync python scripts/validate.py"
+    assert "steps" not in job and "permissions" not in job
+    gate = workflow["jobs"]["gate"]
+    assert gate["name"] == "Public CI passed"
+    assert gate["needs"] == ["validate"]
+    assert gate["if"] == "always()"
+    step = gate["steps"][0]
+    assert step["env"]["RESULT"] == "${{ needs.validate.result }}"
+    for result in ("success", "failure", "cancelled", "skipped", "unknown"):
+        process = subprocess.run(
+            ["bash", "-c", step["run"]], env={"RESULT": result}, capture_output=True
+        )
+        assert (process.returncode == 0) == (result == "success")
