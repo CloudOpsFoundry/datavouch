@@ -72,7 +72,28 @@ def prepare() -> str | None:
         return None
     result.check_returncode()
     expected = str(Version(result.stdout.strip()))
+    changelog = Path("CHANGELOG.md")
+    previous_changelog = changelog.read_text()
     subprocess.run([*BUMP, "--yes", "--version-files-only", "--changelog"], check=True)
+    # Commitizen may rewrite handwritten historical sections when their heading
+    # format differs from generated entries. Only accept its new release section.
+    generated = changelog.read_text()
+    heading = re.search(rf"(?m)^## v?{re.escape(expected)}(?:\s|$)", generated)
+    if heading is None:
+        raise ValueError("Missing generated release entry")
+    following = re.search(r"(?m)^## ", generated[heading.end() :])
+    end = heading.end() + following.start() if following else len(generated)
+    entry = generated[heading.start() : end].strip()
+    history = re.search(r"(?m)^## v?\d", previous_changelog)
+    if history is None:
+        raise ValueError("Missing historical release entries")
+    pending = previous_changelog[: history.start()]
+    unreleased = re.search(r"(?m)^## Unreleased\s*$", pending)
+    if unreleased:
+        notes = pending[unreleased.end() :].strip()
+        if notes:
+            entry += "\n\n" + notes
+    changelog.write_text("# Changelog\n\n" + entry + "\n\n" + previous_changelog[history.start() :])
     if project_version() != expected:
         raise ValueError("Version calculation changed during release preparation")
     version = Version(expected)
