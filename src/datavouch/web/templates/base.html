@@ -13,12 +13,12 @@
   <aside class="sidebar" aria-label="Main navigation">
     <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">✓</span> DataVouch</a>
     <p class="tagline">Measure. Validate. Trust.</p>
-    <nav><a href="/" {% if request.url.path == '/' %}aria-current="page"{% endif %}>Overview <span aria-hidden="true">↗</span></a><a href="/workloads" {% if request.url.path.startswith('/workloads') %}aria-current="page"{% endif %}>Workloads <span aria-hidden="true">≡</span></a><a href="/experiments/new" {% if request.url.path == '/experiments/new' %}aria-current="page"{% endif %}>New experiment <span aria-hidden="true">+</span></a></nav>
+    <nav><a href="/" {% if request.url.path == '/' %}aria-current="page"{% endif %}>Overview <span aria-hidden="true">↗</span></a><a href="/workloads" {% if request.url.path.startswith('/workloads') %}aria-current="page"{% endif %}>Workloads <span aria-hidden="true">≡</span></a>{% if request.state.principal is defined and request.state.principal.role != 'viewer' %}<a href="/experiments/new" {% if request.url.path == '/experiments/new' %}aria-current="page"{% endif %}>New experiment <span aria-hidden="true">+</span></a>{% endif %}{% if execution_enabled %}<a href="/runs" {% if request.url.path.startswith('/runs') %}aria-current="page"{% endif %}>Runs <span aria-hidden="true">≡</span></a>{% endif %}</nav>
     <div class="sidebar-note"><span class="eyebrow">EVIDENCE FIRST</span><p>A result is only as strong as the checks and evidence behind it.</p></div>
     <div class="local-badge"><span aria-hidden="true">●</span> Local workspace</div>
   </aside>
   <div class="content">
-    <header class="topbar"><span>Engineering assurance</span><span class="pill neutral">Local experiment workspace</span></header>
+    <header class="topbar"><span>Engineering assurance</span><span class="pill neutral">{% if request.state.principal is defined %}{{ request.state.principal.role|capitalize }} workspace{% else %}Protected workspace{% endif %}</span></header>
     <main id="main">{% block content %}{% endblock %}</main>
     <footer>DataVouch · Experimental <span>PASS applies to configured checks, not whole-system correctness.</span></footer>
   </div>

@@ -1,0 +1,10 @@
+{
+  "allowed_hosts": ["datavouch.example.com"],
+  "trusted_proxy_networks": ["127.0.0.1/32"],
+  "principals": {
+    "replace-with-verified-oidc-subject": {
+      "role": "operator",
+      "connections": ["analytics-eu"]
+    }
+  }
+}

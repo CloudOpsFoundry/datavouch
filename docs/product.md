@@ -43,9 +43,9 @@ DataVouch does not replace orchestration, continuous monitoring or every data qu
 - Bounded BigQuery job metadata collection and offline replay.
 - Comparison, supplied correctness evidence, execution-window and reliability evaluation.
 - Financial evidence classification and configurable workflow gates.
-- Local report review and a guided BigQuery plan builder with CLI-compatible download.
+- Local report review, a guided BigQuery plan builder and opt-in backend execution with persistent run history.
 
-Correctness assertions must currently be supplied independently. The plan builder does not run assertion queries or collect metadata, and validating a plan is not a verification result. Browser execution, persistent plan history and shared team deployment remain future work.
+Correctness assertions must currently be supplied independently. The plan builder does not run assertion queries or collect metadata, and validating a plan is not a verification result. Explicitly enabled backend execution collects metadata and retains submitted plans/results; browser correctness-evidence entry and financial assessments bind supplied evidence to the experiment. Shared access uses an existing client OIDC gateway with explicit roles and connection scopes. See [product acceptance](product-acceptance.md).
 
 ## Product direction
 

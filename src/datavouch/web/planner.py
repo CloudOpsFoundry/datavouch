@@ -1,17 +1,19 @@
 """Guided, bounded experiment planning without cloud or filesystem writes."""
 
-import re
 import secrets
-from datetime import UTC, datetime
 from typing import Any
 from urllib.parse import parse_qsl
 
 from fastapi import APIRouter, HTTPException, Request
-from fastapi.responses import Response
+from fastapi.responses import RedirectResponse, Response
 from fastapi.templating import Jinja2Templates
 
 from datavouch.adapters.bigquery.experiments import encoded, prepare
+from datavouch.web.access import form_token, operator, principal
 from datavouch.web.connections import Connection
+from datavouch.web.evidence import METRICS, check_key, supplied_evidence
+from datavouch.web.runs import RunBusy, RunStore
+from datavouch.web.temporal import picker_timestamp
 
 # name, label, help, default. Real execution identifiers are never prefilled.
 FIELDS = (
@@ -72,8 +74,8 @@ FIELDS = (
     ),
     (
         "max_regression_percent",
-        "Maximum runtime regression (%)",
-        "Allowed increase in runtime; lower is better.",
+        "Maximum metric regression (%)",
+        "Allowed increase in the selected metric; lower is better.",
         "5",
     ),
     (
@@ -113,19 +115,6 @@ MULTILINE = {"baseline_jobs", "candidate_jobs", "required_checks", "description"
 TIME_FIELDS = {"baseline_start", "baseline_end", "change_at", "candidate_start", "candidate_end"}
 
 
-def picker_timestamp(value: str, label: str) -> str:
-    """Interpret explicit UTC calendar selections without using the host time zone."""
-    if not re.fullmatch(
-        r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}(?::[0-9]{2}(?:\.[0-9]{1,3})?)?", value
-    ):
-        raise ValueError(f"{label}: select a UTC date and time (up to milliseconds).")
-    try:
-        parsed = datetime.fromisoformat(value)
-    except ValueError as exc:
-        raise ValueError(f"{label}: select a valid UTC date and time.") from exc
-    return parsed.replace(tzinfo=UTC).isoformat().replace("+00:00", "Z")
-
-
 def build_plan(values: dict[str, str], connection: Connection) -> dict[str, Any]:
     """Translate explicit form choices and delegate semantics to the CLI validator."""
     for name, label, _, _ in FIELDS:
@@ -152,6 +141,9 @@ def build_plan(values: dict[str, str], connection: Connection) -> dict[str, Any]
     checks = [check.strip() for check in checks if check.strip()]
     if not checks or len(checks) > 100 or len(checks) != len(set(checks)):
         raise ValueError("Provide between 1 and 100 distinct required correctness checks.")
+    metric = values.get("metric", "runtime")
+    if metric not in METRICS:
+        raise ValueError("Select a supported BigQuery metric")
     plan: dict[str, Any] = {
         "schema_version": "bigquery-experiment-0.1",
         "id": values["id"],
@@ -162,7 +154,7 @@ def build_plan(values: dict[str, str], connection: Connection) -> dict[str, Any]
         },
         "comparability": {"reference": values["reference"], "statement": values["statement"]},
         "policy": {
-            "metric": {"name": "runtime", "unit": "ms", "direction": "lower"},
+            "metric": {"name": metric, "unit": METRICS[metric][1], "direction": "lower"},
             "minimum_samples": integers["minimum_samples"],
             "max_regression_percent": numbers["max_regression_percent"],
         },
@@ -196,17 +188,24 @@ def build_plan(values: dict[str, str], connection: Connection) -> dict[str, Any]
         raise ValueError("Byte limit exceeds the deployment connection limit.")
     if integers["timeout_seconds"] > connection.timeout_seconds:
         raise ValueError("Timeout exceeds the deployment connection limit.")
+    plan["assurance"]["evidence"] = supplied_evidence(values, plan)
     prepare(plan)
     return plan
 
 
-def planning_router(templates: Jinja2Templates, connections: tuple[Connection, ...]) -> APIRouter:
+def planning_router(
+    templates: Jinja2Templates, connections: tuple[Connection, ...], store: RunStore | None = None
+) -> APIRouter:
     """Create authenticated form routes; app dependencies apply to both routes."""
     router = APIRouter()
     token = secrets.token_urlsafe(32)
 
     def render(
-        request: Request, values: dict[str, str], error: str = "", plan: str = ""
+        request: Request,
+        values: dict[str, str],
+        error: str = "",
+        plan: str = "",
+        status_code: int | None = None,
     ) -> Response:
         return templates.TemplateResponse(
             request=request,
@@ -214,23 +213,44 @@ def planning_router(templates: Jinja2Templates, connections: tuple[Connection, .
             context={
                 "title": "Plan a BigQuery experiment",
                 "fields": FIELDS,
-                "connections": connections,
+                "connections": [c for c in connections if principal(request).permits(c.id)],
+                "execution_enabled": store is not None,
+                "known_workloads": sorted(
+                    {
+                        r.get("workload", "")
+                        for r in store.list_runs()
+                        if principal(request).permits(r["connection"])
+                    }
+                    - {""}
+                )
+                if store
+                else [],
                 "values": values,
                 "multiline": MULTILINE,
                 "time_fields": TIME_FIELDS,
-                "csrf": token,
+                "metrics": METRICS,
+                "checks": [
+                    (name.strip(), check_key(name.strip()))
+                    for name in dict.fromkeys(
+                        values.get("required_checks", "business_total").splitlines()
+                    )
+                    if name.strip()
+                ][:100],
+                "csrf": form_token(token, request),
                 "error": error,
                 "plan": plan,
             },
-            status_code=422 if error else 200,
+            status_code=status_code or (422 if error else 200),
         )
 
     @router.get("/experiments/new")
     def new_plan(request: Request) -> Response:
+        operator(request)
         return render(request, {name: default for name, _, _, default in FIELDS})
 
     @router.post("/experiments/new")
     async def validate_plan(request: Request) -> Response:
+        user = operator(request)
         if (
             request.headers.get("content-type", "").split(";")[0]
             != "application/x-www-form-urlencoded"
@@ -245,7 +265,7 @@ def planning_router(templates: Jinja2Templates, connections: tuple[Connection, .
             pairs = parse_qsl(
                 body.decode("utf-8", errors="strict"),
                 keep_blank_values=True,
-                max_num_fields=32,
+                max_num_fields=256,
                 encoding="utf-8",
                 errors="strict",
             )
@@ -258,26 +278,53 @@ def planning_router(templates: Jinja2Templates, connections: tuple[Connection, .
             "complete",
             "synthetic",
             "connection",
+            "confirm_run",
+            "metric",
+            "evidence_json",
+            "evidence_confirmed",
         }
+        for name in values.get("required_checks", "business_total").splitlines()[:100]:
+            key = check_key(name.strip())
+            allowed.update({key + "_outcome", key + "_reference"})
         if (
             len(values) != len(pairs)
             or values.keys() - allowed
             or any(len(v) > 16384 for v in values.values())
         ):
             raise HTTPException(400, "Invalid form fields")
-        if not secrets.compare_digest(values.pop("csrf", "").encode(), token.encode()):
+        if not secrets.compare_digest(
+            values.pop("csrf", "").encode(), form_token(token, request).encode()
+        ):
             raise HTTPException(403, "Reload the form before submitting")
-        if values.get("action") not in {"validate", "download"} or any(
-            values.get(key, "") not in {"", "yes"} for key in ("complete", "synthetic")
+        if values.get("action") not in {"validate", "download", "run"} or any(
+            values.get(key, "") not in {"", "yes"}
+            for key in ("complete", "synthetic", "confirm_run", "evidence_confirmed")
         ):
             raise HTTPException(400, "Invalid form choice")
         try:
             connection = next((c for c in connections if c.id == values.get("connection")), None)
-            if connection is None:
+            if connection is None or not user.permits(connection.id):
                 raise ValueError("Select a connection approved for this deployment.")
             plan = encoded(build_plan(values, connection))
         except (ValueError, TypeError, OverflowError) as exc:
             return render(request, values, str(exc))
+        if values["action"] == "run":
+            if store is None or values.get("confirm_run") != "yes":
+                raise HTTPException(403, "Live execution is disabled or not confirmed")
+            try:
+                key = store.submit(build_plan(values, connection), connection.id, user.subject)
+            except RunBusy as exc:
+                return render(request, values, str(exc), status_code=409)
+            except ValueError, OSError:
+                return render(
+                    request,
+                    values,
+                    (
+                        "Run not started. Check current connection approval, limits "
+                        "and closed execution windows."
+                    ),
+                )
+            return RedirectResponse(f"/runs/{key}", status_code=303)
         if values["action"] == "download":
             return Response(
                 plan,

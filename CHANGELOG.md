@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Add guided correctness evidence, resource metric selection, saved financial assessments and workload history filters.
+- Add existing OIDC gateway integration, explicit roles and connection scopes, subject-bound forms, audit export and confirmed retention deletion.
+- Add a non-root application container, client deployment guidance and final sandbox acceptance walkthrough.
+
+Added opt-in local UI execution through a bounded CLI worker, with deployment scope revalidation, explicit collection consent, duplicate-plan protection, persistent run history and result downloads. Concurrent submissions are bounded and interrupted runs never automatically retry.
+
 Added UTC calendar and time controls for baseline, change and candidate windows, with explicit UTC serialization and server-side calendar validation.
 
 Added deployment-owned project/location connections with a dropdown, server-side scope validation and collection limits. Missing configuration disables planning without affecting report review.

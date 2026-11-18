@@ -18,7 +18,7 @@ DataVouch remains **experimental, unpublished, and not production ready**. The v
 | Source publication | Private CloudOpsFoundry/datavouch repository; exclusion checks and artifact hashes; no published release | Private development; public release requires owner approval |
 | GitHub Actions | Pinned actions, read-only permissions, self-hosted push/PR/main validation | Merged main validation passed; each new revision requires checks |
 | External users | Scripted contributor acceptance exercise below | Independent participation pending |
-| Deployment | Single-user local viewer and offline CLI only | Public/multi-user deployment unsupported |
+| Deployment | Local workspace, opt-in execution, application container, OIDC gateway roles/scopes | Real IdP and client infrastructure acceptance pending |
 
 ## Repeatable local evidence
 
@@ -43,7 +43,7 @@ The validator builds the source archive and wheel directly from the checkout. `c
 | Evidence display | Allowlisted viewer/workflow summaries and opt-in raw viewer downloads | Labels can contain sensitive text; CLI collection/raw reports include execution metadata |
 | Adapter extension | Explicit registration, version/mode/metric checks, immutable result contracts, generic errors | Adapter Python code is trusted and not sandboxed; claims and side effects cannot be independently enforced |
 | CI | Isolated self-hosted jobs, read-only permissions, pinned action commits, checkout credential persistence disabled, no cloud secrets | Repository writers can alter policies/workflows; branch protection and trusted evidence production must be configured |
-| Releases | Private-context exclusions, artifact metadata/content checks and hashes | Pattern-based secret scan is incomplete; independent source/security review and private reporting channel are required |
+| Releases | Private-context exclusions, artifact metadata/content checks and hashes | Pattern-based secret scan is incomplete; independent source/security review and review are required; security@sourabhsharma.com is the configured reporting channel |
 
 Actions were pinned to official [checkout v7.0.1](https://github.com/actions/checkout/releases/tag/v7.0.1) and [setup-python v7.1.0](https://github.com/actions/setup-python/releases/tag/v7.1.0), replacing moving major-version tags. Dependabot can propose pin updates. Pinning fixes the reviewed reference; it is not an independent audit of those actions.
 
@@ -61,8 +61,10 @@ This exercise has been simulated by local automated tests, but no independent ex
 
 ## Release process and outstanding decisions
 
-Before public publication, the owner must confirm the destination repository, ownership/license decision, private vulnerability-reporting channel and release maintainers. Establish branch protection and run the actual GitHub workflows, including a deliberately failing and a blocked-UNKNOWN fixture. Obtain independent security and user-testing results and resolve material findings.
+The destination is CloudOpsFoundry/datavouch, the selected source license is MIT, and the confirmed private reporting address is security@sourabhsharma.com. Before publication, obtain ownership/dependency-license approval and confirm release maintainers. Review the GitHub Free private-repository protection limitations and establish enforceable protections for public release. The current self-hosted workflow is intentionally restricted to trusted private-repository pushes and must be replaced or adapted for an isolated public-contribution trust model before visibility changes. Run the actual workflows, including failing and blocked-UNKNOWN fixtures. Obtain independent security and user-testing results and resolve material findings.
 
 For each release, update `pyproject.toml` and `src/datavouch/__init__.py` together, move reviewed changes from Unreleased into the versioned changelog, and state report/API compatibility changes and known limitations. Regenerate the lockfile only when dependencies deliberately change. Validate the final source revision, rebuild artifacts, retain their hashes and test installation from those artifacts. Publish only the reviewed artifacts after explicit authorization. No automated publishing or release credentials are configured in this project.
 
 See [deployment guidance](deployment.md) for supported operation and rollback. No global originality, award eligibility, production reliability or realized-savings claim is established by this assessment.
+
+See [product acceptance](product-acceptance.md) for delivery coverage and [sandbox acceptance](sandbox-acceptance.md) for the final manual UI validation.
