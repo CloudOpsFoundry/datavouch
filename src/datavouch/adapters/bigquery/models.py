@@ -99,3 +99,21 @@ class Collection:
             and len({j.fingerprint for j in self.jobs}) == 1
             and all(not j.issues for j in self.jobs)
         )
+
+    @property
+    def reliability_eligible(self) -> bool:
+        """Accept complete cohorts whose only exclusion is a classified job failure."""
+        return (
+            bool(self.jobs)
+            and not self.missing_job_ids
+            and len({j.fingerprint for j in self.jobs}) == 1
+            and all(
+                not j.issues
+                or (
+                    j.issues == ("Job failed",)
+                    and j.state == "DONE"
+                    and j.failure_reason is not None
+                )
+                for j in self.jobs
+            )
+        )

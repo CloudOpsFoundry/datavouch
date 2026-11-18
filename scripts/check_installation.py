@@ -85,6 +85,40 @@ def main() -> int:
             raise ValueError("Installed workflow report differs from the fixture")
         if gated != (directory / "reports/report.json").read_bytes():
             raise ValueError("Installed workflow artifact differs from stdout")
+        for status, expected_exit in (("FAIL", 1), ("UNKNOWN", 3)):
+            gate_input = json.loads((ROOT / "examples/verification/passing.json").read_text())
+            if status == "FAIL":
+                gate_input["assurance"]["evidence"][0]["observed"] = False
+            else:
+                gate_input["assurance"]["evidence"] = []
+            input_path = directory / f"gate-{status}.json"
+            input_path.write_text(json.dumps(gate_input))
+            output_path = directory / f"gate-{status}"
+            gate_result = subprocess.run(
+                [
+                    str(command),
+                    "gate",
+                    str(input_path),
+                    "--policy",
+                    str(ROOT / "examples/workflow/policy.json"),
+                    "--output-dir",
+                    str(output_path),
+                ],
+                cwd=directory,
+                capture_output=True,
+                check=False,
+            )
+            if gate_result.returncode != expected_exit:
+                raise ValueError(f"Installed gate did not block {status}")
+            gate_report = json.loads(gate_result.stdout)
+            expected_gate = "BLOCKED_UNKNOWN" if status == "UNKNOWN" else status
+            if (
+                gate_report["evidence_status"] != status
+                or gate_report["gate_status"] != expected_gate
+            ):
+                raise ValueError(f"Installed gate lost {status} outcome")
+            if gate_result.stdout != (output_path / "report.json").read_bytes():
+                raise ValueError("Installed gate output differs from saved evidence")
         adapter_output = subprocess.check_output(
             [
                 str(command),
@@ -128,6 +162,36 @@ def main() -> int:
         )
         if experiment_report != replay or json.loads(replay)["overall_status"] != "PASS":
             raise ValueError("Installed BigQuery experiment failed deterministic replay")
+        failure_output = directory / "failed-experiment"
+        failed = subprocess.run(
+            [
+                str(command),
+                "run-bigquery",
+                str(experiment_example / "plan.json"),
+                "--fixtures",
+                str(experiment_example / "baseline-jobs.json"),
+                str(experiment_example / "candidate-failed-jobs.json"),
+                "--output-dir",
+                str(failure_output),
+            ],
+            cwd=directory,
+            capture_output=True,
+            check=False,
+        )
+        replay_failed = subprocess.run(
+            [str(command), "verify", str(failure_output / "input.json")],
+            cwd=directory,
+            capture_output=True,
+            check=False,
+        )
+        if failed.returncode != 1 or replay_failed.returncode != 1:
+            raise ValueError("Installed failed-job experiment must fail verification")
+        if failed.stdout != replay_failed.stdout:
+            raise ValueError("Installed failed-job experiment differs from replay")
+        failure_report = json.loads(failed.stdout)
+        outcomes = {check["name"]: check["status"] for check in failure_report["checks"]}
+        if outcomes["reliability"] != "FAIL" or outcomes["performance"] != "UNKNOWN":
+            raise ValueError("Installed failed-job experiment lost check separation")
     print("Clean wheel installation and report comparison passed")
     return 0
 

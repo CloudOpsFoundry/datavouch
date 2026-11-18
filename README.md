@@ -1,9 +1,8 @@
 # DataVouch
 
 [![CI](https://github.com/CloudOpsFoundry/datavouch/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/CloudOpsFoundry/datavouch/actions/workflows/main.yml?query=branch%3Amain)
-[![Workload verification](https://github.com/CloudOpsFoundry/datavouch/actions/workflows/workload_verification.yml/badge.svg?branch=main)](https://github.com/CloudOpsFoundry/datavouch/actions/workflows/workload_verification.yml?query=branch%3Amain)
 
-The badges show the latest workflow results on `main`. Check each pull request's Checks tab for its own revision. Private repository badges require repository access.
+The badge shows the latest workflow result on `main`. Check each pull request's Checks tab for its own revision. Private repository badges require repository access.
 
 Measure. Validate. Trust.
 
@@ -28,6 +27,8 @@ The `gate` command applies an external verification policy for local and CI work
 Versioned adapter contracts support explicit registration and capability checks. The BigQuery bridge and an independent fixture adapter are covered by [adapter documentation and contract tests](docs/adapters.md).
 
 ## Installation and quick start
+
+CI groups fast checks into quality, tests with coverage, dependency audit, and package regression jobs. See the [pipeline stages](docs/development.md#visible-ci-stages).
 
 Python 3.15 is required. From this source checkout:
 

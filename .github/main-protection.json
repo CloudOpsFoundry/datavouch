@@ -3,11 +3,7 @@
     "strict": true,
     "checks": [
       {
-        "context": "validate (3.15)",
-        "app_id": 15368
-      },
-      {
-        "context": "verify",
+        "context": "CI passed",
         "app_id": 15368
       }
     ]
