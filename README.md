@@ -2,13 +2,19 @@
 
 [![CI](https://github.com/CloudOpsFoundry/datavouch/actions/workflows/main.yml/badge.svg?branch=main)](https://github.com/CloudOpsFoundry/datavouch/actions/workflows/main.yml?query=branch%3Amain)
 
-The badge shows the latest workflow result on `main`. Check each pull request's Checks tab for its own revision. Private repository badges require repository access.
-
-Measure. Validate. Trust.
+## **Measure. Validate. Trust.**
 
 A project of **CloudOpsFoundry**. *Tomorrow takes shape in today’s open source.*
 
 DataVouch is an experimental data engineering assurance framework. Its purpose is to compare workload executions using reproducible evidence, with explicit PASS, FAIL and UNKNOWN conclusions.
+
+## Product objective
+
+Help users decide whether a data workload change is safe and beneficial using reproducible evidence. DataVouch reports PASS, FAIL or UNKNOWN for configured correctness, performance and reliability checks, and distinguishes financial estimates from supported financial evidence.
+
+DataVouch is a monorepo: the UI, CLI, shared verification engines, provider adapters, tests, examples and documentation evolve together. The goal is a guided experience that both technical and nontechnical users can operate, with copy-paste setup instructions and clear explanations of results. Today the UI reviews saved results; browser-based experiment creation and execution are planned. The repository stays private during development, with public open-source release subject to the [readiness gates](docs/release-readiness.md).
+
+Start with the [step-by-step local guide](docs/getting-started.md). See the [product and UI roadmap](docs/product-roadmap.md) for the delivery sequence.
 
 ## Available capabilities
 

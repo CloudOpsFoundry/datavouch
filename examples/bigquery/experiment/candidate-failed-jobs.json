@@ -12,7 +12,7 @@
     "state": "DONE",
     "cache_hit": false,
     "failure_reason": "backendError",
-    "fingerprint": "d4e5f6",
+    "fingerprint": null,
     "total_slot_ms": 1000,
     "total_bytes_processed": 1048576,
     "total_bytes_billed": 10485760

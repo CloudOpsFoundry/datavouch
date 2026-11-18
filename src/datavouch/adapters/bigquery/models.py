@@ -82,6 +82,18 @@ class JobEvidence:
     started_at: datetime | None = None
     completed_at: datetime | None = None
 
+    @property
+    def reliability_eligible(self) -> bool:
+        """Classified failures may omit normalized fingerprints."""
+        if not self.issues:
+            return self.observation is not None
+        return (
+            self.state == "DONE"
+            and self.failure_reason is not None
+            and "Job failed" in self.issues
+            and set(self.issues) <= {"Job failed", "Normalized fingerprint is unavailable"}
+        )
+
 
 @dataclass(frozen=True, slots=True)
 class Collection:
@@ -102,18 +114,11 @@ class Collection:
 
     @property
     def reliability_eligible(self) -> bool:
-        """Accept complete cohorts whose only exclusion is a classified job failure."""
+        """Require all selected jobs; compare fingerprints only where supplied."""
+        fingerprints = {j.fingerprint for j in self.jobs if j.fingerprint is not None}
         return (
             bool(self.jobs)
             and not self.missing_job_ids
-            and len({j.fingerprint for j in self.jobs}) == 1
-            and all(
-                not j.issues
-                or (
-                    j.issues == ("Job failed",)
-                    and j.state == "DONE"
-                    and j.failure_reason is not None
-                )
-                for j in self.jobs
-            )
+            and len(fingerprints) <= 1
+            and all(j.reliability_eligible for j in self.jobs)
         )

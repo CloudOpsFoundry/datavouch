@@ -2,6 +2,8 @@
 
 The optional FastAPI application provides workload history, experiment details, correctness and reliability checks, financial classifications, and JSON downloads. It calculates a bounded snapshot once at startup using the same engines as the CLI. Requests do not query BigQuery or recalculate reports.
 
+For a first-time walkthrough, use [Get DataVouch running locally](getting-started.md). The UI stays in this monorepo; see the [delivery roadmap](product-roadmap.md).
+
 ## Start locally
 
 From the source checkout:

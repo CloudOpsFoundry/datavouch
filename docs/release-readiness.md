@@ -38,7 +38,7 @@ The validator builds the source archive and wheel directly from the checkout. `c
 | Boundary | Implemented controls | Remaining limits |
 | --- | --- | --- |
 | Offline JSON | Size limits, duplicate-key rejection, strict schemas, finite numeric validation, explicit missing evidence | Inputs and attestations are not authenticated |
-| BigQuery | Explicit live mode, project/location scope, selected job IDs, parameterized reads, byte/time bounds, lazy credentials | Metadata queries can cost money; denied-access behavior tested with mocks; no production workload certification |
+| BigQuery | Explicit live mode, project/location scope, selected job IDs, parameterized reads, byte/time bounds, lazy credentials | Metadata queries can cost money; denied-access behavior tested with mocks; synthetic failed-job validation completed in the sandbox; no production workload certification |
 | Local viewer | Loopback binding, password authentication, Host allowlist, cross-site checks, CSP, no-store, escaped templates, bounded startup snapshot | HTTP Basic has no application logout/session revocation; local machine/browser must be trusted; no public deployment assessment |
 | Evidence display | Allowlisted viewer/workflow summaries and opt-in raw viewer downloads | Labels can contain sensitive text; CLI collection/raw reports include execution metadata |
 | Adapter extension | Explicit registration, version/mode/metric checks, immutable result contracts, generic errors | Adapter Python code is trusted and not sandboxed; claims and side effects cannot be independently enforced |
