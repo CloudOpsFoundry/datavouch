@@ -1,6 +1,6 @@
 # Independent review pack
 
-The repository remains private until independent reviews are complete and the owner authorizes publication. Implementation, automated validation, independent review and publication are separate states. The maintainer who implemented the changes cannot supply independent approval for their own work.
+The owner has authorized source publication. Independent reviews below remain outstanding deployment assurance tasks; publication does not represent their completion. Implementation, automated validation, independent review and publication are separate states. The maintainer who implemented the changes cannot supply independent approval for their own work.
 
 Start with [the product explanation](product.md), [user guide](user-guide.md), [acceptance matrix](product-acceptance.md) and [known release limitations](release-readiness.md). Review the exact candidate commit and artifacts, not a moving branch. Copy [the review record](review-record.md) into a private evidence location. Assign a reviewer and evidence reference to each decision; an unassigned review is pending.
 
@@ -85,7 +85,7 @@ A reviewer familiar with cloud pricing and workload attribution should examine u
 
 ## Publication handoff
 
-Do not change visibility while these reviews are pending. After approval:
+For any publication, record unresolved reviews as unverified and obtain explicit owner authorization. Then:
 
 1. Resolve findings and bind the approvals to the final commit and artifact hashes. Rerun affected tests and CI after changes.
 2. Prepare public contribution CI on disposable standard GitHub-hosted runners with no cloud credentials and a read-only token. Keep `pull_request_target` away from untrusted code. Remove this repository's access to persistent self-hosted runners before publication; a workflow condition alone is not a security boundary against workflow edits.

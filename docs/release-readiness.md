@@ -1,6 +1,6 @@
 # Release-readiness assessment
 
-DataVouch remains **experimental, not publicly released, and not production ready**. Use `datavouch --version` and the corresponding Git tag to identify the installed revision. Local engineering checks are distinct from approval to publish or deploy.
+DataVouch 1.0 is a source release for the supported scope in [the release notes](releases/1.0.0.md). **Client-specific production acceptance and independent security review remain unverified.** Use `datavouch --version` and the corresponding Git tag to identify the installed revision. Local engineering checks are distinct from approval to publish or deploy.
 
 ## Assessment matrix
 
@@ -14,8 +14,8 @@ DataVouch remains **experimental, not publicly released, and not production read
 | Benchmarks | Reproducible synthetic comparison benchmark on Python 3.15.2 | Measured; no service-level guarantee |
 | Documentation | Setup, CLI, policy, adapter, web and deployment guides | Locally reviewed; external onboarding pending |
 | Versioning/changelog | Automated private alpha versions, annotated tags, preserved changelog history and package/artifact consistency checks | Implemented; verify each main release run |
-| Licensing | MIT file present in source and distributions; dependency license metadata inventoried | Ownership and compatibility approval pending |
-| Source publication | Private CloudOpsFoundry/datavouch repository with private alpha releases, exclusion checks and artifact hashes | Public release requires completion or explicit disposition of publication gates |
+| Licensing | MIT file present in source and distributions; dependency license metadata inventoried | Owner confirmed source ownership; independent dependency review pending |
+| Source publication | Source-only CloudOpsFoundry/datavouch release; local context and infrastructure excluded | Owner authorized publication; client acceptance remains unverified |
 | GitHub Actions | Pinned actions, read-only permissions, self-hosted push/PR/main validation | Merged main validation passed; each new revision requires checks |
 | External users | Scripted contributor acceptance exercise below | Independent participation pending |
 | Deployment | Local workspace, opt-in execution, Compose and Helm deployments, OIDC gateway roles/scopes | Real IdP and client infrastructure acceptance pending |
@@ -73,7 +73,7 @@ The measured [local demo](local-demo.md) and [deployment validation](deployment-
 
 ## Review handoff
 
-Use the [independent review pack](review-pack.md), [client identity/network acceptance procedure](client-validation.md) and [private sign-off template](review-record.md). The owner has selected continued private development until independent reviews are complete. No publication or production approval is implied by a passing local validator.
+Use the [independent review pack](review-pack.md), [client identity/network acceptance procedure](client-validation.md) and [private sign-off template](review-record.md). The owner has authorized source publication; independent deployment acceptance remains unverified. No publication or production approval is implied by a passing local validator.
 
 ## Private alpha 0.1.0a2
 

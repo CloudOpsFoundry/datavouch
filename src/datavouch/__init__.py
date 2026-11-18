@@ -1,3 +1,3 @@
 """DataVouch: measure, validate, trust."""
 
-__version__ = "0.2.1a0"
+__version__ = "1.0.0"
