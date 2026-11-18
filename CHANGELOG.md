@@ -1,5 +1,11 @@
 # Changelog
 
+## v0.2.1a0 (2026-11-18)
+
+### Fix
+
+- preserve historical changelog entries during releases (#8)
+
 ## v0.2.0a0 (2026-11-18)
 
 ### Feat

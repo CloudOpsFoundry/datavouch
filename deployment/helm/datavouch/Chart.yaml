@@ -1,7 +1,7 @@
 apiVersion: v2
 name: datavouch
 description: Client-hosted DataVouch evidence workspace
-version: 0.2.0-alpha.0
-appVersion: 0.2.0a0
+version: 0.2.1-alpha.0
+appVersion: 0.2.1a0
 type: application
 kubeVersion: '>=1.30.0-0'
